@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { LogOut, Save, Eye, EyeOff, Building2, MessageCircle, FileText, Download, ShieldCheck, Zap, ChevronRight } from "lucide-react";
 import { memberInitials, cleanPhone } from "@/lib/helpers";
 import type { Gym } from "@/lib/supabase/types";
