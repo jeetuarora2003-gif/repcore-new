@@ -2,7 +2,6 @@
 
 import React from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { Users, UserCheck, Clock, AlertTriangle, Plus, ScanLine, CreditCard, MessageCircle, Bell, Check } from "lucide-react";
 import { formatINR, formatDate, memberInitials, getHourGreeting } from "@/lib/helpers";
 import type { Gym, MemberStatus } from "@/lib/supabase/types";
@@ -91,13 +90,9 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringMe
       <div className="px-4 py-4 space-y-8">
         {/* Stats Grid */}
         <div className="grid grid-cols-2 gap-4">
-          {STAT_CARDS.map(({ key, label, icon: Icon, color, bg, shadow, currency }, idx) => (
-            <motion.div 
+          {STAT_CARDS.map(({ key, label, icon: Icon, color, bg, shadow, currency }) => (
+            <div 
               key={key} 
-              initial={{ opacity: 0, y: 20, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ delay: idx * 0.08, duration: 0.4, ease: "easeOut" }}
-              whileHover={{ y: -2, scale: 1.01 }}
               className={`${bg} ${shadow} border border-white/10 rounded-2xl p-5 flex flex-col transition-all duration-200 hover:border-white/15 hover:shadow-black/20`}
             >
               <div className={`h-10 w-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center mb-4`}>
@@ -107,7 +102,7 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringMe
               <p className={`text-3xl font-extrabold text-white`}>
                 {currency ? formatINR(stats[key] as number) : stats[key]}
               </p>
-            </motion.div>
+            </div>
           ))}
         </div>
 
@@ -116,7 +111,7 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringMe
           <p className="text-[10px] font-bold text-[#94A3B8] uppercase tracking-widest mb-4 border-l-2 border-[#6366F1] pl-3">Quick Actions</p>
           <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
             {QUICK_ACTIONS.map(({ label, href, icon: Icon }) => (
-              <motion.div key={label} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+              <div key={label}>
                 <Link
                   href={href}
                   className="flex items-center gap-3 h-14 px-5 rounded-2xl bg-white/5 border border-white/10 text-white text-sm font-semibold whitespace-nowrap transition-all hover:bg-white/10 hover:border-[#6366F1]/50 shadow-sm primary-button"
@@ -124,7 +119,7 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringMe
                   <Icon size={18} className="text-[#6366F1]" />
                   {label}
                 </Link>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
@@ -146,12 +141,9 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringMe
             </div>
           ) : (
             <div className="space-y-3">
-              {expiringMembers.map((m, idx) => (
-                <motion.div 
+              {expiringMembers.map((m) => (
+                <div 
                   key={m.id} 
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: idx * 0.05 }}
                   className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center gap-4 hover:bg-white/[0.08] transition-colors group"
                 >
                   <MemberAvatar name={m.full_name} memberId={m.id} size="sm" status={m.status} />
@@ -171,7 +163,7 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringMe
                   >
                     <MessageCircle size={18} />
                   </a>
-                </motion.div>
+                </div>
               ))}
             </div>
           )}
@@ -190,12 +182,9 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringMe
             </div>
           ) : (
             <div className="space-y-3">
-              {recentCheckins.map((c, idx) => (
-                <motion.div 
+              {recentCheckins.map((c) => (
+                <div 
                   key={c.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.05 }}
                   className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center justify-between hover:bg-white/[0.08] transition-colors"
                 >
                   <div className="flex items-center gap-4">
@@ -203,7 +192,7 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringMe
                     <p className="text-sm font-bold text-white">{c.members?.full_name ?? "Unknown"}</p>
                   </div>
                   <span className="text-[11px] font-bold text-[#94A3B8] bg-white/5 px-2 py-1 rounded-lg">{formatTime(c.checked_in_at)}</span>
-                </motion.div>
+                </div>
               ))}
             </div>
           )}

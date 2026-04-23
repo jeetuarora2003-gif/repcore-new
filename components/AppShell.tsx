@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
   Users,
@@ -50,7 +49,7 @@ export default function AppShell({ gym, children }: Props) {
         {/* Logo */}
         <div className="flex items-center gap-3 px-6 py-7 border-b border-white/5">
           <div className="relative">
-            <div className="h-2 w-2 rounded-full bg-[#6366F1] animate-pulse" />
+            <div className="h-2 w-2 rounded-full bg-[#6366F1]" />
             <div className="absolute inset-0 h-2 w-2 rounded-full bg-[#6366F1] blur-md" />
           </div>
           <span className="text-xl font-bold tracking-tight">
@@ -70,11 +69,7 @@ export default function AppShell({ gym, children }: Props) {
           {SIDEBAR_ITEMS.map(({ href, icon: Icon, label }) => {
             const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
             return (
-              <motion.div
-                key={href}
-                whileHover={{ x: 4 }}
-                transition={{ duration: 0.15 }}
-              >
+              <div key={href}>
                 <Link
                   href={href}
                   className={`relative flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all group ${
@@ -83,17 +78,10 @@ export default function AppShell({ gym, children }: Props) {
                       : "text-[#94A3B8] hover:text-white hover:bg-white/5"
                   }`}
                 >
-                  {active && (
-                    <motion.div
-                      layoutId="activeNav"
-                      className="absolute inset-0 bg-[#6366F1]/5 rounded-xl -z-10"
-                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                    />
-                  )}
                   <Icon size={18} className={`${active ? "text-[#6366F1]" : "group-hover:text-white"}`} />
                   {label}
                 </Link>
-              </motion.div>
+              </div>
             );
           })}
         </nav>
@@ -116,18 +104,8 @@ export default function AppShell({ gym, children }: Props) {
 
       {/* Main Content */}
       <main className="flex-1 md:ml-64 min-w-0 overflow-y-auto min-h-screen">
-        <div className="max-w-none">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={pathname}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
-              className="pb-20 md:pb-8"
-            >
-              {children}
-            </motion.div>
-          </AnimatePresence>
+        <div className="max-w-none pb-20 md:pb-8">
+          {children}
         </div>
       </main>
 
@@ -138,7 +116,7 @@ export default function AppShell({ gym, children }: Props) {
           const moreActive = href === "/more" && ["/plans", "/reports", "/settings"].some(p => pathname.startsWith(p));
 
           return (
-            <motion.div key={href} whileTap={{ scale: 0.9 }} className="flex-1">
+            <div key={href} className="flex-1">
               <Link
                 href={href === "/more" ? "/plans" : href}
                 className={`flex flex-col items-center justify-center gap-1 h-full transition-all ${
@@ -163,7 +141,7 @@ export default function AppShell({ gym, children }: Props) {
                   </>
                 )}
               </Link>
-            </motion.div>
+            </div>
           );
         })}
       </nav>

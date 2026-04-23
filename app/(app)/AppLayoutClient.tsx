@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { AnimatePresence } from "framer-motion";
 import LoadingScreen from "@/components/LoadingScreen";
 import AppShell from "@/components/AppShell";
 import type { Gym } from "@/lib/supabase/types";
@@ -23,9 +22,7 @@ export default function AppLayoutClient({ gym, children }: Props) {
 
   return (
     <>
-      <AnimatePresence mode="wait">
-        {loading && <LoadingScreen key="loading" />}
-      </AnimatePresence>
+      {loading && <LoadingScreen />}
       <AppShell gym={gym}>{children}</AppShell>
     </>
   );
