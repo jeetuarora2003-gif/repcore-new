@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
   Users,
@@ -45,7 +46,7 @@ export default function AppShell({ gym, children }: Props) {
   return (
     <div className="min-h-screen bg-[#0D0D14] flex">
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex flex-col w-60 shrink-0 bg-[#13131F] border-r border-[#1E1E30] fixed left-0 top-0 bottom-0 z-30">
+      <aside className="hidden md:flex flex-col w-64 shrink-0 bg-[#13131F] border-r border-[#1E1E30] fixed left-0 top-0 h-screen z-30">
         {/* Logo */}
         <div className="flex items-center gap-2.5 px-5 py-5 border-b border-[#1E1E30]">
           <div className="h-8 w-8 rounded-xl bg-[#6366F1] flex items-center justify-center shrink-0">
@@ -64,7 +65,7 @@ export default function AppShell({ gym, children }: Props) {
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 py-3 px-3 space-y-0.5">
+        <nav className="flex-1 py-3 px-3 space-y-0.5 overflow-y-auto">
           {SIDEBAR_ITEMS.map(({ href, icon: Icon, label }) => {
             const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
             return (
@@ -99,12 +100,24 @@ export default function AppShell({ gym, children }: Props) {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 md:ml-60 pb-20 md:pb-0 min-h-screen max-w-2xl mx-auto w-full">
-        {children}
+      <main className="flex-1 md:ml-64 min-w-0 overflow-y-auto min-h-screen">
+        <div className="max-w-none">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={pathname}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              className="pb-20 md:pb-8"
+            >
+              {children}
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </main>
 
       {/* Mobile Bottom Tab Bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-[#1C1C2E] border-t border-[#1E1E30] h-16 flex items-center">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-[#1C1C2E]/90 backdrop-blur-lg border-t border-[#1E1E30] h-16 flex items-center">
         {TAB_ITEMS.map(({ href, icon: Icon, label, accent }) => {
           const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
           const moreActive = href === "/more" && ["/plans", "/reports", "/settings"].some(p => pathname.startsWith(p));
