@@ -95,7 +95,12 @@ export default function RemindersClient({ gym, fiveDays, threeDays, oneDay, hist
             />
           ) : (
             members.map(m => {
-              const isSent = sentIds.has(m.id) ||
+              const currentDays = getDays();
+              const autoSentAt = currentDays === 5 ? m.reminder_5_sent_at : 
+                                 currentDays === 3 ? m.reminder_3_sent_at : 
+                                 m.reminder_1_sent_at;
+
+              const isSent = sentIds.has(m.id) || !!autoSentAt ||
                 history.some(r => r.member_id === m.id && r.subscription_id === m.subscription_id);
 
               return (

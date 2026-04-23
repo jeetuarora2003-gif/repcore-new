@@ -30,6 +30,16 @@ export async function sendReminder(
   });
   if (error) return { success: false, error: error.message };
 
+  // Stamp the subscription so auto-engine knows it was sent
+  const sentAtField = stage === 5 ? "reminder_5_sent_at" : 
+                      stage === 3 ? "reminder_3_sent_at" : 
+                      "reminder_1_sent_at";
+  
+  await supabase
+    .from("subscriptions")
+    .update({ [sentAtField]: new Date().toISOString() })
+    .eq("id", subscriptionId);
+
   revalidatePath("/reminders");
   return { success: true };
 }

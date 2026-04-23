@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { LogOut, Save, Eye, EyeOff, Building2, MessageCircle, FileText, Download, ShieldCheck, Zap } from "lucide-react";
+import { LogOut, Save, Eye, EyeOff, Building2, MessageCircle, FileText, Download, ShieldCheck, Zap, ChevronRight } from "lucide-react";
 import { memberInitials, cleanPhone } from "@/lib/helpers";
 import type { Gym } from "@/lib/supabase/types";
 import { updateGymSettings } from "@/app/actions/gym";
@@ -157,8 +157,22 @@ export default function SettingsClient({ gym }: Props) {
                 <ShieldCheck size={16} className="text-[#10B981]" />
                 <span className="text-xs font-medium text-[#A1A1AA]">Messaging Balance</span>
               </div>
-              <span className="text-sm font-bold font-mono text-[#E4E4E7] tabular-nums">{gym.whatsapp_credits} units</span>
+              <span className="text-sm font-bold font-mono text-[#E4E4E7] tabular-nums">{gym.whatsapp_credits?.[0]?.balance_paise ? (gym.whatsapp_credits[0].balance_paise / 100).toFixed(2) : "0.00"} units</span>
             </div>
+
+            <Link 
+              href="/settings/whatsapp"
+              className="flex items-center justify-between p-4 bg-[#10B981]/5 border border-[#10B981]/20 rounded-xl hover:bg-[#10B981]/10 transition-all group"
+            >
+              <div className="flex items-center gap-3">
+                <MessageCircle size={18} className="text-[#10B981]" />
+                <div className="text-left">
+                  <p className="text-xs font-semibold text-[#E4E4E7]">Automate Reminders</p>
+                  <p className="text-[10px] text-[#71717A]">Configure Auto-reminders & Credits</p>
+                </div>
+              </div>
+              <ChevronRight size={16} className="text-[#71717A] group-hover:text-[#10B981] transition-transform group-hover:translate-x-1" />
+            </Link>
           </div>
         </div>
 

@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 
 import { 
   Users, UserCheck, UserMinus, 
@@ -23,8 +24,36 @@ interface Props {
 }
 
 export default function DashboardClient({ gym, stats, recentCheckins, expiringSoon }: Props) {
+  const [showLowBalance, setShowLowBalance] = useState(true);
+  const balancePaise = gym.whatsapp_credits?.[0]?.balance_paise || 0;
+  const isAutoMode = gym.whatsapp_reminder_mode === "auto";
+  const isLowBalance = isAutoMode && balancePaise < 2000;
+
   return (
     <div className="relative pb-24 px-4 pt-6 md:pt-10 md:px-8 space-y-10 overflow-hidden">
+      {/* Low Balance Alert */}
+      {isLowBalance && showLowBalance && (
+        <div className="bg-[#EF4444]/10 border border-[#EF4444]/20 rounded-2xl p-4 flex items-center justify-between gap-4 animate-fade-in relative z-10">
+          <div className="flex items-center gap-3">
+            <div className="h-8 w-8 rounded-lg bg-[#EF4444]/20 flex items-center justify-center text-[#EF4444]">
+              <AlertCircle size={18} />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-[#E4E4E7]">Auto reminders paused</p>
+              <p className="text-xs text-[#A1A1AA]">WhatsApp credits low (₹{(balancePaise / 100).toFixed(2)} remaining). Add credits to resume.</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <Link href="/settings/whatsapp" className="h-9 px-4 rounded-xl bg-[#EF4444] text-white text-xs font-bold flex items-center justify-center hover:bg-[#DC2626] transition-all active:scale-95">
+              Add Credits →
+            </Link>
+            <button onClick={() => setShowLowBalance(false)} className="text-[#71717A] hover:text-[#E4E4E7] transition-colors p-1">
+              <Plus size={18} className="rotate-45" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Ambient Glow */}
       <div className="absolute top-[-120px] right-[-80px] w-[400px] h-[400px] bg-[#10B981]/[0.04] rounded-full blur-[120px] pointer-events-none" />
 

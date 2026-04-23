@@ -107,6 +107,7 @@ export async function createMembershipSaleAction(data: {
   const endDateStr = end.toISOString().split("T")[0];
 
   // Execute the RPC for atomic creation
+  // @ts-expect-error: The create_membership_sale RPC is not yet in the generated Supabase types
   const { data: result, error } = await supabase.rpc("create_membership_sale", {
     p_gym_id: data.gym_id,
     p_full_name: data.full_name,
