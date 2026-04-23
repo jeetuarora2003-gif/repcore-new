@@ -114,8 +114,8 @@ export default function CheckInPage() {
   return (
     <div className="pb-24 min-h-screen">
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-[#0D0D14]/95 backdrop-blur-md border-b border-[#1E1E30] px-4 py-3">
-        <h1 className="text-lg font-bold text-[#F1F5F9]">Check In</h1>
+      <div className="sticky top-0 z-20 bg-[#0F0F12]/95 backdrop-blur-md border-b border-[#222228] px-4 py-3">
+        <h1 className="text-lg font-bold text-[#FAFAFA]">Check In</h1>
       </div>
 
       <div className="px-4 py-5 space-y-4">
@@ -134,13 +134,13 @@ export default function CheckInPage() {
 
         {/* Search */}
         <div className="relative group">
-          <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#94A3B8] group-focus-within:text-[#6366F1] transition-colors" />
+          <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#A1A1AA] group-focus-within:text-[#10B981] transition-colors" />
           <input
             ref={inputRef}
             value={query}
             onChange={e => { setQuery(e.target.value); setSelected(null); }}
             placeholder="Search by name or phone..."
-            className="w-full h-14 rounded-2xl bg-[#1C1C2E] border border-[#1E1E30] pl-11 pr-4 text-[#F1F5F9] placeholder-[#94A3B8] focus:outline-none focus:border-[#6366F1] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.15)] transition-all duration-200 text-base"
+            className="w-full h-14 rounded-2xl bg-[#1A1A1F] border border-[#222228] pl-11 pr-4 text-[#FAFAFA] placeholder-[#A1A1AA] focus:outline-none focus:border-[#10B981] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.15)] transition-all duration-200 text-base"
           />
         </div>
 
@@ -158,12 +158,12 @@ export default function CheckInPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className="text-sm font-semibold text-[#F1F5F9]">{m.full_name}</p>
+                      <p className="text-sm font-semibold text-[#FAFAFA]">{m.full_name}</p>
                       <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium ${statusBadgeClass(m.status as MemberStatusType)}`}>
                         {statusLabel(m.status as MemberStatusType)}
                       </span>
                     </div>
-                    <p className="text-xs text-[#94A3B8]">{m.phone}</p>
+                    <p className="text-xs text-[#A1A1AA]">{m.phone}</p>
                   </div>
                   {(m.balance_due ?? 0) > 0 && (
                     <div className="flex items-center gap-1 text-xs text-[#EF4444]">
@@ -184,13 +184,13 @@ export default function CheckInPage() {
                   {memberInitials(selected.full_name)}
                 </div>
                 <div>
-                  <p className="text-base font-bold text-[#F1F5F9]">{selected.full_name}</p>
+                  <p className="text-base font-bold text-[#FAFAFA]">{selected.full_name}</p>
                   <div className="flex items-center gap-2">
                     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${statusBadgeClass(selected.status as MemberStatusType)}`}>
                       {statusLabel(selected.status as MemberStatusType)}
                     </span>
                     {selected.plan_name && (
-                      <span className="text-xs text-[#94A3B8]">{selected.plan_name}</span>
+                      <span className="text-xs text-[#A1A1AA]">{selected.plan_name}</span>
                     )}
                   </div>
                 </div>
@@ -205,7 +205,7 @@ export default function CheckInPage() {
               )}
   
               {selected.end_date && (
-                <p className="text-xs text-[#94A3B8]">
+                <p className="text-xs text-[#A1A1AA]">
                   Expires: {formatDate(selected.end_date)}
                   {(selected.days_until_expiry ?? 99) <= 5 && (selected.days_until_expiry ?? 99) >= 0 && (
                     <span className="text-[#F59E0B] ml-1">· Expiring soon!</span>
@@ -237,10 +237,10 @@ export default function CheckInPage() {
         {/* Empty state */}
         {!query && !selected && !success && (
           <div className="flex flex-col items-center justify-center py-16 gap-4">
-            <div className="h-16 w-16 rounded-2xl bg-[#1C1C2E] flex items-center justify-center">
-              <ScanLine size={32} className="text-[#6366F1]" />
+            <div className="h-16 w-16 rounded-2xl bg-[#1A1A1F] flex items-center justify-center">
+              <ScanLine size={32} className="text-[#10B981]" />
             </div>
-            <p className="text-[#94A3B8] text-sm text-center">
+            <p className="text-[#A1A1AA] text-sm text-center">
               Search for a member above to check them in
             </p>
           </div>
@@ -251,20 +251,20 @@ export default function CheckInPage() {
       {showConfirm && selected && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowConfirm(false)} />
-          <div className="relative bg-[#13131F] border border-[#1E1E30] rounded-2xl p-6 max-w-sm w-full animate-fade-in-up">
+          <div className="relative bg-[#131316] border border-[#222228] rounded-2xl p-6 max-w-sm w-full animate-fade-in-up">
             <div className="flex items-center gap-3 mb-4">
               <div className="h-10 w-10 rounded-xl bg-[#EF4444]/15 flex items-center justify-center">
                 <AlertCircle size={20} className="text-[#EF4444]" />
               </div>
               <div>
-                <h3 className="text-base font-semibold text-[#F1F5F9]">Expired Subscription</h3>
-                <p className="text-sm text-[#94A3B8]">This member&apos;s subscription has expired. Check in anyway?</p>
+                <h3 className="text-base font-semibold text-[#FAFAFA]">Expired Subscription</h3>
+                <p className="text-sm text-[#A1A1AA]">This member&apos;s subscription has expired. Check in anyway?</p>
               </div>
             </div>
             <div className="flex gap-2">
               <button
                 onClick={() => setShowConfirm(false)}
-                className="flex-1 h-12 rounded-xl bg-[#1C1C2E] text-[#94A3B8] font-semibold active:scale-95 transition-transform duration-100"
+                className="flex-1 h-12 rounded-xl bg-[#1A1A1F] text-[#A1A1AA] font-semibold active:scale-95 transition-transform duration-100"
               >
                 Cancel
               </button>

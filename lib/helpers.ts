@@ -19,12 +19,12 @@ export function memberInitials(fullName: string): string {
 }
 
 const AVATAR_COLORS = [
-  "bg-[#6366F1]/20 text-[#6366F1]", // Indigo
   "bg-[#10B981]/20 text-[#10B981]", // Emerald
+  "bg-[#8B5CF6]/20 text-[#8B5CF6]", // Violet
   "bg-[#F59E0B]/20 text-[#F59E0B]", // Amber
-  "bg-[#EF4444]/20 text-[#EF4444]", // Red
-  "bg-[#8B5CF6]/20 text-[#8B5CF6]", // Purple
-  "bg-[#14B8A6]/20 text-[#14B8A6]", // Teal
+  "bg-[#EC4899]/20 text-[#EC4899]", // Pink
+  "bg-[#06B6D4]/20 text-[#06B6D4]", // Cyan
+  "bg-[#F97316]/20 text-[#F97316]", // Orange
 ];
 
 export function avatarColor(id: string): string {
@@ -39,9 +39,9 @@ const STATUS_AVATAR_COLORS: Record<string, string> = {
   active: "bg-[#10B981]/20 text-[#10B981]",
   expiring_soon: "bg-[#F59E0B]/20 text-[#F59E0B]",
   expired: "bg-[#EF4444]/20 text-[#EF4444]",
-  lapsed: "bg-white/5 text-[#475569]",
-  frozen: "bg-blue-500/20 text-blue-400",
-  no_plan: "bg-white/5 text-[#475569]",
+  lapsed: "bg-[#3F3F46] text-[#71717A]",
+  frozen: "bg-[#06B6D4]/20 text-[#06B6D4]",
+  no_plan: "bg-[#27272A] text-[#71717A]",
 };
 
 export function statusAvatarColor(status: string, id: string): string {
@@ -73,11 +73,11 @@ export function statusBadgeClass(status: MemberStatusType): string {
     case "expired":
       return "bg-[#EF4444]/10 text-[#EF4444] border border-[#EF4444]/20";
     case "lapsed":
-      return "bg-white/5 text-[#475569] border border-white/10";
+      return "bg-[#27272A] text-[#71717A] border border-[#3F3F46]";
     case "frozen":
-      return "bg-blue-500/10 text-blue-400 border border-blue-500/20";
+      return "bg-[#06B6D4]/10 text-[#06B6D4] border border-[#06B6D4]/20";
     case "no_plan":
-      return "bg-white/5 text-[#475569] border border-white/10";
+      return "bg-[#27272A] text-[#71717A] border border-[#3F3F46]";
   }
 }
 

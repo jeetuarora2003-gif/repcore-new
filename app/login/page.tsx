@@ -29,46 +29,46 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#080810] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-[#09090B] flex items-center justify-center px-4">
       {/* Ambient Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl h-96 bg-[#6366F1]/5 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl h-96 bg-[#10B981]/5 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="w-full max-w-sm relative z-10 animate-fade-up">
         {/* Logo */}
         <div className="flex items-center justify-center gap-3 mb-10 group">
-          <div className="h-10 w-10 rounded-2xl bg-[#6366F1] flex items-center justify-center shadow-lg shadow-[#6366F1]/20 group-hover:scale-105 transition-transform">
+          <div className="h-10 w-10 rounded-2xl bg-[#10B981] flex items-center justify-center shadow-lg shadow-[#10B981]/20 group-hover:scale-105 transition-transform">
             <Dumbbell size={20} className="text-white" />
           </div>
           <div className="flex flex-col">
             <span className="text-2xl font-bold tracking-tight">
-              <span className="text-[#6366F1]">Rep</span>
-              <span className="text-[#F8FAFC]">Core</span>
+              <span className="text-[#10B981]">Rep</span>
+              <span className="text-[#FAFAFA]">Core</span>
             </span>
-            <span className="text-[10px] text-[#475569] font-bold tracking-[0.25em] uppercase -mt-1 ml-0.5">
+            <span className="text-[10px] text-[#52525B] font-bold tracking-[0.25em] uppercase -mt-1 ml-0.5">
               Gym Management
             </span>
           </div>
         </div>
 
         <div className="card p-8 bg-surface/50 backdrop-blur-sm border-white/6">
-          <h1 className="text-2xl font-bold tracking-tight text-[#F8FAFC] mb-1">Welcome back</h1>
-          <p className="text-sm text-[#94A3B8] mb-8">Sign in to manage your gym</p>
+          <h1 className="text-2xl font-bold tracking-tight text-[#FAFAFA] mb-1">Welcome back</h1>
+          <p className="text-sm text-[#A1A1AA] mb-8">Sign in to manage your gym</p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-[#94A3B8]">Email Address</label>
+              <label className="text-xs font-medium text-[#A1A1AA]">Email Address</label>
               <input
                 type="email"
                 required
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className="w-full h-11 rounded-xl bg-[#080810] border border-white/8 px-4 text-sm text-[#F8FAFC] placeholder-[#475569] focus:outline-none focus:border-[#6366F1]/40 focus:ring-4 focus:ring-[#6366F1]/5 transition-all"
+                className="w-full h-11 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#FAFAFA] placeholder-[#52525B] focus:outline-none focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 transition-all"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-[#94A3B8]">Password</label>
+              <label className="text-xs font-medium text-[#A1A1AA]">Password</label>
               <div className="relative">
                 <input
                   type={showPw ? "text" : "password"}
@@ -76,12 +76,12 @@ export default function LoginPage() {
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full h-11 rounded-xl bg-[#080810] border border-white/8 px-4 pr-12 text-sm text-[#F8FAFC] placeholder-[#475569] focus:outline-none focus:border-[#6366F1]/40 focus:ring-4 focus:ring-[#6366F1]/5 transition-all"
+                  className="w-full h-11 rounded-xl bg-[#09090B] border border-white/8 px-4 pr-12 text-sm text-[#FAFAFA] placeholder-[#52525B] focus:outline-none focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 transition-all"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPw(!showPw)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#475569] hover:text-[#F8FAFC] transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#52525B] hover:text-[#FAFAFA] transition-colors"
                 >
                   {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -91,15 +91,15 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full h-12 rounded-xl bg-[#6366F1] text-white text-sm font-semibold active:scale-[0.98] transition-all shadow-lg shadow-[#6366F1]/20 disabled:opacity-50 mt-2"
+              className="w-full h-12 rounded-xl btn-primary text-sm disabled:opacity-50 mt-2"
             >
               {loading ? "Signing in..." : "Sign In"}
             </button>
           </form>
 
-          <p className="text-center text-sm text-[#94A3B8] mt-8">
+          <p className="text-center text-sm text-[#A1A1AA] mt-8">
             Don&apos;t have an account?{" "}
-            <Link href="/register" className="text-[#6366F1] font-semibold hover:underline decoration-[#6366F1]/30 underline-offset-4">
+            <Link href="/register" className="text-[#10B981] font-semibold hover:underline decoration-[#10B981]/30 underline-offset-4">
               Create one
             </Link>
           </p>

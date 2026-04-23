@@ -17,14 +17,14 @@ function SelectTrigger({
     <SelectPrimitive.Trigger
       data-slot="select-trigger"
       className={cn(
-        "group flex h-11 w-full items-center justify-between rounded-xl border border-[#30363D] bg-[#161B22] px-4 py-2 text-[14px] text-[#F0F6FC] transition-all focus-visible:outline-none focus-visible:border-[#10B981] disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
+        "group flex h-11 w-full items-center justify-between rounded-xl border border-[#30363D] bg-[#161B22] px-4 py-2 text-[14px] text-[#FAFAFA] transition-all focus-visible:outline-none focus-visible:border-[#10B981] disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
         className
       )}
       {...props}
     >
       {children}
       <ChevronDownIcon
-        className="size-4 shrink-0 text-[#484F58] group-aria-expanded:rotate-180 transition-transform duration-200"
+        className="size-4 shrink-0 text-[#52525B] group-aria-expanded:rotate-180 transition-transform duration-200"
       />
     </SelectPrimitive.Trigger>
   )
@@ -40,7 +40,7 @@ function SelectContent({
       <SelectPrimitive.Popup
         data-slot="select-content"
         className={cn(
-          "relative z-50 min-w-[8rem] overflow-hidden rounded-xl border border-[#30363D] bg-[#161B22] text-[#F0F6FC] shadow-xl transition duration-150 ease-in-out data-ending-style:opacity-0 data-starting-style:opacity-0",
+          "relative z-50 min-w-[8rem] overflow-hidden rounded-xl border border-[#30363D] bg-[#161B22] text-[#FAFAFA] shadow-xl transition duration-150 ease-in-out data-ending-style:opacity-0 data-starting-style:opacity-0",
           className
         )}
         {...props}
@@ -63,7 +63,7 @@ function SelectLabel({ className, ...props }: SelectPrimitive.GroupLabel.Props) 
   return (
     <SelectPrimitive.GroupLabel
       data-slot="select-label"
-      className={cn("px-3 py-1.5 text-[11px] font-semibold text-[#484F58] uppercase tracking-wider", className)}
+      className={cn("px-3 py-1.5 text-[11px] font-semibold text-[#52525B] uppercase tracking-wider", className)}
       {...props}
     />
   )

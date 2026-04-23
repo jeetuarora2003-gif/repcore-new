@@ -60,7 +60,7 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
       className={cn(
         "relative inline-flex h-full items-center justify-center gap-2 rounded-lg px-4 text-[13px] font-medium whitespace-nowrap transition-all outline-none disabled:opacity-50",
         "data-active:text-[#10B981] data-active:bg-[#10B981]/10",
-        "text-[#8B949E] hover:text-[#F0F6FC]",
+        "text-[#8B949E] hover:text-[#FAFAFA]",
         "group-data-[variant=line]/tabs-list:rounded-none group-data-[variant=line]/tabs-list:data-active:bg-transparent group-data-[variant=line]/tabs-list:data-active:border-b-2 group-data-[variant=line]/tabs-list:data-active:border-[#10B981]",
         className
       )}

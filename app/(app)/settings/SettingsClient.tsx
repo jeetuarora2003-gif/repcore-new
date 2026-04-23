@@ -56,18 +56,18 @@ export default function SettingsClient({ gym }: Props) {
   }
 
   return (
-    <div className="pb-24 min-h-screen bg-[#080810] animate-fade-up">
+    <div className="pb-24 min-h-screen bg-[#09090B] animate-fade-up">
       <form onSubmit={handleSave} className="px-4 py-8 md:px-8 max-w-2xl space-y-8 mx-auto">
         {/* Gym Profile */}
         <div className="card p-6 space-y-6">
           <div className="flex items-center justify-between pb-4 border-b border-white/5">
             <div className="flex items-center gap-3">
-              <div className="h-7 w-7 rounded-lg bg-[#6366F1]/10 flex items-center justify-center text-[#6366F1] border border-[#6366F1]/20">
+              <div className="h-7 w-7 rounded-lg bg-[#10B981]/10 flex items-center justify-center text-[#10B981] border border-[#10B981]/20">
                 <Building2 size={14} />
               </div>
-              <h3 className="text-sm font-semibold text-[#F8FAFC]">Business Profile</h3>
+              <h3 className="text-sm font-semibold text-[#FAFAFA]">Business Profile</h3>
             </div>
-            <div className="h-8 w-8 rounded-lg bg-surface-3 flex items-center justify-center text-[#6366F1] text-[10px] font-bold border border-white/5">
+            <div className="h-8 w-8 rounded-lg bg-surface-3 flex items-center justify-center text-[#10B981] text-[10px] font-bold border border-white/5">
               {memberInitials(form.name || "G")}
             </div>
           </div>
@@ -79,13 +79,13 @@ export default function SettingsClient({ gym }: Props) {
               { field: "phone", label: "Official Contact Number", placeholder: "98765 43210", type: "tel" },
             ].map(({ field, label, placeholder, type }) => (
               <div key={field} className="space-y-1.5">
-                <label className="text-xs font-medium text-[#94A3B8]">{label}</label>
+                <label className="text-xs font-medium text-[#A1A1AA]">{label}</label>
                 <input
                   type={type}
                   value={form[field as keyof typeof form]}
                   onChange={e => handleChange(field, e.target.value)}
                   placeholder={placeholder}
-                  className="w-full h-10 rounded-xl bg-[#080810] border border-white/8 px-4 text-sm text-[#F8FAFC] placeholder-[#475569] focus:outline-none focus:border-[#6366F1]/40 focus:ring-4 focus:ring-[#6366F1]/5 transition-all"
+                  className="w-full h-10 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#FAFAFA] placeholder-[#52525B] focus:outline-none focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 transition-all"
                 />
               </div>
             ))}
@@ -98,7 +98,7 @@ export default function SettingsClient({ gym }: Props) {
             <div className="h-7 w-7 rounded-lg bg-[#F59E0B]/10 flex items-center justify-center text-[#F59E0B] border border-[#F59E0B]/20">
               <FileText size={14} />
             </div>
-            <h3 className="text-sm font-semibold text-[#F8FAFC]">System Configuration</h3>
+            <h3 className="text-sm font-semibold text-[#FAFAFA]">System Configuration</h3>
           </div>
 
           <div className="grid sm:grid-cols-2 gap-6">
@@ -107,14 +107,14 @@ export default function SettingsClient({ gym }: Props) {
               { field: "invoice_prefix", label: "Invoice Series Prefix" },
             ].map(({ field, label }) => (
               <div key={field} className="space-y-1.5">
-                <label className="text-xs font-medium text-[#94A3B8]">{label}</label>
+                <label className="text-xs font-medium text-[#A1A1AA]">{label}</label>
                 <input
                   type="text"
                   value={form[field as keyof typeof form]}
                   onChange={e => handleChange(field, e.target.value)}
-                  className="w-full h-10 rounded-xl bg-[#080810] border border-white/8 px-4 text-sm text-[#F8FAFC] font-mono focus:outline-none focus:border-[#6366F1]/40 transition-all uppercase"
+                  className="w-full h-10 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#FAFAFA] font-mono focus:outline-none focus:border-[#10B981]/40 transition-all uppercase"
                 />
-                <p className="text-[10px] text-[#475569] font-mono tracking-wider pl-1">
+                <p className="text-[10px] text-[#52525B] font-mono tracking-wider pl-1">
                   PREVIEW: {form[field as keyof typeof form] || "REP"}-{new Date().getFullYear()}-0001
                 </p>
               </div>
@@ -128,24 +128,24 @@ export default function SettingsClient({ gym }: Props) {
             <div className="h-7 w-7 rounded-lg bg-[#10B981]/10 flex items-center justify-center text-[#10B981] border border-[#10B981]/20">
               <Zap size={14} strokeWidth={2.5} />
             </div>
-            <h3 className="text-sm font-semibold text-[#F8FAFC]">WhatsApp Integration</h3>
+            <h3 className="text-sm font-semibold text-[#FAFAFA]">WhatsApp Integration</h3>
           </div>
 
           <div className="space-y-5">
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-[#94A3B8]">WhatsApp API Key</label>
+              <label className="text-xs font-medium text-[#A1A1AA]">WhatsApp API Key</label>
               <div className="relative">
                 <input
                   type={showApiKey ? "text" : "password"}
                   value={form.whatsapp_api_key}
                   onChange={e => handleChange("whatsapp_api_key", e.target.value)}
                   placeholder="sk-..."
-                  className="w-full h-10 rounded-xl bg-[#080810] border border-white/8 px-4 pr-12 text-sm text-[#F8FAFC] font-mono placeholder-[#475569] focus:outline-none focus:border-[#6366F1]/40 focus:ring-4 focus:ring-[#6366F1]/5 transition-all"
+                  className="w-full h-10 rounded-xl bg-[#09090B] border border-white/8 px-4 pr-12 text-sm text-[#FAFAFA] font-mono placeholder-[#52525B] focus:outline-none focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 transition-all"
                 />
                 <button
                   type="button"
                   onClick={() => setShowApiKey(!showApiKey)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#475569] hover:text-[#F8FAFC] transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#52525B] hover:text-[#FAFAFA] transition-colors"
                 >
                   {showApiKey ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
@@ -155,9 +155,9 @@ export default function SettingsClient({ gym }: Props) {
             <div className="bg-surface-2 rounded-xl p-4 flex justify-between items-center border border-white/5 group hover:border-[#10B981]/20 transition-all">
               <div className="flex items-center gap-3">
                 <ShieldCheck size={16} className="text-[#10B981]" />
-                <span className="text-xs font-medium text-[#94A3B8]">Messaging Balance</span>
+                <span className="text-xs font-medium text-[#A1A1AA]">Messaging Balance</span>
               </div>
-              <span className="text-sm font-bold font-mono text-[#F8FAFC] tabular-nums">{gym.whatsapp_credits} units</span>
+              <span className="text-sm font-bold font-mono text-[#FAFAFA] tabular-nums">{gym.whatsapp_credits} units</span>
             </div>
           </div>
         </div>
@@ -167,7 +167,7 @@ export default function SettingsClient({ gym }: Props) {
           <button
             type="submit"
             disabled={isPending}
-            className="w-full h-11 rounded-xl bg-[#6366F1] text-white text-sm font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-lg shadow-[#6366F1]/20 disabled:opacity-50"
+            className="w-full h-11 rounded-xl btn-primary text-sm flex items-center justify-center gap-2 disabled:opacity-50"
           >
             <Save size={16} />
             {isPending ? "Saving changes..." : "Save Settings"}
@@ -177,7 +177,7 @@ export default function SettingsClient({ gym }: Props) {
             <button
               type="button"
               disabled
-              className="h-10 rounded-xl bg-surface border border-white/6 text-[#475569] text-xs font-medium flex items-center justify-center gap-2 cursor-not-allowed"
+              className="h-10 rounded-xl bg-surface border border-white/6 text-[#52525B] text-xs font-medium flex items-center justify-center gap-2 cursor-not-allowed"
             >
               <Download size={14} />
               Export Records

@@ -3,7 +3,7 @@
 import { 
   Users, UserCheck, UserMinus, 
   AlertCircle, Plus, ChevronRight,
-  TrendingUp, Calendar, Zap, Bell
+  TrendingUp, Zap, Bell
 } from "lucide-react";
 import { formatINR, getHourGreeting } from "@/lib/helpers";
 import type { Gym, MemberStatus, Attendance } from "@/lib/supabase/types";
@@ -26,14 +26,14 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringSo
   return (
     <div className="relative pb-24 px-4 pt-6 md:pt-10 md:px-8 space-y-10 overflow-hidden">
       {/* Ambient Glow */}
-      <div className="absolute top-[-100px] right-[-100px] w-96 h-96 bg-[#6366F1]/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute top-[-120px] right-[-80px] w-[400px] h-[400px] bg-[#10B981]/[0.04] rounded-full blur-[120px] pointer-events-none" />
 
       {/* Header */}
       <div className="animate-fade-up">
-        <p className="text-[10px] tracking-[0.2em] font-semibold text-[#475569] uppercase mb-1.5">
+        <p className="text-[10px] tracking-[0.2em] font-semibold text-[#52525B] uppercase mb-1.5">
           {getHourGreeting()}
         </p>
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-[#F8FAFC]">
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-[#FAFAFA]">
           {gym.name}
         </h1>
       </div>
@@ -41,14 +41,16 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringSo
       {/* KPI Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 animate-fade-up [animation-delay:0.1s]">
         {[
-          { label: "Total Members", value: stats.total, sub: "members total", icon: Users, color: "text-[#6366F1]", bg: "bg-[#6366F1]/10" },
-          { label: "Active Now", value: stats.active, sub: "currently active", icon: UserCheck, color: "text-[#10B981]", bg: "bg-[#10B981]/12" },
-          { label: "Expiring Soon", value: stats.expiring, sub: "need renewal", icon: UserMinus, color: "text-[#F59E0B]", bg: "bg-[#F59E0B]/12" },
-          { label: "Pending Dues", value: formatINR(stats.dues), sub: "outstanding", icon: AlertCircle, color: "text-[#EF4444]", bg: "bg-[#EF4444]/12", valueColor: "text-[#EF4444]" },
+          { label: "Total Members", value: stats.total, sub: "registered", icon: Users, color: "text-[#10B981]", bg: "bg-[#10B981]/10", stripe: "bg-[#10B981]" },
+          { label: "Active Now", value: stats.active, sub: "currently active", icon: UserCheck, color: "text-[#10B981]", bg: "bg-[#10B981]/10", stripe: "bg-[#10B981]" },
+          { label: "Expiring Soon", value: stats.expiring, sub: "need renewal", icon: UserMinus, color: "text-[#F59E0B]", bg: "bg-[#F59E0B]/10", stripe: "bg-[#F59E0B]" },
+          { label: "Pending Dues", value: formatINR(stats.dues), sub: "outstanding", icon: AlertCircle, color: "text-[#EF4444]", bg: "bg-[#EF4444]/10", stripe: "bg-[#EF4444]", valueColor: "text-[#F59E0B]" },
         ].map((stat) => (
-          <div key={stat.label} className="card p-5 group">
+          <div key={stat.label} className="card p-5 group relative overflow-hidden hover:translate-y-[-2px] hover:shadow-lg hover:shadow-black/20">
+            {/* Top accent stripe */}
+            <div className={`absolute top-0 left-0 right-0 h-[2px] ${stat.stripe} opacity-60`} />
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-semibold text-[#94A3B8] uppercase tracking-wider">
+              <span className="text-[10px] font-semibold text-[#A1A1AA] uppercase tracking-wider">
                 {stat.label}
               </span>
               <div className={`h-7 w-7 rounded-lg ${stat.bg} ${stat.color} flex items-center justify-center`}>
@@ -56,10 +58,10 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringSo
               </div>
             </div>
             <div className="mt-4">
-              <h3 className={`text-4xl font-bold tracking-tighter ${stat.valueColor || "text-[#F8FAFC]"}`}>
+              <h3 className={`text-3xl font-bold tracking-tighter tabular-nums ${stat.valueColor || "text-[#FAFAFA]"}`}>
                 {stat.value}
               </h3>
-              <p className="text-[11px] text-[#475569] mt-1 font-medium">{stat.sub}</p>
+              <p className="text-[11px] text-[#52525B] mt-1 font-medium">{stat.sub}</p>
             </div>
           </div>
         ))}
@@ -67,7 +69,7 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringSo
 
       {/* Quick Actions */}
       <div className="space-y-4 animate-fade-up [animation-delay:0.2s]">
-        <p className="text-[10px] font-semibold text-[#475569] tracking-[0.2em] uppercase px-1">
+        <p className="text-[10px] font-semibold text-[#52525B] tracking-[0.2em] uppercase px-1">
           Quick Actions
         </p>
         <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2">
@@ -80,9 +82,9 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringSo
             <Link
               key={action.label}
               href={action.href}
-              className="flex items-center gap-2 h-10 px-4 bg-surface border border-white/6 rounded-xl text-xs font-medium text-[#94A3B8] hover:border-white/12 hover:text-[#F8FAFC] hover:bg-surface-2 transition-all shrink-0"
+              className="flex items-center gap-2 h-10 px-4 bg-[#131316] border border-white/[0.07] rounded-xl text-xs font-medium text-[#A1A1AA] hover:border-[#10B981]/30 hover:text-[#FAFAFA] hover:bg-[#1A1A1F] transition-all shrink-0 group"
             >
-              <action.icon size={13} className="text-[#6366F1]" />
+              <action.icon size={13} className="text-[#10B981] group-hover:text-[#34D399] transition-colors" />
               {action.label}
             </Link>
           ))}
@@ -90,10 +92,11 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringSo
       </div>
 
       <div className="grid lg:grid-cols-2 gap-8 md:gap-10">
-        {/* Reminders section */}
+        {/* Needs Attention */}
         <div className="space-y-4 animate-fade-up [animation-delay:0.3s]">
-          <div className="border-l-2 border-[#6366F1] pl-3">
-            <h2 className="text-[10px] font-semibold tracking-[0.2em] uppercase text-[#475569]">
+          <div className="flex items-center gap-2.5 px-1">
+            <div className="h-2 w-2 rounded-full bg-[#F59E0B]" />
+            <h2 className="text-[10px] font-semibold tracking-[0.2em] uppercase text-[#52525B]">
               Needs Attention
             </h2>
           </div>
@@ -102,16 +105,16 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringSo
             {expiringSoon.length === 0 ? (
               <div className="card p-4 flex items-center gap-3">
                 <div className="h-2 w-2 rounded-full bg-[#10B981] animate-pulse" />
-                <p className="text-sm text-[#94A3B8]">All clear — no reminders due today</p>
+                <p className="text-sm text-[#A1A1AA]">All clear — no reminders due today</p>
               </div>
             ) : (
               expiringSoon.slice(0, 5).map((m) => (
-                <div key={m.id} className="card p-3.5 hover:bg-[#F59E0B]/5 hover:border-[#F59E0B]/20 group transition-all">
+                <div key={m.id} className="card p-3.5 hover:border-[#F59E0B]/20 group transition-all">
                   <div className="flex items-center gap-3">
-                    <div className="h-2 w-2 rounded-full bg-[#F59E0B]" />
+                    <div className="h-2 w-2 rounded-full bg-[#F59E0B] shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-[#F8FAFC] truncate">{m.full_name}</p>
-                      <p className="text-xs text-[#475569]">Expiring in {m.days_until_expiry} days</p>
+                      <p className="text-sm font-medium text-[#FAFAFA] truncate">{m.full_name}</p>
+                      <p className="text-xs text-[#52525B]">Expiring in {m.days_until_expiry} days</p>
                     </div>
                     <Link
                       href="/reminders"
@@ -126,10 +129,11 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringSo
           </div>
         </div>
 
-        {/* Recent Attendance */}
+        {/* Live Activity */}
         <div className="space-y-4 animate-fade-up [animation-delay:0.4s]">
-          <div className="border-l-2 border-[#10B981] pl-3">
-            <h2 className="text-[10px] font-semibold tracking-[0.2em] uppercase text-[#475569]">
+          <div className="flex items-center gap-2.5 px-1">
+            <div className="h-2 w-2 rounded-full bg-[#10B981] animate-pulse" />
+            <h2 className="text-[10px] font-semibold tracking-[0.2em] uppercase text-[#52525B]">
               Live Activity
             </h2>
           </div>
@@ -137,21 +141,21 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringSo
           <div className="space-y-2">
             {recentCheckins.length === 0 ? (
               <div className="card p-8 text-center">
-                <p className="text-sm text-[#94A3B8]">Waiting for check-ins...</p>
+                <p className="text-sm text-[#A1A1AA]">Waiting for check-ins...</p>
               </div>
             ) : (
               recentCheckins.slice(0, 6).map((a) => (
-                <div key={a.id} className="card p-3 flex items-center gap-3">
+                <div key={a.id} className="card p-3 flex items-center gap-3 hover:bg-[#1A1A1F] transition-colors">
                   <MemberAvatar name={a.members.full_name} memberId={a.members.id} size="sm" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-[#F8FAFC] truncate">
+                    <p className="text-sm font-medium text-[#FAFAFA] truncate">
                       {a.members.full_name}
                     </p>
-                    <p className="text-[11px] text-[#475569] font-mono">
+                    <p className="text-[11px] text-[#52525B] font-mono">
                       Checked in at {new Date(a.checked_in_at).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
                     </p>
                   </div>
-                  <ChevronRight size={14} className="text-[#475569]" />
+                  <ChevronRight size={14} className="text-[#52525B]" />
                 </div>
               ))
             )}

@@ -66,9 +66,9 @@ export default function RemindersClient({ gym, fiveDays, threeDays, oneDay, hist
   const members = getMembers();
 
   return (
-    <div className="pb-24 min-h-screen bg-[#080810] animate-fade-up">
+    <div className="pb-24 min-h-screen bg-[#09090B] animate-fade-up">
       {/* Tab Header */}
-      <div className="sticky top-[48px] z-20 bg-[#080810]/95 backdrop-blur-md border-b border-white/5 px-4 py-4 md:px-8">
+      <div className="sticky top-[48px] z-20 bg-[#09090B]/95 backdrop-blur-md border-b border-white/5 px-4 py-4 md:px-8">
         <div className="bg-surface rounded-xl p-1 inline-flex gap-1">
           {TABS.map(({ key, label }) => (
             <button
@@ -76,8 +76,8 @@ export default function RemindersClient({ gym, fiveDays, threeDays, oneDay, hist
               onClick={() => setTab(key)}
               className={`px-6 py-2 text-xs font-medium rounded-lg transition-all duration-200 ${
                 tab === key
-                  ? "bg-surface-3 text-[#F8FAFC] shadow-sm"
-                  : "text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-white/3"
+                  ? "bg-surface-3 text-[#FAFAFA] shadow-sm"
+                  : "text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-white/3"
               }`}
             >
               {label}
@@ -105,15 +105,15 @@ export default function RemindersClient({ gym, fiveDays, threeDays, oneDay, hist
                 >
                   <MemberAvatar name={m.full_name} memberId={m.id} size="md" rounded="xl" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-[15px] font-semibold text-[#F8FAFC] tracking-tight truncate mb-1">{m.full_name}</p>
+                    <p className="text-[15px] font-semibold text-[#FAFAFA] tracking-tight truncate mb-1">{m.full_name}</p>
                     <div className="flex flex-wrap gap-x-5 gap-y-1">
                       <div className="flex items-center gap-1.5">
-                        <span className="text-[10px] font-semibold text-[#475569] uppercase tracking-wider">Expires</span>
+                        <span className="text-[10px] font-semibold text-[#52525B] uppercase tracking-wider">Expires</span>
                         <span className="text-xs font-bold text-[#F59E0B] font-mono">{formatDate(m.end_date)}</span>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <span className="text-[10px] font-semibold text-[#475569] uppercase tracking-wider">Plan</span>
-                        <span className="text-xs text-[#94A3B8]">{m.plan_name ?? "No plan"}</span>
+                        <span className="text-[10px] font-semibold text-[#52525B] uppercase tracking-wider">Plan</span>
+                        <span className="text-xs text-[#A1A1AA]">{m.plan_name ?? "No plan"}</span>
                       </div>
                     </div>
                   </div>
@@ -145,8 +145,8 @@ export default function RemindersClient({ gym, fiveDays, threeDays, oneDay, hist
                 <div className="flex items-center gap-3">
                   <div className="h-2 w-2 rounded-full bg-[#10B981]" />
                   <div>
-                    <p className="text-sm font-medium text-[#F8FAFC]">Stage {r.stage} reminder sent</p>
-                    <p className="text-[11px] font-mono text-[#475569] uppercase mt-0.5">VIA {r.method} • {formatDate(r.sent_at)}</p>
+                    <p className="text-sm font-medium text-[#FAFAFA]">Stage {r.stage} reminder sent</p>
+                    <p className="text-[11px] font-mono text-[#52525B] uppercase mt-0.5">VIA {r.method} • {formatDate(r.sent_at)}</p>
                   </div>
                 </div>
               </div>

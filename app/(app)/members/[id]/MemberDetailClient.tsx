@@ -164,33 +164,33 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
   );
 
   return (
-    <div className="pb-24 min-h-screen bg-[#080810] animate-fade-up">
+    <div className="pb-24 min-h-screen bg-[#09090B] animate-fade-up">
       {/* Header Profile Section */}
-      <div className="bg-gradient-to-b from-surface to-[#080810] pt-6 pb-10 px-4 md:px-8 border-b border-white/5">
+      <div className="bg-gradient-to-b from-surface to-[#09090B] pt-6 pb-10 px-4 md:px-8 border-b border-white/5">
         <div className="max-w-4xl mx-auto">
           <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
             <MemberAvatar name={member.full_name} memberId={member.id} size="xl" status={member.status} rounded="2xl" />
             
             <div className="flex-1 text-center md:text-left space-y-4">
               <div className="flex flex-col md:flex-row items-center gap-3">
-                <h1 className="text-2xl font-bold tracking-tight text-[#F8FAFC]">{member.full_name}</h1>
+                <h1 className="text-2xl font-bold tracking-tight text-[#FAFAFA]">{member.full_name}</h1>
                 <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium tracking-tight ${statusBadgeClass(member.status as MemberStatusType)}`}>
                   {statusLabel(member.status as MemberStatusType)}
                 </span>
               </div>
               
               <div className="flex flex-wrap justify-center md:justify-start gap-6">
-                <a href={`tel:${member.phone}`} className="flex items-center gap-2 text-sm text-[#94A3B8] hover:text-[#6366F1] transition-colors font-mono">
+                <a href={`tel:${member.phone}`} className="flex items-center gap-2 text-sm text-[#A1A1AA] hover:text-[#10B981] transition-colors font-mono">
                   <Phone size={14} strokeWidth={1.5} />
                   {member.phone}
                 </a>
                 {member.email && (
-                  <div className="flex items-center gap-2 text-sm text-[#94A3B8]">
+                  <div className="flex items-center gap-2 text-sm text-[#A1A1AA]">
                     <Mail size={14} strokeWidth={1.5} />
                     {member.email}
                   </div>
                 )}
-                <div className="flex items-center gap-2 text-sm text-[#94A3B8] font-mono">
+                <div className="flex items-center gap-2 text-sm text-[#A1A1AA] font-mono">
                   <Calendar size={14} strokeWidth={1.5} />
                   Joined {formatDate(member.joining_date)}
                 </div>
@@ -203,7 +203,7 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
                   disabled={checkedInToday || isPending}
                   className={`h-9 px-4 rounded-xl flex items-center gap-2 text-xs font-semibold transition-all ${
                     checkedInToday 
-                      ? "bg-white/5 text-[#475569] border border-white/5 cursor-not-allowed" 
+                      ? "bg-white/5 text-[#52525B] border border-white/5 cursor-not-allowed" 
                       : "bg-[#10B981] text-white shadow-lg shadow-[#10B981]/20 hover:brightness-110 active:scale-95"
                   }`}
                 >
@@ -212,19 +212,19 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
                 </button>
                 <button
                   onClick={() => setShowPlan(true)}
-                  className="h-9 px-4 rounded-xl bg-surface border border-white/8 text-[#F8FAFC] text-xs font-semibold hover:border-white/12 hover:bg-surface-2 transition-all active:scale-95"
+                  className="h-9 px-4 rounded-xl bg-surface border border-white/8 text-[#FAFAFA] text-xs font-semibold hover:border-white/12 hover:bg-surface-2 transition-all active:scale-95"
                 >
                   Change Plan
                 </button>
                 <button
                   onClick={() => setShowPayment(true)}
-                  className="h-9 px-4 rounded-xl bg-[#6366F1]/10 text-[#6366F1] border border-[#6366F1]/20 text-xs font-semibold hover:bg-[#6366F1]/15 transition-all active:scale-95"
+                  className="h-9 px-4 rounded-xl bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/20 text-xs font-semibold hover:bg-[#10B981]/15 transition-all active:scale-95"
                 >
                   Record Payment
                 </button>
                 <button
                   onClick={handleRemind}
-                  className="h-9 w-9 flex items-center justify-center rounded-xl bg-surface border border-white/8 text-[#94A3B8] hover:text-[#F8FAFC] transition-all"
+                  className="h-9 w-9 flex items-center justify-center rounded-xl bg-surface border border-white/8 text-[#A1A1AA] hover:text-[#FAFAFA] transition-all"
                 >
                   <Bell size={14} />
                 </button>
@@ -243,8 +243,8 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
               onClick={() => setTab(t)}
               className={`flex-1 py-2 text-xs font-medium capitalize rounded-xl transition-all duration-200 ${
                 tab === t
-                  ? "bg-surface-3 text-[#F8FAFC] shadow-sm"
-                  : "text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-white/3"
+                  ? "bg-surface-3 text-[#FAFAFA] shadow-sm"
+                  : "text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-white/3"
               }`}
             >
               {t}
@@ -259,30 +259,30 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
               {/* Subscription Status */}
               <div className="card p-5 space-y-6">
                 <div className="flex items-center gap-3">
-                  <div className="h-7 w-7 rounded-lg bg-[#6366F1]/10 flex items-center justify-center text-[#6366F1] border border-[#6366F1]/20">
+                  <div className="h-7 w-7 rounded-lg bg-[#10B981]/10 flex items-center justify-center text-[#10B981] border border-[#10B981]/20">
                     <Zap size={14} strokeWidth={2.5} />
                   </div>
-                  <h3 className="text-sm font-semibold text-[#F8FAFC]">Active Subscription</h3>
+                  <h3 className="text-sm font-semibold text-[#FAFAFA]">Active Subscription</h3>
                 </div>
 
                 {member.subscription_id ? (
                   <div className="space-y-5">
                     <div className="flex justify-between items-end">
                       <div>
-                        <p className="text-lg font-bold text-[#F8FAFC] tracking-tight">{member.plan_name}</p>
-                        <p className="text-xs text-[#94A3B8] mt-0.5">Started {formatDate(member.start_date)}</p>
+                        <p className="text-lg font-bold text-[#FAFAFA] tracking-tight">{member.plan_name}</p>
+                        <p className="text-xs text-[#A1A1AA] mt-0.5">Started {formatDate(member.start_date)}</p>
                       </div>
                       <div className="text-right">
                         <p className={`text-sm font-bold font-mono ${daysRemaining > 7 ? "text-[#10B981]" : daysRemaining > 3 ? "text-[#F59E0B]" : "text-[#EF4444]"}`}>
                           {daysRemaining} Days Left
                         </p>
-                        <p className="text-[10px] text-[#475569] uppercase tracking-wider font-semibold">Ends {formatDate(member.end_date)}</p>
+                        <p className="text-[10px] text-[#52525B] uppercase tracking-wider font-semibold">Ends {formatDate(member.end_date)}</p>
                       </div>
                     </div>
                     <div className="h-1.5 bg-surface-3 rounded-full overflow-hidden">
                       <div 
                         className={`h-full transition-all duration-500 ${
-                          daysRemaining > 7 ? "bg-[#6366F1]" : daysRemaining > 3 ? "bg-[#F59E0B]" : "bg-[#EF4444]"
+                          daysRemaining > 7 ? "bg-[#10B981]" : daysRemaining > 3 ? "bg-[#F59E0B]" : "bg-[#EF4444]"
                         }`} 
                         style={{ width: `${progress}%` }} 
                       />
@@ -290,8 +290,8 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
                   </div>
                 ) : (
                   <div className="py-4 text-center">
-                    <p className="text-sm text-[#94A3B8] mb-4">No active plan found</p>
-                    <button onClick={() => setShowPlan(true)} className="px-5 h-9 rounded-xl bg-[#6366F1] text-white text-xs font-semibold hover:brightness-110 transition-all">
+                    <p className="text-sm text-[#A1A1AA] mb-4">No active plan found</p>
+                    <button onClick={() => setShowPlan(true)} className="px-5 h-9 rounded-xl bg-[#10B981] text-white text-xs font-semibold hover:brightness-110 transition-all">
                       Assign Plan
                     </button>
                   </div>
@@ -301,13 +301,13 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
               {/* Notes / Meta */}
               <div className="card p-5 space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="h-7 w-7 rounded-lg bg-[#94A3B8]/10 flex items-center justify-center text-[#94A3B8] border border-white/10">
+                  <div className="h-7 w-7 rounded-lg bg-[#A1A1AA]/10 flex items-center justify-center text-[#A1A1AA] border border-white/10">
                     <FileText size={14} />
                   </div>
-                  <h3 className="text-sm font-semibold text-[#F8FAFC]">Administrative Notes</h3>
+                  <h3 className="text-sm font-semibold text-[#FAFAFA]">Administrative Notes</h3>
                 </div>
                 <div className="bg-bg/50 rounded-xl p-4 border border-white/4 min-h-[100px]">
-                  <p className="text-sm text-[#94A3B8] leading-relaxed">
+                  <p className="text-sm text-[#A1A1AA] leading-relaxed">
                     {member.notes || "No additional notes for this member."}
                   </p>
                 </div>
@@ -320,12 +320,12 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
               {/* Billing Summary */}
               <div className="grid grid-cols-3 gap-3">
                 {[
-                  { label: "Invoiced", value: formatINR(member.total_invoiced ?? 0), color: "text-[#F8FAFC]" },
+                  { label: "Invoiced", value: formatINR(member.total_invoiced ?? 0), color: "text-[#FAFAFA]" },
                   { label: "Paid", value: formatINR(member.total_paid ?? 0), color: "text-[#10B981]" },
                   { label: "Due", value: formatINR(member.balance_due ?? 0), color: (member.balance_due ?? 0) > 0 ? "text-[#EF4444]" : "text-[#10B981]" },
                 ].map((item) => (
                   <div key={item.label} className="card p-4 text-center">
-                    <p className="text-[10px] font-semibold text-[#475569] uppercase tracking-widest mb-1">{item.label}</p>
+                    <p className="text-[10px] font-semibold text-[#52525B] uppercase tracking-widest mb-1">{item.label}</p>
                     <p className={`text-lg font-bold font-mono tracking-tighter ${item.color}`}>{item.value}</p>
                   </div>
                 ))}
@@ -334,18 +334,18 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
               {/* Ledger */}
               <div className="grid md:grid-cols-2 gap-8">
                 <div className="space-y-4">
-                  <p className="text-[10px] font-semibold text-[#475569] tracking-[0.2em] uppercase px-1">Payment History</p>
+                  <p className="text-[10px] font-semibold text-[#52525B] tracking-[0.2em] uppercase px-1">Payment History</p>
                   <div className="space-y-px">
                     {payments.length === 0 ? (
-                      <p className="text-xs text-[#475569] py-4 text-center italic">No payments yet</p>
+                      <p className="text-xs text-[#52525B] py-4 text-center italic">No payments yet</p>
                     ) : (
                       payments.map(p => (
                         <div key={p.id} className="flex items-center justify-between py-3.5 border-b border-white/5">
                           <div>
-                            <p className="text-sm font-medium text-[#F8FAFC]">{METHOD_LABELS[p.payment_method as PaymentMethod]}</p>
-                            <p className="text-[11px] font-mono text-[#475569] mt-0.5 uppercase">PAID {formatDate(p.paid_at)}</p>
+                            <p className="text-sm font-medium text-[#FAFAFA]">{METHOD_LABELS[p.payment_method as PaymentMethod]}</p>
+                            <p className="text-[11px] font-mono text-[#52525B] mt-0.5 uppercase">PAID {formatDate(p.paid_at)}</p>
                           </div>
-                          <span className="text-sm font-bold font-mono text-[#10B981]">{formatINR(p.amount)}</span>
+                          <span className="text-sm font-bold font-mono text-[#F59E0B]">{formatINR(p.amount)}</span>
                         </div>
                       ))
                     )}
@@ -353,18 +353,18 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
                 </div>
 
                 <div className="space-y-4">
-                  <p className="text-[10px] font-semibold text-[#475569] tracking-[0.2em] uppercase px-1">Recent Invoices</p>
+                  <p className="text-[10px] font-semibold text-[#52525B] tracking-[0.2em] uppercase px-1">Recent Invoices</p>
                   <div className="space-y-px">
                     {invoices.length === 0 ? (
-                      <p className="text-xs text-[#475569] py-4 text-center italic">No invoices found</p>
+                      <p className="text-xs text-[#52525B] py-4 text-center italic">No invoices found</p>
                     ) : (
                       invoices.map(inv => (
                         <div key={inv.id} className="flex items-center justify-between py-3.5 border-b border-white/5">
                           <div>
-                            <p className="text-sm font-medium text-[#F8FAFC]">#{inv.invoice_number}</p>
-                            <p className="text-[11px] font-mono text-[#475569] mt-0.5 uppercase">ISSUED {formatDate(inv.created_at)}</p>
+                            <p className="text-sm font-medium text-[#FAFAFA]">#{inv.invoice_number}</p>
+                            <p className="text-[11px] font-mono text-[#52525B] mt-0.5 uppercase">ISSUED {formatDate(inv.created_at)}</p>
                           </div>
-                          <span className="text-sm font-bold font-mono text-[#F8FAFC]">{formatINR(inv.amount)}</span>
+                          <span className="text-sm font-bold font-mono text-[#F59E0B]">{formatINR(inv.amount)}</span>
                         </div>
                       ))
                     )}
@@ -377,11 +377,11 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
           {tab === "attendance" && (
             <div className="grid md:grid-cols-3 gap-8">
               <div className="md:col-span-2 space-y-4">
-                <p className="text-[10px] font-semibold text-[#475569] tracking-[0.2em] uppercase px-1">Monthly Attendance</p>
+                <p className="text-[10px] font-semibold text-[#52525B] tracking-[0.2em] uppercase px-1">Monthly Attendance</p>
                 <div className="card p-6">
                   <div className="grid grid-cols-7 gap-2">
                     {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(d => (
-                      <div key={d} className="h-8 flex items-center justify-center text-[10px] font-semibold text-[#475569] uppercase tracking-tighter">{d}</div>
+                      <div key={d} className="h-8 flex items-center justify-center text-[10px] font-semibold text-[#52525B] uppercase tracking-tighter">{d}</div>
                     ))}
                     {Array.from({ length: firstDayOffset }).map((_, i) => <div key={`empty-${i}`} />)}
                     {Array.from({ length: daysInMonth }).map((_, i) => {
@@ -391,10 +391,10 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
                       return (
                         <div key={day} className={`aspect-square rounded-lg flex items-center justify-center text-xs font-bold font-mono transition-all border ${
                           attended 
-                            ? "bg-[#6366F1] border-[#6366F1] text-white shadow-lg shadow-[#6366F1]/20 scale-105 z-10" 
+                            ? "bg-[#10B981] border-[#10B981] text-white shadow-lg shadow-[#10B981]/20 scale-105 z-10" 
                             : isToday 
-                              ? "border-[#6366F1] text-[#6366F1]" 
-                              : "bg-surface border-white/5 text-[#475569] hover:border-white/10"
+                              ? "border-[#10B981] text-[#10B981]" 
+                              : "bg-surface border-white/5 text-[#52525B] hover:border-white/10"
                         }`}>
                           {day}
                         </div>
@@ -405,15 +405,15 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
               </div>
 
               <div className="space-y-4">
-                <p className="text-[10px] font-semibold text-[#475569] tracking-[0.2em] uppercase px-1">Recent History</p>
+                <p className="text-[10px] font-semibold text-[#52525B] tracking-[0.2em] uppercase px-1">Recent History</p>
                 <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2 scrollbar-hide">
                   {attendance.length === 0 ? (
-                    <div className="card p-8 text-center text-xs text-[#475569]">No check-ins yet</div>
+                    <div className="card p-8 text-center text-xs text-[#52525B]">No check-ins yet</div>
                   ) : (
                     attendance.map(a => (
                       <div key={a.id} className="card p-3 flex justify-between items-center group hover:bg-white/3 transition-all">
-                        <span className="text-xs font-semibold text-[#F8FAFC] font-mono">{formatDate(a.checked_in_at)}</span>
-                        <span className="text-[11px] text-[#475569] font-mono">{new Date(a.checked_in_at).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}</span>
+                        <span className="text-xs font-semibold text-[#FAFAFA] font-mono">{formatDate(a.checked_in_at)}</span>
+                        <span className="text-[11px] text-[#52525B] font-mono">{new Date(a.checked_in_at).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}</span>
                       </div>
                     ))
                   )}
@@ -428,17 +428,17 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
       <BottomSheet open={showPayment} onClose={() => setShowPayment(false)} title="Record New Payment">
         <form onSubmit={handlePayment} className="space-y-6 pt-4 pb-8">
           <div>
-            <label className="text-xs font-medium text-[#94A3B8] block mb-1.5">Payment Amount (₹)</label>
+            <label className="text-xs font-medium text-[#A1A1AA] block mb-1.5">Payment Amount (₹)</label>
             <input 
               type="number" 
               required 
               value={payForm.amount} 
               onChange={e => setPayForm(p => ({ ...p, amount: e.target.value }))} 
-              className="w-full h-11 rounded-xl bg-[#080810] border border-white/8 px-4 text-sm text-[#F8FAFC] font-mono focus:border-[#6366F1]/40 focus:ring-4 focus:ring-[#6366F1]/5 outline-none transition-all" 
+              className="w-full h-11 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#FAFAFA] font-mono focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 outline-none transition-all" 
             />
           </div>
           <div>
-            <label className="text-xs font-medium text-[#94A3B8] block mb-3">Payment Method</label>
+            <label className="text-xs font-medium text-[#A1A1AA] block mb-3">Payment Method</label>
             <div className="grid grid-cols-2 gap-2">
               {PAYMENT_METHODS.map(m => (
                 <button 
@@ -447,8 +447,8 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
                   onClick={() => setPayForm(p => ({ ...p, method: m }))} 
                   className={`h-11 rounded-xl text-xs font-medium transition-all border ${
                     payForm.method === m 
-                      ? "bg-[#6366F1]/10 border-[#6366F1]/40 text-[#6366F1] shadow-sm shadow-[#6366F1]/10" 
-                      : "bg-surface border-white/6 text-[#94A3B8] hover:border-white/12"
+                      ? "bg-[#10B981]/10 border-[#10B981]/40 text-[#10B981] shadow-sm shadow-[#10B981]/10" 
+                      : "bg-surface border-white/6 text-[#A1A1AA] hover:border-white/12"
                   }`}
                 >
                   {METHOD_LABELS[m]}
@@ -456,32 +456,32 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
               ))}
             </div>
           </div>
-          <button type="submit" disabled={isPending} className="w-full h-12 rounded-xl bg-[#6366F1] text-white text-sm font-semibold active:scale-[0.98] transition-all disabled:opacity-50 mt-4 shadow-lg shadow-[#6366F1]/20">Record Transaction</button>
+          <button type="submit" disabled={isPending} className="w-full h-12 rounded-xl bg-[#10B981] text-white text-sm font-semibold active:scale-[0.98] transition-all disabled:opacity-50 mt-4 shadow-lg shadow-[#10B981]/20">Record Transaction</button>
         </form>
       </BottomSheet>
 
       <BottomSheet open={showPlan} onClose={() => setShowPlan(false)} title="Assign New Plan">
         <form onSubmit={handleAddPlan} className="space-y-6 pt-4 pb-8">
           <div>
-            <label className="text-xs font-medium text-[#94A3B8] block mb-1.5">Select Membership Plan</label>
+            <label className="text-xs font-medium text-[#A1A1AA] block mb-1.5">Select Membership Plan</label>
             <select 
               value={planForm.plan_id} 
               onChange={e => setPlanForm(p => ({ ...p, plan_id: e.target.value }))} 
-              className="w-full h-11 rounded-xl bg-[#080810] border border-white/8 px-4 text-sm text-[#F8FAFC] focus:border-[#6366F1]/40 focus:ring-4 focus:ring-[#6366F1]/5 outline-none"
+              className="w-full h-11 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#FAFAFA] focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 outline-none"
             >
               {plans.map(pl => <option key={pl.id} value={pl.id}>{pl.name} — {pl.duration_days} days — {formatINR(pl.price)}</option>)}
             </select>
           </div>
           <div>
-            <label className="text-xs font-medium text-[#94A3B8] block mb-1.5">Effective Start Date</label>
+            <label className="text-xs font-medium text-[#A1A1AA] block mb-1.5">Effective Start Date</label>
             <input 
               type="date" 
               value={planForm.start_date} 
               onChange={e => setPlanForm(p => ({ ...p, start_date: e.target.value }))} 
-              className="w-full h-11 rounded-xl bg-[#080810] border border-white/8 px-4 text-sm text-[#F8FAFC] focus:border-[#6366F1]/40 focus:ring-4 focus:ring-[#6366F1]/5 outline-none" 
+              className="w-full h-11 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#FAFAFA] focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 outline-none" 
             />
           </div>
-          <button type="submit" disabled={isPending} className="w-full h-12 rounded-xl bg-[#6366F1] text-white text-sm font-semibold active:scale-[0.98] transition-all mt-4 shadow-lg shadow-[#6366F1]/20">Assign Membership</button>
+          <button type="submit" disabled={isPending} className="w-full h-12 rounded-xl bg-[#10B981] text-white text-sm font-semibold active:scale-[0.98] transition-all mt-4 shadow-lg shadow-[#10B981]/20">Assign Membership</button>
         </form>
       </BottomSheet>
     </div>

@@ -16,19 +16,19 @@ export default function LoadingScreen() {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] bg-[#080810] flex flex-col items-center justify-center animate-fade-in transition-opacity duration-400">
+    <div className="fixed inset-0 z-[100] bg-[#09090B] flex flex-col items-center justify-center animate-fade-in transition-opacity duration-400">
       <div className="flex flex-col items-center gap-4">
         {/* Logo Section */}
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-2xl bg-[#6366F1] flex items-center justify-center shadow-lg shadow-[#6366F1]/30">
+          <div className="h-10 w-10 rounded-2xl bg-[#10B981] flex items-center justify-center shadow-lg shadow-[#10B981]/30">
             <Dumbbell size={20} className="text-white" />
           </div>
           <div className="flex flex-col">
             <span className="text-2xl font-bold tracking-tight">
-              <span className="text-[#6366F1]">Rep</span>
-              <span className="text-[#F8FAFC]">Core</span>
+              <span className="text-[#10B981]">Rep</span>
+              <span className="text-[#FAFAFA]">Core</span>
             </span>
-            <span className="text-[10px] text-[#475569] font-bold tracking-[0.25em] uppercase -mt-1 ml-0.5">
+            <span className="text-[10px] text-[#52525B] font-bold tracking-[0.25em] uppercase -mt-1 ml-0.5">
               Gym Management
             </span>
           </div>
@@ -37,7 +37,7 @@ export default function LoadingScreen() {
 
       {/* Loading Bar at Bottom */}
       <div className="fixed bottom-0 left-0 right-0 h-[2px] bg-white/3 overflow-hidden">
-        <div className="h-full w-full bg-gradient-to-r from-[#6366F1] via-indigo-400 to-[#6366F1] animate-progress-bar" />
+        <div className="h-full w-full bg-gradient-to-r from-[#10B981] via-indigo-400 to-[#10B981] animate-progress-bar" />
       </div>
 
       <style jsx>{`
