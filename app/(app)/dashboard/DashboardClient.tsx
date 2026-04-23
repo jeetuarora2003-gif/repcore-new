@@ -108,6 +108,7 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringSo
         <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
           {[
             { label: "Add Member", icon: Plus, href: "/members" },
+            { label: "Add Plan", icon: Dumbbell, href: "/plans" },
             { label: "Record Check-in", icon: Zap, href: "/members" },
             { label: "Check Dues", icon: TrendingUp, href: "/reports" },
             { label: "Send Reminders", icon: Bell, href: "/reminders" },

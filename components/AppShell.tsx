@@ -15,6 +15,7 @@ const NAV_ITEMS = [
   { label: "Home", href: "/dashboard", icon: Home },
   { label: "Members", href: "/members", icon: Users },
   { label: "Reminders", href: "/reminders", icon: Bell },
+  { label: "Plans", href: "/plans", icon: Dumbbell },
   { label: "Reports", href: "/reports", icon: LayoutGrid },
 ];
 
