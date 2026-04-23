@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useEffect } from "react";
 import { format, addDays } from "date-fns";
-import { Check, Camera, Search, User, CreditCard, ChevronRight, CheckCircle2, MessageCircle } from "lucide-react";
+import { Check, Camera, Search, User, CreditCard, ChevronRight, CheckCircle2, MessageCircle, Sparkles, Smartphone, ShieldCheck } from "lucide-react";
 import BottomSheet from "@/components/BottomSheet";
 import { createMembershipSaleAction } from "@/app/actions/members";
 import { toast } from "sonner";
@@ -118,12 +118,12 @@ export default function AddMemberWizard({ isOpen, onClose, gymId, plans }: AddMe
         });
         setStep(4); // Success screen
         
-        // Auto close after 5s
+        // Auto close after 8s
         setTimeout(() => {
           if (isOpen && step === 4) {
             onClose();
           }
-        }, 5000);
+        }, 8000);
       } catch (err) {
         toast.error((err as Error).message);
       }
@@ -131,30 +131,28 @@ export default function AddMemberWizard({ isOpen, onClose, gymId, plans }: AddMe
   }
 
   const StepIndicator = () => (
-    <div className="flex items-center justify-between px-8 py-6 border-b border-border bg-white">
+    <div className="flex items-center justify-between px-10 py-8 border-b border-border bg-white relative">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] h-[2px] bg-hover z-0" />
       {[
-        { num: 1, label: "Profile" },
-        { num: 2, label: "Plan" },
-        { num: 3, label: "Payment" },
+        { num: 1, label: "Profile", icon: User },
+        { num: 2, label: "Tier", icon: Sparkles },
+        { num: 3, label: "Billing", icon: CreditCard },
       ].map((s, i) => {
         const isActive = step === s.num;
         const isPast = step > s.num;
+        const Icon = s.icon;
         return (
           <div key={s.num} className="flex flex-col items-center flex-1 relative z-10">
-            <div className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
-              isPast ? "bg-accent text-white" : 
-              isActive ? "bg-accent text-white ring-4 ring-accent/15" : 
-              "bg-hover text-text-muted border border-border"
+            <div className={`h-10 w-10 rounded-xl flex items-center justify-center transition-all duration-500 shadow-sm ${
+              isPast ? "bg-accent text-white scale-110" : 
+              isActive ? "bg-accent text-white ring-8 ring-accent/10 scale-110" : 
+              "bg-white text-text-muted border-2 border-border"
             }`}>
-              {isPast ? <Check size={16} strokeWidth={3} /> : s.num}
+              {isPast ? <Check size={20} strokeWidth={3} /> : <Icon size={18} strokeWidth={2.5} />}
             </div>
-            <span className={`mt-2 text-[10px] font-bold uppercase tracking-widest ${isActive ? "text-accent" : "text-text-muted"}`}>
+            <span className={`mt-3 text-[10px] font-bold uppercase tracking-[0.2em] transition-colors duration-300 ${isActive ? "text-accent" : "text-text-muted"}`}>
               {s.label}
             </span>
-            {/* Connecting lines */}
-            {i < 2 && (
-              <div className={`absolute top-4 left-[60%] w-[80%] h-[2px] -z-10 ${isPast ? "bg-accent" : "bg-border"}`} />
-            )}
           </div>
         );
       })}
@@ -162,200 +160,294 @@ export default function AddMemberWizard({ isOpen, onClose, gymId, plans }: AddMe
   );
 
   return (
-    <BottomSheet open={isOpen} onClose={onClose} title={step === 4 ? "" : "New Member"}>
-      {step < 4 && <StepIndicator />}
+    <BottomSheet open={isOpen} onClose={onClose} title={step === 4 ? "" : "Membership Orchestration"}>
+      <div className="flex flex-col max-h-[85vh] bg-white overflow-hidden rounded-t-[2.5rem]">
+        {step < 4 && <StepIndicator />}
 
-      <form onSubmit={handleSubmit} className="flex flex-col max-h-[80vh] bg-white">
-        {/* Hidden inputs */}
-        <input type="hidden" name="startDate" value={startDate || defaultDate} />
-        <input type="hidden" name="planId" value={selectedPlanId} />
-        <input type="hidden" name="paymentMethod" value={paymentMethod || "cash"} />
-        <input type="hidden" name="amountPaid" value={amountPaid ?? totalFee} />
-        <input type="hidden" name="photoUrl" value={photoUrl || ""} />
-        <input type="hidden" name="deviceEnrollmentId" value={deviceId || ""} />
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto bg-page">
+          <div className="p-6 md:p-10 space-y-8">
+            {/* STEP 1: PROFILE */}
+            {step === 1 && (
+              <div className="space-y-8 animate-fade-up">
+                <div className="bg-white p-6 rounded-[2rem] border-2 border-border shadow-sm flex flex-col items-center text-center space-y-4">
+                  <div className="relative group">
+                    <div className="h-24 w-24 rounded-full border-4 border-dashed border-border flex flex-col items-center justify-center bg-page group-hover:border-accent group-hover:bg-accent-light transition-all cursor-pointer overflow-hidden">
+                      {photoUrl ? (
+                        <img src={photoUrl} alt="Preview" className="h-full w-full object-cover" />
+                      ) : (
+                        <>
+                          <Camera size={28} className="text-text-muted group-hover:text-accent transition-colors" />
+                          <span className="text-[9px] font-bold text-text-muted uppercase mt-1">Photo</span>
+                        </>
+                      )}
+                    </div>
+                    <div className="absolute -bottom-1 -right-1 h-8 w-8 bg-accent rounded-full flex items-center justify-center text-white border-4 border-white shadow-lg">
+                      <Plus size={14} strokeWidth={3} />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-text-primary uppercase tracking-widest">Member Portrait</h3>
+                    <p className="text-[11px] text-text-secondary font-medium mt-1">Visual verification for automated access control</p>
+                  </div>
+                </div>
 
-        <div className="p-6 md:p-8 overflow-y-auto flex-1 bg-page">
-          {/* STEP 1: PROFILE */}
-          {step === 1 && (
-            <div className="space-y-6 animate-fade-up">
-              <div className="flex items-center gap-6 bg-white p-4 rounded-2xl border border-border">
-                <button type="button" className="h-16 w-16 rounded-full border-2 border-dashed border-border flex flex-col items-center justify-center bg-page hover:bg-hover hover:border-accent/40 transition-all group">
-                  <Camera size={20} className="text-text-muted group-hover:text-accent" />
-                  <span className="text-[9px] font-bold text-text-muted uppercase mt-1">Add photo</span>
-                </button>
-                <div className="flex-1">
-                  <p className="text-xs font-bold text-text-primary uppercase tracking-wide">Member Photo</p>
-                  <p className="text-[11px] text-text-secondary mt-1">Capture member photo for check-in verification</p>
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-text-muted uppercase tracking-[0.2em] ml-1">Identity Designation</label>
+                    <input 
+                      required 
+                      placeholder="e.g. Vikram Singh" 
+                      value={fullName} 
+                      onChange={e => setFullName(e.target.value)} 
+                      className="w-full h-14 bg-white border-2 border-border rounded-2xl px-6 text-sm text-text-primary font-bold placeholder:text-text-muted/50 focus:border-accent focus:ring-4 focus:ring-accent/5 outline-none transition-all shadow-sm" 
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-text-muted uppercase tracking-[0.2em] ml-1">Primary Contact (WhatsApp)</label>
+                    <div className="relative">
+                      <input 
+                        required 
+                        type="tel" 
+                        maxLength={10} 
+                        placeholder="10-digit mobile number" 
+                        value={phone} 
+                        onChange={e => setPhone(e.target.value.replace(/\D/g, ''))} 
+                        className={`w-full h-14 bg-white border-2 rounded-2xl px-6 text-sm text-text-primary font-bold font-mono outline-none transition-all shadow-sm ${
+                          phone.length > 0 && phone.length < 10 
+                            ? "border-status-warning-border ring-4 ring-status-warning-bg bg-status-warning-bg/10" 
+                            : "border-border focus:border-accent focus:ring-4 focus:ring-accent/5"
+                        }`} 
+                      />
+                      {phone.length === 10 && (
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 text-status-success-text">
+                          <ShieldCheck size={20} />
+                        </div>
+                      )}
+                    </div>
+                    {phone.length > 0 && phone.length < 10 && (
+                      <p className="text-status-warning-text text-[10px] font-bold mt-2 uppercase tracking-widest flex items-center gap-1.5 ml-1">
+                        <Smartphone size={12} /> Awaiting full 10-digit sequence
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-text-muted uppercase tracking-[0.2em] ml-1">Terminal Enrollment ID</label>
+                    <input 
+                      placeholder="e.g. 1024" 
+                      value={deviceId} 
+                      onChange={e => setDeviceId(e.target.value)} 
+                      className="w-full h-14 bg-white border-2 border-border rounded-2xl px-6 text-sm text-text-primary font-bold font-mono placeholder:text-text-muted/50 focus:border-accent focus:ring-4 focus:ring-accent/5 outline-none transition-all shadow-sm" 
+                    />
+                    <p className="text-[10px] text-text-muted font-bold uppercase tracking-wider mt-2 ml-1">Required for hardware biometric sync</p>
+                  </div>
                 </div>
               </div>
+            )}
 
-              <div className="space-y-5">
-                <div>
-                  <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-1.5 block">Full name *</label>
-                  <input required placeholder="e.g. Rahul Sharma" value={fullName} onChange={e => setFullName(e.target.value)} className="w-full h-12 bg-white border border-border rounded-xl px-4 text-sm text-text-primary font-semibold focus:border-accent focus:ring-1 focus:ring-accent/15 outline-none transition-all shadow-sm" />
+            {/* STEP 2: PLAN SELECTION */}
+            {step === 2 && (
+              <div className="space-y-8 animate-fade-up">
+                <div className="flex items-center justify-between px-1">
+                  <h3 className="text-[10px] font-bold text-text-muted uppercase tracking-[0.2em]">Select Subscription Architecture</h3>
+                  <span className="text-[9px] font-bold bg-accent-light text-accent-text px-2 py-1 rounded-full border border-accent-border uppercase tracking-widest">{plans.length} Tiers Available</span>
                 </div>
-                <div>
-                  <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-1.5 block">Phone number *</label>
-                  <input required type="tel" maxLength={10} placeholder="10-digit mobile number" value={phone} onChange={e => setPhone(e.target.value.replace(/\D/g, ''))} className="w-full h-12 bg-white border border-border rounded-xl px-4 text-sm text-text-primary font-bold font-mono focus:border-accent focus:ring-1 focus:ring-accent/15 outline-none transition-all shadow-sm" />
-                  {phone.length > 0 && phone.length < 10 && <p className="text-status-danger-text text-[10px] font-bold mt-1 uppercase tracking-wider">Invalid Phone Number</p>}
-                </div>
-                <div>
-                  <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-1.5 block">Device Enrollment ID</label>
-                  <input placeholder="e.g. 007" value={deviceId} onChange={e => setDeviceId(e.target.value)} className="w-full h-12 bg-white border border-border rounded-xl px-4 text-sm text-text-primary font-bold font-mono focus:border-accent focus:ring-1 focus:ring-accent/15 outline-none transition-all shadow-sm" />
-                  <p className="text-[10px] text-text-secondary font-medium mt-1">Required only for biometric fingerprint sync</p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* STEP 2: PLAN SELECTION */}
-          {step === 2 && (
-            <div className="space-y-6 animate-fade-up">
-              <div>
-                <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-3 block">Membership Plan</label>
-                <div className="space-y-3">
+                
+                <div className="grid gap-4">
                   {plans.map(p => {
                     const isSelected = selectedPlanId === p.id;
                     const isPopular = p.id === popularPlanId;
                     return (
-                      <button key={p.id} type="button" onClick={() => setSelectedPlanId(p.id)} className={`w-full min-h-[64px] text-left rounded-xl p-4 flex items-center justify-between border-2 transition-all ${isSelected ? "bg-accent-light border-accent shadow-sm" : "bg-white border-border hover:border-border-strong"}`}>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h4 className={`text-sm font-bold ${isSelected ? "text-accent-text" : "text-text-primary"}`}>{p.name}</h4>
-                            {isPopular && <span className="bg-accent text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">Popular</span>}
+                      <button 
+                        key={p.id} 
+                        type="button" 
+                        onClick={() => setSelectedPlanId(p.id)} 
+                        className={`group w-full rounded-2xl p-5 flex items-center justify-between border-2 transition-all relative overflow-hidden ${
+                          isSelected 
+                            ? "bg-white border-accent shadow-xl scale-[1.02] ring-4 ring-accent/5" 
+                            : "bg-white/60 border-border hover:border-border-strong hover:bg-white"
+                        }`}
+                      >
+                        <div className="flex items-center gap-4 relative z-10">
+                          <div className={`h-12 w-12 rounded-xl flex items-center justify-center transition-colors ${isSelected ? "bg-accent text-white" : "bg-page text-text-muted border border-border"}`}>
+                            <Sparkles size={20} />
                           </div>
-                          <p className="text-[11px] font-bold text-text-muted mt-0.5 uppercase tracking-wider">{p.duration_days} days</p>
+                          <div className="text-left">
+                            <div className="flex items-center gap-2">
+                              <h4 className={`text-sm font-bold uppercase tracking-wide ${isSelected ? "text-accent-text" : "text-text-primary"}`}>{p.name}</h4>
+                              {isPopular && <span className="bg-accent text-white text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest">Recommended</span>}
+                            </div>
+                            <p className="text-[10px] font-bold text-text-muted mt-1 uppercase tracking-widest">{p.duration_days} Day Duration</p>
+                          </div>
                         </div>
-                        <span className={`text-base font-mono font-bold ${isSelected ? "text-accent-text" : "text-text-primary"}`}>{formatINR(p.price)}</span>
+                        <div className="text-right relative z-10">
+                          <span className={`text-xl font-mono font-bold tracking-tighter ${isSelected ? "text-accent-text" : "text-text-primary"}`}>{formatINR(p.price)}</span>
+                        </div>
+                        {isSelected && <div className="absolute right-0 top-0 bottom-0 w-1 bg-accent" />}
                       </button>
                     );
                   })}
                 </div>
-              </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-1.5 block">Start date</label>
-                  <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="w-full h-12 bg-white border border-border rounded-xl px-4 text-sm text-text-primary font-bold focus:border-accent focus:outline-none shadow-sm" />
-                </div>
-                <div>
-                  <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-1.5 block">Expires on</label>
-                  <div className="w-full h-12 bg-hover border border-border rounded-xl px-4 text-sm text-text-secondary font-bold flex items-center">{expiresOn}</div>
+                <div className="grid grid-cols-2 gap-4 bg-white p-6 rounded-[2rem] border-2 border-border shadow-sm">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest ml-1">Onboarding Date</label>
+                    <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="w-full h-12 bg-page border-2 border-border rounded-xl px-4 text-xs text-text-primary font-bold focus:border-accent outline-none transition-all" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest ml-1">Expiry Forecast</label>
+                    <div className="w-full h-12 bg-hover border-2 border-border rounded-xl px-4 text-xs text-text-secondary font-bold flex items-center">{expiresOn}</div>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* STEP 3: PAYMENT */}
-          {step === 3 && (
-            <div className="space-y-6 animate-fade-up">
-              {/* Plan Summary Strip */}
-              <div className="bg-accent-light border border-accent-border rounded-xl p-4 flex justify-between items-center">
-                <div>
-                  <p className="text-xs font-bold text-accent-text uppercase tracking-wide">
-                    {selectedPlan?.name} <span className="text-accent/30 px-1">|</span> {selectedPlan?.duration_days} days
-                  </p>
-                  <p className="text-[10px] font-bold text-accent-text/70 uppercase tracking-widest mt-1">Expires {expiresOn}</p>
-                </div>
-                <button type="button" onClick={() => setStep(2)} className="text-[10px] text-accent font-bold uppercase tracking-widest hover:underline">Change</button>
-              </div>
+            {/* STEP 3: PAYMENT */}
+            {step === 3 && (
+              <div className="space-y-8 animate-fade-up">
+                {/* Summary Card */}
+                <div className="bg-white border-2 border-border rounded-[2rem] overflow-hidden shadow-sm">
+                  <div className="bg-accent-light p-6 border-b-2 border-accent-border flex justify-between items-center">
+                    <div>
+                      <p className="text-[10px] font-bold text-accent-text uppercase tracking-[0.2em] mb-1">Active Selection</p>
+                      <p className="text-sm font-bold text-accent-text">{selectedPlan?.name}</p>
+                    </div>
+                    <button type="button" onClick={() => setStep(2)} className="h-8 w-8 bg-white rounded-lg flex items-center justify-center text-accent shadow-sm border border-accent-border hover:bg-accent hover:text-white transition-all">
+                      <ChevronRight size={16} />
+                    </button>
+                  </div>
+                  
+                  <div className="p-8 space-y-6">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Base Subscription Fee</span>
+                      <span className="text-lg font-mono font-bold text-text-primary">{formatINR(totalFee)}</span>
+                    </div>
 
-              {/* Payment Mode */}
-              <div>
-                <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-2 block">Payment mode</label>
-                <div className="flex gap-2">
-                  {["Cash", "UPI", "Card", "Other"].map(mode => {
-                    const isSelected = paymentMethod.toLowerCase() === mode.toLowerCase();
-                    return (
-                      <button key={mode} type="button" onClick={() => setPaymentMethod(mode.toLowerCase())} className={`flex-1 h-10 rounded-lg text-xs font-bold transition-all border ${isSelected ? "bg-accent text-white border-accent" : "bg-white text-text-muted border-border hover:bg-hover"}`}>
-                        {mode}
+                    <div className="flex justify-between items-center bg-page p-4 rounded-xl border border-border">
+                      <div className="flex items-center gap-3">
+                        <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${isFullPayment ? "bg-accent text-white" : "bg-white text-text-muted border border-border"}`}>
+                          <Check size={16} strokeWidth={3} />
+                        </div>
+                        <span className="text-[10px] font-bold text-text-primary uppercase tracking-widest">Full Payment Upfront</span>
+                      </div>
+                      <button type="button" onClick={() => setIsFullPayment(!isFullPayment)} className={`w-12 h-6 rounded-full transition-all relative ${isFullPayment ? "bg-accent shadow-lg shadow-accent/20" : "bg-border"}`}>
+                        <div className={`absolute top-1 bottom-1 w-4 bg-white rounded-full transition-all shadow-sm ${isFullPayment ? "left-7" : "left-1"}`} />
                       </button>
-                    )
-                  })}
+                    </div>
+
+                    {!isFullPayment && (
+                      <div className="space-y-4 animate-fade-in">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest ml-1">Collected Amount</label>
+                          <input type="number" placeholder="Enter custom amount" value={customAmount} onChange={e => setCustomAmount(e.target.value)} className="w-full h-14 bg-white border-2 border-border rounded-2xl px-6 text-sm text-text-primary font-bold font-mono focus:border-accent outline-none shadow-inner" />
+                        </div>
+                        <div className="flex justify-between items-center px-2">
+                          <span className="text-[10px] font-bold text-status-danger-text uppercase tracking-widest">Calculated Balance Due</span>
+                          <span className="text-xs font-mono font-bold text-status-danger-text">₹{Math.max(0, totalFee - (Number(customAmount) || 0))}</span>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="pt-6 border-t-2 border-dashed border-border flex justify-between items-center">
+                      <div className="space-y-1">
+                        <p className="text-[10px] font-bold text-text-muted uppercase tracking-[0.2em]">Immediate Collection</p>
+                        <p className="text-[9px] font-bold text-text-muted uppercase tracking-widest">{paymentMethod} Transaction</p>
+                      </div>
+                      <span className="text-3xl font-mono font-bold text-accent tracking-tighter">{formatINR(amountPaid)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest ml-1">Channel Selection</label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {["Cash", "UPI", "Card", "Other"].map(mode => {
+                      const isSelected = paymentMethod.toLowerCase() === mode.toLowerCase();
+                      return (
+                        <button key={mode} type="button" onClick={() => setPaymentMethod(mode.toLowerCase())} className={`h-11 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all border-2 ${isSelected ? "bg-accent text-white border-accent shadow-md scale-105" : "bg-white text-text-muted border-border hover:border-border-strong"}`}>
+                          {mode}
+                        </button>
+                      )
+                    })}
+                  </div>
                 </div>
               </div>
+            )}
 
-              {/* Amount Card */}
-              <div className="bg-white border border-border rounded-2xl p-5 space-y-4 shadow-sm">
-                <div className="flex justify-between items-center">
-                  <span className="text-xs font-bold text-text-secondary uppercase tracking-widest">Plan fee</span>
-                  <span className="text-base font-mono font-bold text-text-primary">{formatINR(totalFee)}</span>
+            {/* STEP 4: SUCCESS */}
+            {step === 4 && successData && (
+              <div className="py-16 flex flex-col items-center justify-center text-center animate-fade-up">
+                <div className="relative mb-8">
+                  <div className="w-24 h-24 bg-accent rounded-full flex items-center justify-center border-8 border-accent-light shadow-2xl animate-bounce">
+                    <CheckCircle2 className="w-12 h-12 text-white" />
+                  </div>
+                  <div className="absolute -top-2 -right-2 bg-white p-2 rounded-xl shadow-xl border border-border">
+                    <Sparkles className="text-accent" size={20} />
+                  </div>
                 </div>
                 
-                <div className="flex justify-between items-center pt-2">
-                  <span className="text-xs font-bold text-text-secondary uppercase tracking-widest">Full payment</span>
-                  <button type="button" onClick={() => setIsFullPayment(!isFullPayment)} className={`w-11 h-6 rounded-full transition-colors relative ${isFullPayment ? "bg-accent" : "bg-border"}`}>
-                    <span className={`absolute top-1 bottom-1 w-4 bg-white rounded-full transition-transform ${isFullPayment ? "left-6" : "left-1"}`} />
+                <div className="space-y-2 mb-10">
+                  <h2 className="text-[10px] font-bold text-text-muted uppercase tracking-[0.4em]">Member Onboarded</h2>
+                  <p className="text-3xl font-bold text-text-primary tracking-tight">{successData.name}</p>
+                  <div className="inline-flex items-center gap-2 bg-white border border-border px-4 py-1.5 rounded-full shadow-sm">
+                    <span className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">{successData.planName}</span>
+                    <span className="h-1 w-1 rounded-full bg-border" />
+                    <span className="text-[10px] font-bold text-accent uppercase tracking-widest">Exp {successData.expiry}</span>
+                  </div>
+                </div>
+
+                <div className="w-full max-w-xs space-y-4">
+                  <a 
+                    href={`https://wa.me/91${phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hi ${successData.name.split(' ')[0]}, welcome to the gym! Your ${successData.planName} membership is active until ${successData.expiry}. See you at the gym! 💪`)}`}
+                    target="_blank" rel="noopener noreferrer"
+                    className="flex items-center justify-center w-full h-14 bg-[#25D366] hover:bg-[#20BD5A] text-white rounded-2xl font-bold transition-all gap-3 shadow-xl shadow-[#25D366]/20 uppercase text-[11px] tracking-[0.2em] group"
+                  >
+                    <MessageCircle size={20} className="group-hover:scale-110 transition-transform" />
+                    Share Welcome Kit
+                  </a>
+                  <button type="button" onClick={() => {
+                    setStep(1); setFullName(""); setPhone(""); setPhotoUrl(""); setDeviceId(""); setCustomAmount(""); setIsFullPayment(true);
+                  }} className="flex items-center justify-center w-full h-14 bg-white border-2 border-border text-text-primary hover:bg-hover rounded-2xl font-bold transition-all uppercase text-[11px] tracking-[0.2em]">
+                    Enroll Next Member
                   </button>
                 </div>
-
-                {!isFullPayment && (
-                  <div className="pt-2 animate-fade-in">
-                    <input type="number" placeholder={String(totalFee)} value={customAmount} onChange={e => setCustomAmount(e.target.value)} className="w-full h-12 bg-page border border-border rounded-xl px-4 text-sm text-text-primary font-bold font-mono focus:border-accent outline-none" />
-                    <p className="text-[10px] font-bold text-status-danger-text mt-2 uppercase tracking-widest">
-                      Remaining Due: <span className="font-mono">₹{Math.max(0, totalFee - (Number(customAmount) || 0))}</span>
-                    </p>
-                  </div>
-                )}
-
-                <div className="pt-4 border-t border-border flex justify-between items-end">
-                  <span className="text-xs text-text-muted uppercase tracking-widest font-bold">Total Collection</span>
-                  <span className="text-2xl font-mono font-bold text-accent">{formatINR(amountPaid)}</span>
-                </div>
               </div>
-            </div>
-          )}
-
-          {/* STEP 4: SUCCESS */}
-          {step === 4 && successData && (
-            <div className="py-12 flex flex-col items-center justify-center text-center animate-fade-up">
-              <div className="w-20 h-20 bg-status-success-bg rounded-full flex items-center justify-center mb-6 border border-status-success-border shadow-md">
-                <CheckCircle2 className="w-10 h-10 text-status-success-text" />
-              </div>
-              <h2 className="text-[10px] font-bold text-text-muted uppercase tracking-[0.3em] mb-2">Member Onboarded</h2>
-              <p className="text-2xl font-bold text-text-primary mb-1">{successData.name}</p>
-              <p className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-8">{successData.planName} • Exp {successData.expiry}</p>
-
-              <div className="w-full max-w-xs space-y-3">
-                <a 
-                  href={`https://wa.me/91${phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hi ${successData.name.split(' ')[0]}, welcome to the gym! Your ${successData.planName} membership is active until ${successData.expiry}. See you at the gym! 💪`)}`}
-                  target="_blank" rel="noopener noreferrer"
-                  className="flex items-center justify-center w-full h-12 bg-[#25D366] hover:bg-[#20BD5A] text-white rounded-xl font-bold transition-all gap-2 shadow-lg shadow-[#25D366]/20 uppercase text-xs tracking-widest"
-                >
-                  <MessageCircle size={18} />
-                  Share Receipt
-                </a>
-                <button type="button" onClick={() => {
-                  setStep(1); setFullName(""); setPhone(""); setPhotoUrl(""); setDeviceId(""); setCustomAmount(""); setIsFullPayment(true);
-                }} className="flex items-center justify-center w-full h-12 bg-white border border-border text-text-primary hover:bg-hover rounded-xl font-bold transition-all uppercase text-xs tracking-widest">
-                  Next Member
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        </form>
 
         {/* Action Buttons */}
         {step < 4 && (
-          <div className="p-6 border-t border-border bg-white">
-            {step === 1 && (
-              <button type="button" onClick={handleNextToPlan} className="w-full h-12 bg-accent hover:bg-accent-hover text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 uppercase tracking-widest text-xs shadow-lg shadow-accent/20">
-                Continue to Plans <ChevronRight size={16} />
+          <div className="p-8 border-t border-border bg-white flex gap-4">
+            {step > 1 && (
+              <button 
+                type="button" 
+                onClick={() => setStep(step - 1)} 
+                className="h-14 px-6 bg-white border-2 border-border text-text-muted rounded-2xl font-bold hover:bg-hover transition-all"
+              >
+                <ChevronRight size={20} className="rotate-180" />
               </button>
             )}
-            {step === 2 && (
-              <button type="button" onClick={handleNextToPayment} className="w-full h-12 bg-accent hover:bg-accent-hover text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 uppercase tracking-widest text-xs shadow-lg shadow-accent/20">
-                Continue to Payment <ChevronRight size={16} />
-              </button>
-            )}
-            {step === 3 && (
-              <button type="submit" disabled={isPending} className="w-full h-12 bg-accent hover:bg-accent-hover text-white rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-widest text-xs shadow-lg shadow-accent/20">
-                {isPending ? "Creating Account..." : "Confirm & Enroll Member"}
-              </button>
-            )}
+            <button 
+              type="button" 
+              onClick={step === 3 ? undefined : (step === 2 ? handleNextToPayment : handleNextToPlan)} 
+              onClickCapture={step === 3 ? (e) => handleSubmit(e as any) : undefined}
+              disabled={isPending} 
+              className="flex-1 h-14 bg-accent hover:bg-accent-hover text-white rounded-2xl font-bold transition-all flex items-center justify-center gap-3 uppercase tracking-[0.2em] text-xs shadow-xl shadow-accent/20 disabled:opacity-50"
+            >
+              {isPending ? "Orchestrating..." : (
+                <>
+                  {step === 1 && "Continue to Tiers"}
+                  {step === 2 && "Continue to Billing"}
+                  {step === 3 && "Complete Enrollment"}
+                  <ChevronRight size={18} strokeWidth={3} />
+                </>
+              )}
+            </button>
           </div>
         )}
-      </form>
+      </div>
     </BottomSheet>
   );
 }
