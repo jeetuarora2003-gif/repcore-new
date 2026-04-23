@@ -21,6 +21,8 @@ export interface Database {
           logo_url: string;
           whatsapp_api_key: string;
           whatsapp_credits: number;
+          whatsapp_reminder_mode: "manual" | "auto";
+          whatsapp_phone_number: string;
           receipt_prefix: string;
           invoice_prefix: string;
           created_at: string;
@@ -34,6 +36,8 @@ export interface Database {
           logo_url?: string;
           whatsapp_api_key?: string;
           whatsapp_credits?: number;
+          whatsapp_reminder_mode?: "manual" | "auto";
+          whatsapp_phone_number?: string;
           receipt_prefix?: string;
           invoice_prefix?: string;
           created_at?: string;
@@ -104,6 +108,9 @@ export interface Database {
           start_date: string;
           end_date: string;
           frozen_days_used: number;
+          reminder_5_sent_at: string | null;
+          reminder_3_sent_at: string | null;
+          reminder_1_sent_at: string | null;
           created_at: string;
         };
         Insert: {
@@ -114,6 +121,9 @@ export interface Database {
           start_date: string;
           end_date: string;
           frozen_days_used?: number;
+          reminder_5_sent_at?: string | null;
+          reminder_3_sent_at?: string | null;
+          reminder_1_sent_at?: string | null;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["subscriptions"]["Insert"]>;
@@ -149,7 +159,7 @@ export interface Database {
           invoice_id: string | null;
           receipt_number: string;
           amount: number;
-          payment_method: string;
+          payment_method: "cash" | "upi" | "card" | "bank_transfer";
           notes: string;
           paid_at: string;
         };
@@ -160,7 +170,7 @@ export interface Database {
           invoice_id?: string | null;
           receipt_number: string;
           amount: number;
-          payment_method?: string;
+          payment_method?: "cash" | "upi" | "card" | "bank_transfer";
           notes?: string;
           paid_at?: string;
         };
@@ -189,7 +199,7 @@ export interface Database {
           gym_id: string;
           member_id: string;
           subscription_id: string | null;
-          stage: number;
+          stage: 5 | 3 | 1;
           sent_at: string;
           method: string;
         };
@@ -198,7 +208,7 @@ export interface Database {
           gym_id: string;
           member_id: string;
           subscription_id?: string | null;
-          stage: number;
+          stage: 5 | 3 | 1;
           sent_at?: string;
           method?: string;
         };
@@ -222,19 +232,90 @@ export interface Database {
           start_date: string | null;
           end_date: string | null;
           plan_id: string | null;
+          reminder_5_sent_at: string | null;
+          reminder_3_sent_at: string | null;
+          reminder_1_sent_at: string | null;
           plan_name: string | null;
           duration_days: number | null;
           plan_price: number | null;
           total_invoiced: number;
           total_paid: number;
           balance_due: number;
+          credit_balance: number;
           days_until_expiry: number | null;
           status: string;
         };
         Relationships: EmptyRelationships;
       };
     };
-    Functions: Record<string, never>;
+    Functions: {
+      add_subscription_with_invoice: {
+        Args: {
+          p_gym_id: string;
+          p_member_id: string;
+          p_plan_id: string;
+          p_start_date: string;
+          p_end_date: string;
+          p_plan_price: number;
+        };
+        Returns: {
+          subscription_id: string;
+          invoice_id: string;
+          invoice_number: string;
+        };
+      };
+      create_membership_sale: {
+        Args: {
+          p_gym_id: string;
+          p_full_name: string;
+          p_phone: string;
+          p_email: string;
+          p_photo_url: string;
+          p_notes: string;
+          p_device_id: string;
+          p_plan_id: string;
+          p_start_date: string;
+          p_end_date: string;
+          p_plan_fee: number;
+          p_amount_paid: number;
+          p_payment_method: "cash" | "upi" | "card" | "bank_transfer";
+        };
+        Returns: {
+          member_id: string;
+          subscription_id: string;
+          invoice_id: string;
+          payment_id: string | null;
+          invoice_number: string;
+          receipt_number: string | null;
+        };
+      };
+      get_dashboard_stats: {
+        Args: {
+          p_gym_id: string;
+        };
+        Returns: {
+          total: number;
+          active: number;
+          expiring: number;
+          dues: number;
+          new_this_month: number;
+        };
+      };
+      record_payment_with_receipt: {
+        Args: {
+          p_gym_id: string;
+          p_member_id: string;
+          p_invoice_id: string | null;
+          p_amount: number;
+          p_payment_method: "cash" | "upi" | "card" | "bank_transfer";
+          p_notes?: string;
+        };
+        Returns: {
+          payment_id: string;
+          receipt_number: string;
+        };
+      };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };
@@ -249,3 +330,7 @@ export type Payment = Database["public"]["Tables"]["payments"]["Row"];
 export type Attendance = Database["public"]["Tables"]["attendance"]["Row"];
 export type Reminder = Database["public"]["Tables"]["reminders"]["Row"];
 export type MemberStatus = Database["public"]["Views"]["v_member_status"]["Row"];
+export type DashboardStats = Database["public"]["Functions"]["get_dashboard_stats"]["Returns"];
+export type MembershipSaleResult = Database["public"]["Functions"]["create_membership_sale"]["Returns"];
+export type SubscriptionSaleResult = Database["public"]["Functions"]["add_subscription_with_invoice"]["Returns"];
+export type PaymentReceiptResult = Database["public"]["Functions"]["record_payment_with_receipt"]["Returns"];

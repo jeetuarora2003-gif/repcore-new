@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, ClipboardList, ToggleLeft, ToggleRight, Zap, CheckCircle2, X } from "lucide-react";
+import { Plus, ClipboardList, ToggleLeft, ToggleRight, Zap, CheckCircle2 } from "lucide-react";
 import { formatINR } from "@/lib/helpers";
 import type { Plan } from "@/lib/supabase/types";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";

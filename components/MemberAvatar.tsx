@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element */
+
 import { memberInitials, avatarColor, statusAvatarColor } from "@/lib/helpers";
 
 interface Props {

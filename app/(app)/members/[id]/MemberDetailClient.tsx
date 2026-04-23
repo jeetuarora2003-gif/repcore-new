@@ -2,21 +2,16 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import {
-  ChevronLeft, Phone, ScanLine, CreditCard, Bell, Snowflake,
-  Plus, MessageCircle, Check, AlertCircle, ChevronDown, ChevronUp,
-  Mail, Calendar, FileText, Zap, Clock, History, IndianRupee
-} from "lucide-react";
-import { formatINR, formatDate, statusBadgeClass, statusLabel, memberInitials } from "@/lib/helpers";
-import type { Gym, Invoice, Payment, Attendance, Plan, Reminder, MemberStatus, Subscription } from "@/lib/supabase/types";
-import type { MemberStatusType } from "@/lib/helpers";
-import MemberAvatar from "@/components/MemberAvatar";
-import BottomSheet from "@/components/BottomSheet";
+import { Bell, Calendar, FileText, History, IndianRupee, Phone, ScanLine, ShieldAlert, Zap } from "lucide-react";
+import { addSubscription, recordPayment } from "@/app/actions/subscriptions";
 import { checkIn } from "@/app/actions/attendance";
-import { recordPayment, addSubscription } from "@/app/actions/subscriptions";
-import { toggleFreeze } from "@/app/actions/members";
 import { markReminderSent } from "@/app/actions/reminders";
+import BottomSheet from "@/components/BottomSheet";
+import MemberAvatar from "@/components/MemberAvatar";
+import { buildWhatsappUrl } from "@/lib/phone";
+import { formatDate, formatINR, getTodayDateInput, isSameDayInTimeZone, statusBadgeClass, statusLabel } from "@/lib/helpers";
+import type { Attendance, Gym, Invoice, MemberStatus, Payment, Plan } from "@/lib/supabase/types";
+import type { MemberStatusType } from "@/lib/helpers";
 import { toast } from "sonner";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -27,8 +22,6 @@ interface Props {
   payments: Payment[];
   attendance: Attendance[];
   plans: Plan[];
-  reminders: Reminder[];
-  subscriptions: Subscription[];
 }
 
 type TabType = "overview" | "billing" | "attendance";
@@ -43,7 +36,7 @@ const METHOD_LABELS: Record<PaymentMethod, string> = {
   bank_transfer: "Bank",
 };
 
-export default function MemberDetailClient({ gym, member, invoices, payments, attendance, plans, reminders, subscriptions }: Props) {
+export default function MemberDetailClient({ gym, member, invoices, payments, attendance, plans }: Props) {
   const router = useRouter();
   const [tab, setTab] = useState<TabType>("overview");
   const [showPayment, setShowPayment] = useState(false);
@@ -60,7 +53,7 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
 
   const [planForm, setPlanForm] = useState({
     plan_id: plans[0]?.id ?? "",
-    start_date: new Date().toISOString().split("T")[0],
+    start_date: getTodayDateInput(),
   });
 
   const isExpiredOrLapsed = member.status === "expired" || member.status === "lapsed";
@@ -70,6 +63,7 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
       setShowConfirmCheckin(true);
       return;
     }
+
     doCheckIn();
   }
 
@@ -80,14 +74,15 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
         await checkIn(member.id, member.gym_id);
         toast.success("Checked in successfully!");
         router.refresh();
-      } catch (err) {
-        toast.error((err as Error).message);
+      } catch (error) {
+        toast.error((error as Error).message);
       }
     });
   }
 
-  function handlePayment(e: React.FormEvent) {
-    e.preventDefault();
+  function handlePayment(event: React.FormEvent) {
+    event.preventDefault();
+
     startTransition(async () => {
       try {
         await recordPayment({
@@ -101,22 +96,23 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
         toast.success("Payment recorded!");
         setShowPayment(false);
         router.refresh();
-      } catch (err) {
-        toast.error((err as Error).message);
+      } catch (error) {
+        toast.error((error as Error).message);
       }
     });
   }
 
-  function handleAddPlan(e: React.FormEvent) {
-    e.preventDefault();
+  function handleAddPlan(event: React.FormEvent) {
+    event.preventDefault();
+
     startTransition(async () => {
       try {
         await addSubscription(member.id, planForm.plan_id, planForm.start_date, gym.id);
         toast.success("Plan added!");
         setShowPlan(false);
         router.refresh();
-      } catch (err) {
-        toast.error((err as Error).message);
+      } catch (error) {
+        toast.error((error as Error).message);
       }
     });
   }
@@ -126,30 +122,36 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
       toast.error("No active subscription to remind about");
       return;
     }
-    const msg = encodeURIComponent(
-      `Hi ${member.full_name}! 🏋️ Your ${member.plan_name ?? "membership"} at ${gym.name} expires on ${formatDate(member.end_date)}. Renew now to continue your fitness journey! Call/WhatsApp us: ${gym.phone}`
+
+    const whatsappUrl = buildWhatsappUrl(
+      member.phone,
+      `Hi ${member.full_name}! Your ${member.plan_name ?? "membership"} at ${gym.name} expires on ${formatDate(member.end_date)}. Renew now to continue your fitness journey! Call or WhatsApp us: ${gym.phone}`
     );
-    window.open(`https://wa.me/91${member.phone.replace(/\D/g, "")}?text=${msg}`, "_blank");
+
+    if (!whatsappUrl) {
+      toast.error("This member does not have a valid phone number.");
+      return;
+    }
+
+    window.open(whatsappUrl, "_blank", "noopener,noreferrer");
 
     startTransition(async () => {
-      try {
-        await markReminderSent(member.id, member.subscription_id!, 1, gym.id);
-      } catch {}
+      const result = await markReminderSent(member.id, member.subscription_id!, 1, gym.id);
+      if (!result.success) {
+        toast.error(result.error ?? "Could not save reminder history.");
+      }
     });
   }
 
   const daysRemaining = member.days_until_expiry ?? 0;
-  const planDuration = member.duration_days ?? plans.find(p => p.name === member.plan_name)?.duration_days ?? 30;
-  const progress = member.start_date && member.end_date
-    ? Math.min(100, Math.max(0, ((daysRemaining) / planDuration) * 100))
-    : 0;
+  const planDuration = member.duration_days ?? plans.find((plan) => plan.name === member.plan_name)?.duration_days ?? 30;
+  const progress =
+    member.start_date && member.end_date
+      ? Math.min(100, Math.max(0, (daysRemaining / planDuration) * 100))
+      : 0;
 
-  const checkedInToday = attendance.some(a => {
-    const d = new Date(a.checked_in_at).toDateString();
-    return d === new Date().toDateString();
-  });
+  const checkedInToday = attendance.some((entry) => isSameDayInTimeZone(entry.checked_in_at, new Date()));
 
-  // Build attendance day grid
   const now = new Date();
   const currentMonth = now.getMonth();
   const currentYear = now.getFullYear();
@@ -157,20 +159,19 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
   const firstDayOffset = new Date(currentYear, currentMonth, 1).getDay();
   const attendedDays = new Set(
     attendance
-      .filter(a => {
-        const d = new Date(a.checked_in_at);
-        return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+      .filter((entry) => {
+        const date = new Date(entry.checked_in_at);
+        return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
       })
-      .map(a => new Date(a.checked_in_at).getDate())
+      .map((entry) => new Date(entry.checked_in_at).getDate())
   );
 
   return (
     <div className="space-y-8 animate-fade-up">
-      {/* Header Profile Section */}
       <div className="bg-white border border-border rounded-2xl p-6 md:p-8">
         <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
           <MemberAvatar name={member.full_name} memberId={member.id} photoUrl={member.photo_url} size="xl" status={member.status} />
-          
+
           <div className="flex-1 text-center md:text-left space-y-4">
             <div className="flex flex-col md:flex-row items-center gap-3">
               <h1 className="text-2xl font-bold tracking-tight text-text-primary">{member.full_name}</h1>
@@ -178,7 +179,7 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
                 {statusLabel(member.status as MemberStatusType)}
               </span>
             </div>
-            
+
             <div className="flex flex-wrap justify-center md:justify-start gap-6">
               <a href={`tel:${member.phone}`} className="flex items-center gap-2 text-sm font-bold text-text-secondary hover:text-accent transition-colors font-mono">
                 <Phone size={14} />
@@ -190,14 +191,13 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
               </div>
             </div>
 
-            {/* Action Buttons */}
             <div className="flex flex-wrap justify-center md:justify-start gap-2 pt-2">
               <button
                 onClick={handleCheckIn}
                 disabled={checkedInToday || isPending}
                 className={`h-10 px-5 rounded-full flex items-center gap-2 text-xs font-bold transition-all ${
-                  checkedInToday 
-                    ? "bg-hover text-text-muted border border-border cursor-not-allowed" 
+                  checkedInToday
+                    ? "bg-hover text-text-muted border border-border cursor-not-allowed"
                     : "bg-accent text-white shadow-lg shadow-accent/20 hover:bg-accent-hover active:scale-95"
                 }`}
               >
@@ -228,24 +228,21 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
       </div>
 
       <div className="max-w-4xl mx-auto space-y-8">
-        {/* Tab Bar */}
         <div className="sticky top-[56px] z-20 py-2 bg-page/80 backdrop-blur-md">
-          <Tabs value={tab} onValueChange={(v: string) => setTab(v as TabType)}>
+          <Tabs value={tab} onValueChange={(value: string) => setTab(value as TabType)}>
             <TabsList className="bg-white border border-border w-full flex">
-              {(["overview", "billing", "attendance"] as TabType[]).map(t => (
-                <TabsTrigger key={t} value={t} className="flex-1 capitalize">
-                  {t}
+              {(["overview", "billing", "attendance"] as TabType[]).map((item) => (
+                <TabsTrigger key={item} value={item} className="flex-1 capitalize">
+                  {item}
                 </TabsTrigger>
               ))}
             </TabsList>
           </Tabs>
         </div>
 
-        {/* Tab Content */}
         <div className="space-y-8">
           {tab === "overview" && (
             <div className="grid md:grid-cols-2 gap-6">
-              {/* Subscription Status */}
               <div className="bg-white border border-border rounded-2xl p-6 space-y-6">
                 <div className="flex items-center gap-3">
                   <div className="h-8 w-8 rounded-lg bg-accent-light flex items-center justify-center text-accent-text border border-accent-border">
@@ -269,11 +266,11 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
                       </div>
                     </div>
                     <div className="h-2 bg-hover rounded-full overflow-hidden">
-                      <div 
+                      <div
                         className={`h-full transition-all duration-500 ${
                           daysRemaining > 7 ? "bg-accent" : daysRemaining > 3 ? "bg-status-warning-text" : "bg-status-danger-text"
-                        }`} 
-                        style={{ width: `${progress}%` }} 
+                        }`}
+                        style={{ width: `${progress}%` }}
                       />
                     </div>
                   </div>
@@ -287,7 +284,6 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
                 )}
               </div>
 
-              {/* Notes / Meta */}
               <div className="bg-white border border-border rounded-2xl p-6 space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="h-8 w-8 rounded-lg bg-hover flex items-center justify-center text-text-muted border border-border">
@@ -296,9 +292,7 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
                   <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider">Internal Notes</h3>
                 </div>
                 <div className="bg-page rounded-xl p-4 border border-border min-h-[100px]">
-                  <p className="text-sm text-text-secondary leading-relaxed font-medium">
-                    {member.notes || "No additional notes for this member."}
-                  </p>
+                  <p className="text-sm text-text-secondary leading-relaxed font-medium">{member.notes || "No additional notes for this member."}</p>
                 </div>
               </div>
             </div>
@@ -306,12 +300,15 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
 
           {tab === "billing" && (
             <div className="space-y-8">
-              {/* Billing Summary */}
               <div className="grid grid-cols-3 gap-4">
                 {[
                   { label: "Invoiced", value: formatINR(member.total_invoiced ?? 0), color: "text-text-primary" },
                   { label: "Paid", value: formatINR(member.total_paid ?? 0), color: "text-status-success-text" },
-                  { label: "Due", value: formatINR(member.balance_due ?? 0), color: (member.balance_due ?? 0) > 0 ? "text-status-danger-text" : "text-status-success-text" },
+                  {
+                    label: "Due",
+                    value: formatINR(member.balance_due ?? 0),
+                    color: (member.balance_due ?? 0) > 0 ? "text-status-danger-text" : "text-status-success-text",
+                  },
                 ].map((item) => (
                   <div key={item.label} className="bg-white border border-border rounded-2xl p-5 text-center shadow-sm">
                     <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-1">{item.label}</p>
@@ -320,7 +317,6 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
                 ))}
               </div>
 
-              {/* Ledger */}
               <div className="grid md:grid-cols-2 gap-8">
                 <div className="space-y-4">
                   <p className="text-[10px] font-bold text-text-muted tracking-[0.2em] uppercase px-1 flex items-center gap-2">
@@ -331,13 +327,13 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
                     {payments.length === 0 ? (
                       <p className="text-xs text-text-muted py-8 text-center italic font-semibold">No payments recorded</p>
                     ) : (
-                      payments.map(p => (
-                        <div key={p.id} className="flex items-center justify-between p-4 hover:bg-hover transition-colors">
+                      payments.map((payment) => (
+                        <div key={payment.id} className="flex items-center justify-between p-4 hover:bg-hover transition-colors">
                           <div>
-                            <p className="text-sm font-bold text-text-primary">{METHOD_LABELS[p.payment_method as PaymentMethod]}</p>
-                            <p className="text-[10px] font-bold text-text-muted mt-0.5 uppercase tracking-wider">{formatDate(p.paid_at)}</p>
+                            <p className="text-sm font-bold text-text-primary">{METHOD_LABELS[payment.payment_method as PaymentMethod]}</p>
+                            <p className="text-[10px] font-bold text-text-muted mt-0.5 uppercase tracking-wider">{formatDate(payment.paid_at)}</p>
                           </div>
-                          <span className="text-sm font-bold font-mono text-status-success-text">+{formatINR(p.amount)}</span>
+                          <span className="text-sm font-bold font-mono text-status-success-text">+{formatINR(payment.amount)}</span>
                         </div>
                       ))
                     )}
@@ -353,13 +349,13 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
                     {invoices.length === 0 ? (
                       <p className="text-xs text-text-muted py-8 text-center italic font-semibold">No invoices issued</p>
                     ) : (
-                      invoices.map(inv => (
-                        <div key={inv.id} className="flex items-center justify-between p-4 hover:bg-hover transition-colors">
+                      invoices.map((invoice) => (
+                        <div key={invoice.id} className="flex items-center justify-between p-4 hover:bg-hover transition-colors">
                           <div>
-                            <p className="text-sm font-bold text-text-primary">#{inv.invoice_number}</p>
-                            <p className="text-[10px] font-bold text-text-muted mt-0.5 uppercase tracking-wider">{formatDate(inv.created_at)}</p>
+                            <p className="text-sm font-bold text-text-primary">#{invoice.invoice_number}</p>
+                            <p className="text-[10px] font-bold text-text-muted mt-0.5 uppercase tracking-wider">{formatDate(invoice.created_at)}</p>
                           </div>
-                          <span className="text-sm font-bold font-mono text-text-primary">{formatINR(inv.amount)}</span>
+                          <span className="text-sm font-bold font-mono text-text-primary">{formatINR(invoice.amount)}</span>
                         </div>
                       ))
                     )}
@@ -378,22 +374,30 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
                 </p>
                 <div className="bg-white border border-border rounded-2xl p-6 shadow-sm">
                   <div className="grid grid-cols-7 gap-3">
-                    {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(d => (
-                      <div key={d} className="h-8 flex items-center justify-center text-[10px] font-bold text-text-muted uppercase tracking-widest">{d}</div>
+                    {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+                      <div key={day} className="h-8 flex items-center justify-center text-[10px] font-bold text-text-muted uppercase tracking-widest">
+                        {day}
+                      </div>
                     ))}
-                    {Array.from({ length: firstDayOffset }).map((_, i) => <div key={`empty-${i}`} />)}
-                    {Array.from({ length: daysInMonth }).map((_, i) => {
-                      const day = i + 1;
+                    {Array.from({ length: firstDayOffset }).map((_, index) => (
+                      <div key={`empty-${index}`} />
+                    ))}
+                    {Array.from({ length: daysInMonth }).map((_, index) => {
+                      const day = index + 1;
                       const attended = attendedDays.has(day);
                       const isToday = day === now.getDate();
+
                       return (
-                        <div key={day} className={`aspect-square rounded-xl flex items-center justify-center text-xs font-bold font-mono transition-all border ${
-                          attended 
-                            ? "bg-accent border-accent text-white shadow-md shadow-accent/20 scale-105 z-10" 
-                            : isToday 
-                              ? "border-accent text-accent ring-2 ring-accent/10" 
-                              : "bg-page border-border text-text-muted hover:border-border-strong hover:bg-hover"
-                        }`}>
+                        <div
+                          key={day}
+                          className={`aspect-square rounded-xl flex items-center justify-center text-xs font-bold font-mono transition-all border ${
+                            attended
+                              ? "bg-accent border-accent text-white shadow-md shadow-accent/20 scale-105 z-10"
+                              : isToday
+                                ? "border-accent text-accent ring-2 ring-accent/10"
+                                : "bg-page border-border text-text-muted hover:border-border-strong hover:bg-hover"
+                          }`}
+                        >
                           {day}
                         </div>
                       );
@@ -411,11 +415,11 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
                   {attendance.length === 0 ? (
                     <div className="p-12 text-center text-xs text-text-muted font-semibold italic">No check-ins logged</div>
                   ) : (
-                    attendance.map(a => (
-                      <div key={a.id} className="p-4 flex justify-between items-center hover:bg-hover transition-colors">
-                        <span className="text-xs font-bold text-text-primary font-mono">{formatDate(a.checked_in_at)}</span>
+                    attendance.map((entry) => (
+                      <div key={entry.id} className="p-4 flex justify-between items-center hover:bg-hover transition-colors">
+                        <span className="text-xs font-bold text-text-primary font-mono">{formatDate(entry.checked_in_at)}</span>
                         <span className="text-[11px] text-text-muted font-bold font-mono uppercase">
-                          {new Date(a.checked_in_at).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
+                          {new Date(entry.checked_in_at).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
                         </span>
                       </div>
                     ))
@@ -427,39 +431,40 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
         </div>
       </div>
 
-      {/* Action Sheets with updated UI */}
       <BottomSheet open={showPayment} onClose={() => setShowPayment(false)} title="Record New Payment">
         <form onSubmit={handlePayment} className="space-y-6 pt-4 pb-8">
           <div>
-            <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest block mb-2">Payment Amount (₹)</label>
-            <input 
-              type="number" 
-              required 
-              value={payForm.amount} 
-              onChange={e => setPayForm(p => ({ ...p, amount: e.target.value }))} 
-              className="w-full h-12 rounded-xl bg-page border border-border px-4 text-sm text-text-primary font-bold font-mono focus:border-accent focus:ring-4 focus:ring-accent/5 outline-none transition-all" 
+            <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest block mb-2">Payment Amount (INR)</label>
+            <input
+              type="number"
+              required
+              value={payForm.amount}
+              onChange={(event) => setPayForm((current) => ({ ...current, amount: event.target.value }))}
+              className="w-full h-12 rounded-xl bg-page border border-border px-4 text-sm text-text-primary font-bold font-mono focus:border-accent focus:ring-4 focus:ring-accent/5 outline-none transition-all"
             />
           </div>
           <div>
             <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest block mb-3">Payment Method</label>
             <div className="grid grid-cols-2 gap-2">
-              {PAYMENT_METHODS.map(m => (
-                <button 
-                  key={m} 
-                  type="button" 
-                  onClick={() => setPayForm(p => ({ ...p, method: m }))} 
+              {PAYMENT_METHODS.map((method) => (
+                <button
+                  key={method}
+                  type="button"
+                  onClick={() => setPayForm((current) => ({ ...current, method }))}
                   className={`h-11 rounded-xl text-xs font-bold transition-all border ${
-                    payForm.method === m 
-                      ? "bg-accent-light border-accent/40 text-accent-text shadow-sm" 
+                    payForm.method === method
+                      ? "bg-accent-light border-accent/40 text-accent-text shadow-sm"
                       : "bg-white border-border text-text-muted hover:bg-hover hover:border-border-strong"
                   }`}
                 >
-                  {METHOD_LABELS[m]}
+                  {METHOD_LABELS[method]}
                 </button>
               ))}
             </div>
           </div>
-          <button type="submit" disabled={isPending} className="w-full h-12 rounded-xl bg-accent text-white text-sm font-bold active:scale-[0.98] transition-all disabled:opacity-50 mt-4 shadow-lg shadow-accent/20 uppercase tracking-widest">Record Transaction</button>
+          <button type="submit" disabled={isPending} className="w-full h-12 rounded-xl bg-accent text-white text-sm font-bold active:scale-[0.98] transition-all disabled:opacity-50 mt-4 shadow-lg shadow-accent/20 uppercase tracking-widest">
+            Record Transaction
+          </button>
         </form>
       </BottomSheet>
 
@@ -467,26 +472,66 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
         <form onSubmit={handleAddPlan} className="space-y-6 pt-4 pb-8">
           <div>
             <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest block mb-2">Membership Plan</label>
-            <select 
-              value={planForm.plan_id} 
-              onChange={e => setPlanForm(p => ({ ...p, plan_id: e.target.value }))} 
+            <select
+              value={planForm.plan_id}
+              onChange={(event) => setPlanForm((current) => ({ ...current, plan_id: event.target.value }))}
               className="w-full h-12 rounded-xl bg-page border border-border px-4 text-sm text-text-primary font-bold focus:border-accent focus:ring-4 focus:ring-accent/5 outline-none"
             >
-              {plans.map(pl => <option key={pl.id} value={pl.id}>{pl.name} — {pl.duration_days} days — {formatINR(pl.price)}</option>)}
+              {plans.map((plan) => (
+                <option key={plan.id} value={plan.id}>
+                  {plan.name} - {plan.duration_days} days - {formatINR(plan.price)}
+                </option>
+              ))}
             </select>
           </div>
           <div>
             <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest block mb-2">Activation Date</label>
-            <input 
-              type="date" 
-              value={planForm.start_date} 
-              onChange={e => setPlanForm(p => ({ ...p, start_date: e.target.value }))} 
-              className="w-full h-12 rounded-xl bg-page border border-border px-4 text-sm text-text-primary font-bold focus:border-accent focus:ring-4 focus:ring-accent/5 outline-none" 
+            <input
+              type="date"
+              value={planForm.start_date}
+              onChange={(event) => setPlanForm((current) => ({ ...current, start_date: event.target.value }))}
+              className="w-full h-12 rounded-xl bg-page border border-border px-4 text-sm text-text-primary font-bold focus:border-accent focus:ring-4 focus:ring-accent/5 outline-none"
             />
           </div>
-          <button type="submit" disabled={isPending} className="w-full h-12 rounded-xl bg-accent text-white text-sm font-bold active:scale-[0.98] transition-all mt-4 shadow-lg shadow-accent/20 uppercase tracking-widest">Confirm Plan Change</button>
+          <button type="submit" disabled={isPending} className="w-full h-12 rounded-xl bg-accent text-white text-sm font-bold active:scale-[0.98] transition-all mt-4 shadow-lg shadow-accent/20 uppercase tracking-widest">
+            Confirm Plan Change
+          </button>
         </form>
       </BottomSheet>
+
+      {showConfirmCheckin && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div className="absolute inset-0 bg-sidebar/80 backdrop-blur-sm" onClick={() => setShowConfirmCheckin(false)} />
+          <div className="relative bg-white border-2 border-border rounded-[2.5rem] p-10 max-w-sm w-full animate-fade-up shadow-2xl">
+            <div className="flex flex-col items-center text-center space-y-6">
+              <div className="h-16 w-16 rounded-2xl bg-status-danger-bg flex items-center justify-center text-status-danger-text border border-status-danger-border">
+                <ShieldAlert size={32} />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-lg font-bold text-text-primary uppercase tracking-tight">Expired Credentials</h3>
+                <p className="text-xs text-text-secondary font-medium leading-relaxed">
+                  This member&apos;s subscription has expired. Do you want to override and check them in anyway?
+                </p>
+              </div>
+              <div className="flex flex-col w-full gap-3">
+                <button
+                  onClick={doCheckIn}
+                  disabled={isPending}
+                  className="h-12 rounded-xl bg-status-danger-text text-white text-[10px] font-bold uppercase tracking-widest shadow-lg shadow-status-danger-text/20 transition-all active:scale-95"
+                >
+                  Override & Check In
+                </button>
+                <button
+                  onClick={() => setShowConfirmCheckin(false)}
+                  className="h-12 rounded-xl bg-white border-2 border-border text-text-muted text-[10px] font-bold uppercase tracking-widest hover:bg-hover transition-all"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

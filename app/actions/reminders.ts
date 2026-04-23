@@ -1,7 +1,23 @@
 "use server";
 
+import { z } from "zod";
+import { getFriendlyErrorMessage } from "@/lib/errors";
 import { createClient } from "@/lib/supabase/server";
+import type { Database } from "@/lib/supabase/types";
 import { revalidatePath } from "next/cache";
+
+const reminderSchema = z.object({
+  memberId: z.string().uuid("Invalid member."),
+  subscriptionId: z.string().uuid("Invalid subscription."),
+  stage: z.union([z.literal(5), z.literal(3), z.literal(1)]),
+  gymId: z.string().uuid("Invalid gym."),
+});
+
+const STAGE_TO_FIELD = {
+  5: "reminder_5_sent_at",
+  3: "reminder_3_sent_at",
+  1: "reminder_1_sent_at",
+} as const;
 
 export async function sendReminder(
   memberId: string,
@@ -9,41 +25,53 @@ export async function sendReminder(
   stage: number,
   gymId: string
 ) {
+  const parsed = reminderSchema.parse({ memberId, subscriptionId, stage, gymId });
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   if (!user) return { success: false, error: "Not authenticated" };
 
   const { data: gym } = await supabase
     .from("gyms")
     .select("id")
-    .eq("id", gymId)
+    .eq("id", parsed.gymId)
     .eq("owner_id", user.id)
     .maybeSingle();
+
   if (!gym) return { success: false, error: "Unauthorized" };
 
   const { error } = await supabase.from("reminders").insert({
-    gym_id: gymId,
-    member_id: memberId,
-    subscription_id: subscriptionId,
-    stage,
+    gym_id: parsed.gymId,
+    member_id: parsed.memberId,
+    subscription_id: parsed.subscriptionId,
+    stage: parsed.stage,
     method: "manual_whatsapp",
   });
-  if (error) return { success: false, error: error.message };
 
-  // Stamp the subscription so auto-engine knows it was sent
-  const sentAtField = stage === 5 ? "reminder_5_sent_at" : 
-                      stage === 3 ? "reminder_3_sent_at" : 
-                      "reminder_1_sent_at";
-  
-  await supabase
+  if (error) {
+    return { success: false, error: getFriendlyErrorMessage(error) };
+  }
+
+  const stampPayload = {
+    [STAGE_TO_FIELD[parsed.stage]]: new Date().toISOString(),
+  } as Pick<Database["public"]["Tables"]["subscriptions"]["Update"], typeof STAGE_TO_FIELD[typeof parsed.stage]>;
+
+  const stampError = await supabase
     .from("subscriptions")
-    // @ts-expect-error
-    .update({ [sentAtField]: new Date().toISOString() })
-    .eq("id", subscriptionId);
+    .update(stampPayload)
+    .eq("id", parsed.subscriptionId)
+    .then(({ error: updateError }) => updateError);
+
+  if (stampError) {
+    return { success: false, error: getFriendlyErrorMessage(stampError) };
+  }
 
   revalidatePath("/reminders");
+  revalidatePath(`/members/${parsed.memberId}`);
+
   return { success: true };
 }
 
-// Keep backward compat alias
 export const markReminderSent = sendReminder;

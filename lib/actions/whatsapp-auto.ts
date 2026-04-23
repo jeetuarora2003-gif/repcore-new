@@ -1,102 +1,201 @@
-import { createClient } from "@/lib/supabase/server";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { decrypt } from "@/lib/crypto";
+import { getFriendlyErrorMessage } from "@/lib/errors";
 import { formatDate } from "@/lib/helpers";
+import { formatIndianWhatsappNumber } from "@/lib/phone";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
+import type { Database, Gym, MemberStatus } from "@/lib/supabase/types";
 
-export async function sendAutoRemindersForGym(gymId: string) {
-  const supabase = await createClient();
+type ReminderStage = 5 | 3 | 1;
+type ReminderField = "reminder_5_sent_at" | "reminder_3_sent_at" | "reminder_1_sent_at";
 
-  // 1. Fetch Gym Config
-  const { data: gym, error: gymErr } = await (supabase
-    .from("gyms")
-    .select(`
-      id, name, phone, whatsapp_reminder_mode, whatsapp_phone_number, whatsapp_api_key
-    `)
-    .eq("id", gymId)
-    .single() as any);
+type AutoReminderGym = Pick<
+  Gym,
+  "id" | "name" | "phone" | "whatsapp_api_key" | "whatsapp_phone_number" | "whatsapp_reminder_mode"
+>;
 
-  if (gymErr || !gym) return { success: false, error: "Gym not found" };
+type AutoReminderResult = {
+  gymId: string;
+  sent: number;
+  failed: number;
+  skippedReason?: string;
+  error?: string;
+};
 
-  // 2. Pre-checks
-  if (gym.whatsapp_reminder_mode !== "auto") return { skipped: true, reason: "Manual mode" };
-  
-  const apiKey = decrypt(gym.whatsapp_api_key || "");
-  if (!apiKey || !gym.whatsapp_phone_number) {
-    return { success: false, error: "WhatsApp API not configured" };
+type ReminderCandidate = Pick<
+  MemberStatus,
+  | "id"
+  | "gym_id"
+  | "full_name"
+  | "phone"
+  | "end_date"
+  | "plan_name"
+  | "subscription_id"
+  | "days_until_expiry"
+  | "reminder_5_sent_at"
+  | "reminder_3_sent_at"
+  | "reminder_1_sent_at"
+>;
+
+const STAGE_TO_FIELD: Record<ReminderStage, ReminderField> = {
+  5: "reminder_5_sent_at",
+  3: "reminder_3_sent_at",
+  1: "reminder_1_sent_at",
+};
+
+function getReminderStage(member: ReminderCandidate): ReminderStage | null {
+  if (member.days_until_expiry === 5) return 5;
+  if (member.days_until_expiry === 3) return 3;
+  if (member.days_until_expiry === 1) return 1;
+  return null;
+}
+
+async function processAutoRemindersForGym(
+  supabase: SupabaseClient<Database>,
+  gym: AutoReminderGym
+): Promise<AutoReminderResult> {
+  if (gym.whatsapp_reminder_mode !== "auto") {
+    return { gymId: gym.id, sent: 0, failed: 0, skippedReason: "manual_mode" };
   }
 
-  // 3. Fetch members in 5, 3, 1 stage
-  const { data: members, error: memErr } = await (supabase
+  if (!gym.whatsapp_phone_number || !gym.whatsapp_api_key) {
+    return { gymId: gym.id, sent: 0, failed: 0, skippedReason: "missing_config" };
+  }
+
+  const apiKey = decrypt(gym.whatsapp_api_key);
+  if (!apiKey) {
+    return { gymId: gym.id, sent: 0, failed: 0, skippedReason: "invalid_api_key" };
+  }
+
+  const { data: members, error } = await supabase
     .from("v_member_status")
-    .select("*")
-    .eq("gym_id", gymId)
-    .gt("balance_due", 0) as any);
+    .select(
+      "id, gym_id, full_name, phone, end_date, plan_name, subscription_id, days_until_expiry, reminder_5_sent_at, reminder_3_sent_at, reminder_1_sent_at"
+    )
+    .eq("gym_id", gym.id)
+    .in("days_until_expiry", [5, 3, 1])
+    .not("subscription_id", "is", null);
 
-  if (memErr) return { success: false, error: memErr.message };
+  if (error) {
+    return {
+      gymId: gym.id,
+      sent: 0,
+      failed: 0,
+      error: getFriendlyErrorMessage(error),
+    };
+  }
 
-  let sentCount = 0;
-  let failedCount = 0;
+  let sent = 0;
+  let failed = 0;
 
-  const today = new Date();
-  
-  for (const m of members) {
-    const endDate = new Date(m.end_date);
-    const diffTime = endDate.getTime() - today.getTime();
-    const daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  for (const member of members ?? []) {
+    const stage = getReminderStage(member);
+    if (!stage || !member.subscription_id) continue;
 
-    let stage: 5 | 3 | 1 | null = null;
-    let sentAtField: "reminder_5_sent_at" | "reminder_3_sent_at" | "reminder_1_sent_at" | null = null;
+    const sentField = STAGE_TO_FIELD[stage];
+    if (member[sentField]) continue;
 
-    if (daysRemaining === 5 && !m.reminder_5_sent_at) { stage = 5; sentAtField = "reminder_5_sent_at"; }
-    else if (daysRemaining === 3 && !m.reminder_3_sent_at) { stage = 3; sentAtField = "reminder_3_sent_at"; }
-    else if (daysRemaining === 1 && !m.reminder_1_sent_at) { stage = 1; sentAtField = "reminder_1_sent_at"; }
+    const destination = formatIndianWhatsappNumber(member.phone);
+    if (!destination) {
+      failed += 1;
+      continue;
+    }
 
-    if (stage && sentAtField) {
-      // Build message
-      const message = `Hi ${m.full_name}! 🏋️ Your ${m.plan_name || "membership"} at ${gym.name} expires on ${formatDate(m.end_date)}. Renew now to continue your fitness journey! Call/WhatsApp us: ${gym.phone}`;
+    try {
+      const response = await fetch("https://backend.aisensy.com/campaign/t1/api/v2", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-AiSensy-Project-API-PWD": apiKey,
+        },
+        body: JSON.stringify({
+          apiKey,
+          campaignName: `repcore_reminder_${stage}`,
+          destination,
+          userName: gym.name,
+          templateParams: [member.full_name, gym.name, formatDate(member.end_date), String(stage)],
+        }),
+      });
 
-      try {
-        // Post to AiSensy API (v2)
-        const response = await fetch("https://backend.aisensy.com/campaign/t1/api/v2", {
-          method: "POST",
-          headers: { 
-            "Content-Type": "application/json",
-            "X-AiSensy-Project-API-PWD": apiKey 
-          },
-          body: JSON.stringify({
-            apiKey: apiKey,
-            campaignName: `repcore_reminder_${stage}`,
-            destination: m.phone.replace(/\D/g, ""),
-            userName: gym.name,
-            templateParams: [m.full_name, gym.name, formatDate(m.end_date), String(stage)]
-          })
-        });
-
-        const result = await response.json();
-
-        if (response.ok && result.success) {
-          // Success: Stamp
-          await supabase.from("subscriptions").update({ [sentAtField]: new Date().toISOString() } as any).eq("id", m.subscription_id);
-          
-          // Insert into local history for UI visibility
-          await supabase.from("reminders").insert({
-            gym_id: gymId,
-            member_id: m.id,
-            subscription_id: m.subscription_id,
-            stage,
-            method: "auto_whatsapp"
-          });
-
-          sentCount++;
-        } else {
-          console.error(`[AiSensy API Error] ${JSON.stringify(result)}`);
-          failedCount++;
-        }
-      } catch (err) {
-        console.error(`[AutoReminder Fetch Error]`, err);
-        failedCount++;
+      const result = (await response.json().catch(() => null)) as { success?: boolean } | null;
+      if (!response.ok || !result?.success) {
+        failed += 1;
+        continue;
       }
+
+      const stampAt = new Date().toISOString();
+      const stampPayload = {
+        [sentField]: stampAt,
+      } as Pick<Database["public"]["Tables"]["subscriptions"]["Update"], ReminderField>;
+
+      const [{ error: stampError }, { error: reminderError }] = await Promise.all([
+        supabase
+          .from("subscriptions")
+          .update(stampPayload)
+          .eq("id", member.subscription_id),
+        supabase.from("reminders").insert({
+          gym_id: gym.id,
+          member_id: member.id,
+          subscription_id: member.subscription_id,
+          stage,
+          method: "auto_whatsapp",
+        }),
+      ]);
+
+      if (stampError || reminderError) {
+        failed += 1;
+        continue;
+      }
+
+      sent += 1;
+    } catch {
+      failed += 1;
     }
   }
 
-  return { sent: sentCount, failed: failedCount };
+  return { gymId: gym.id, sent, failed };
+}
+
+export async function sendAutoRemindersForGym(gymId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: "Not authenticated" };
+  }
+
+  const { data: gym, error } = await supabase
+    .from("gyms")
+    .select("id, name, phone, whatsapp_api_key, whatsapp_phone_number, whatsapp_reminder_mode")
+    .eq("id", gymId)
+    .eq("owner_id", user.id)
+    .maybeSingle();
+
+  if (error || !gym) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  return processAutoRemindersForGym(supabase, gym);
+}
+
+export async function sendAutoRemindersForAllGyms() {
+  const supabase = createAdminClient();
+  const { data: gyms, error } = await supabase
+    .from("gyms")
+    .select("id, name, phone, whatsapp_api_key, whatsapp_phone_number, whatsapp_reminder_mode")
+    .eq("whatsapp_reminder_mode", "auto");
+
+  if (error) {
+    throw new Error(getFriendlyErrorMessage(error));
+  }
+
+  const results: AutoReminderResult[] = [];
+  for (const gym of gyms ?? []) {
+    results.push(await processAutoRemindersForGym(supabase, gym));
+  }
+
+  return results;
 }

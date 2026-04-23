@@ -25,16 +25,12 @@ export default async function MemberDetailPage({ params }: Props) {
     { data: payments },
     { data: attendance },
     { data: plans },
-    { data: reminders },
-    { data: subscriptions },
   ] = await Promise.all([
     supabase.from("v_member_status").select("*").eq("id", id).eq("gym_id", gym.id).maybeSingle(),
     supabase.from("invoices").select("*").eq("member_id", id).order("created_at", { ascending: false }),
     supabase.from("payments").select("*").eq("member_id", id).order("paid_at", { ascending: false }),
     supabase.from("attendance").select("*").eq("member_id", id).order("checked_in_at", { ascending: false }).limit(60),
     supabase.from("plans").select("*").eq("gym_id", gym.id).eq("is_active", true),
-    supabase.from("reminders").select("*").eq("member_id", id).order("sent_at", { ascending: false }),
-    supabase.from("subscriptions").select("*").eq("member_id", id).order("created_at", { ascending: false }),
   ]);
 
   if (!member) notFound();
@@ -47,8 +43,6 @@ export default async function MemberDetailPage({ params }: Props) {
       payments={payments ?? []}
       attendance={attendance ?? []}
       plans={plans ?? []}
-      reminders={reminders ?? []}
-      subscriptions={subscriptions ?? []}
     />
   );
 }

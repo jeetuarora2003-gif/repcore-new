@@ -30,7 +30,7 @@ interface Plan {
 
 interface Props {
   gymId: string;
-  members: MemberStatus[];
+  members: Pick<MemberStatus, "id" | "full_name" | "phone" | "photo_url" | "plan_name" | "balance_due" | "status">[];
   plans: Plan[];
 }
 

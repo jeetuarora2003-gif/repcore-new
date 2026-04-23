@@ -1,7 +1,10 @@
 "use server";
 
+import { getFriendlyErrorMessage } from "@/lib/errors";
+import { toDateKey } from "@/lib/helpers";
 import { createClient } from "@/lib/supabase/server";
-import { generateNumber } from "@/lib/helpers";
+import type { PaymentReceiptResult, SubscriptionSaleResult } from "@/lib/supabase/types";
+import { paymentSchema, subscriptionSchema } from "@/lib/validation";
 import { revalidatePath } from "next/cache";
 
 export async function addSubscription(
@@ -10,59 +13,54 @@ export async function addSubscription(
   startDate: string,
   gymId: string
 ) {
+  const parsed = subscriptionSchema.parse({ memberId, planId, startDate, gymId });
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   if (!user) throw new Error("Not authenticated");
 
   const { data: gym } = await supabase
     .from("gyms")
-    .select("id, invoice_prefix")
-    .eq("id", gymId)
+    .select("id")
+    .eq("id", parsed.gymId)
     .eq("owner_id", user.id)
     .maybeSingle();
+
   if (!gym) throw new Error("Unauthorized");
 
   const { data: plan } = await supabase
     .from("plans")
     .select("id, duration_days, price")
-    .eq("id", planId)
+    .eq("id", parsed.planId)
     .maybeSingle();
+
   if (!plan) throw new Error("Plan not found");
 
-  const start = new Date(startDate);
+  const start = new Date(`${parsed.startDate}T00:00:00+05:30`);
   const end = new Date(start);
   end.setDate(end.getDate() + plan.duration_days);
-  const endDate = end.toISOString().split("T")[0];
+  const endDate = toDateKey(end);
 
-  const { data: sub, error: subErr } = await supabase
-    .from("subscriptions")
-    .insert({ gym_id: gymId, member_id: memberId, plan_id: planId, start_date: startDate, end_date: endDate })
-    .select()
-    .single();
-  if (subErr) throw subErr;
+  const { data: result, error } = await supabase.rpc("add_subscription_with_invoice", {
+    p_gym_id: parsed.gymId,
+    p_member_id: parsed.memberId,
+    p_plan_id: parsed.planId,
+    p_start_date: parsed.startDate,
+    p_end_date: endDate,
+    p_plan_price: plan.price,
+  });
 
-  // Generate invoice number
-  const year = new Date().getFullYear();
-  const { count } = await supabase
-    .from("invoices")
-    .select("id", { count: "exact", head: true })
-    .eq("gym_id", gymId);
-  const seq = (count ?? 0) + 1;
-  const invoiceNumber = generateNumber(gym.invoice_prefix, year, seq);
+  if (error) throw new Error(getFriendlyErrorMessage(error));
 
-  const { error: invErr } = await supabase
-    .from("invoices")
-    .insert({
-      gym_id: gymId,
-      member_id: memberId,
-      subscription_id: sub.id,
-      invoice_number: invoiceNumber,
-      amount: plan.price,
-    });
-  if (invErr) throw invErr;
+  revalidatePath(`/members/${parsed.memberId}`);
+  revalidatePath("/members");
+  revalidatePath("/dues");
+  revalidatePath("/reports");
+  revalidatePath("/reminders");
 
-  revalidatePath(`/members/${memberId}`);
-  return sub;
+  return result as SubscriptionSaleResult;
 }
 
 export async function recordPayment(data: {
@@ -70,34 +68,41 @@ export async function recordPayment(data: {
   member_id: string;
   invoice_id?: string;
   amount: number;
-  payment_method: string;
+  payment_method: "cash" | "upi" | "card" | "bank_transfer";
   notes: string;
 }) {
+  const parsed = paymentSchema.parse(data);
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   if (!user) throw new Error("Not authenticated");
 
   const { data: gym } = await supabase
     .from("gyms")
-    .select("id, receipt_prefix")
-    .eq("id", data.gym_id)
+    .select("id")
+    .eq("id", parsed.gym_id)
     .eq("owner_id", user.id)
     .maybeSingle();
+
   if (!gym) throw new Error("Unauthorized");
 
-  const year = new Date().getFullYear();
-  const { count } = await supabase
-    .from("payments")
-    .select("id", { count: "exact", head: true })
-    .eq("gym_id", data.gym_id);
-  const seq = (count ?? 0) + 1;
-  const receiptNumber = generateNumber(gym.receipt_prefix, year, seq);
+  const { data: result, error } = await supabase.rpc("record_payment_with_receipt", {
+    p_gym_id: parsed.gym_id,
+    p_member_id: parsed.member_id,
+    p_invoice_id: parsed.invoice_id ?? null,
+    p_amount: parsed.amount,
+    p_payment_method: parsed.payment_method,
+    p_notes: parsed.notes,
+  });
 
-  const { error } = await supabase
-    .from("payments")
-    .insert({ ...data, receipt_number: receiptNumber });
-  if (error) throw error;
+  if (error) throw new Error(getFriendlyErrorMessage(error));
 
-  revalidatePath(`/members/${data.member_id}`);
+  revalidatePath(`/members/${parsed.member_id}`);
   revalidatePath("/reports");
+  revalidatePath("/dues");
+  revalidatePath("/dashboard");
+
+  return result as PaymentReceiptResult;
 }

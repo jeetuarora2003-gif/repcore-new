@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { 
   Home, Users, Bell, 
   Settings, LayoutGrid, Dumbbell,
-  MoreHorizontal, ScanLine, ChevronRight
+  MoreHorizontal, ScanLine
 } from "lucide-react";
 import type { Gym } from "@/lib/supabase/types";
 import { memberInitials } from "@/lib/helpers";

@@ -30,7 +30,7 @@ export default function RegisterPage() {
   }
 
   function handleNext() {
-    if (step === 1 && form.ownerName && form.gymName && form.phone) {
+    if (step === 1 && form.ownerName && form.gymName && form.phone.length === 10) {
       setStep(2);
     }
   }

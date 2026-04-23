@@ -1,8 +1,8 @@
 "use client";
 
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { formatINR } from "@/lib/helpers";
-import { TrendingUp, UserPlus, AlertCircle, Wallet, Smartphone, CreditCard, Building2, CheckCircle2, Clock, History } from "lucide-react";
+import { TrendingUp, UserPlus, AlertCircle, Wallet, Smartphone, CreditCard, Building2 } from "lucide-react";
 
 interface Props {
   monthRevenue: number;

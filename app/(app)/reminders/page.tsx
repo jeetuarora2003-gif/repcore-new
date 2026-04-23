@@ -1,7 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import RemindersClient from "./RemindersClient";
-import { sendAutoRemindersForGym } from "@/lib/actions/whatsapp-auto";
 
 export default async function RemindersPage() {
   const supabase = await createClient();
@@ -14,10 +13,6 @@ export default async function RemindersPage() {
     .eq("owner_id", user.id)
     .maybeSingle();
   if (!gym) redirect("/register");
-
-  // Trigger auto-reminders engine (non-blocking if possible, but for now simple)
-  // This handles the daily background sending logic when someone visits the dashboard
-  await sendAutoRemindersForGym(gym.id);
 
   const [
     { data: fiveDays },

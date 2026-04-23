@@ -1,64 +1,62 @@
 "use client";
 
-import { useState, useRef, useEffect, useTransition } from "react";
-import { useRouter } from "next/navigation";
-import { Search, ScanLine, Check, AlertCircle, UserCheck, ShieldAlert, Sparkles, ChevronRight } from "lucide-react";
+import { useEffect, useRef, useState, useTransition } from "react";
+import { Search, ScanLine, Check, UserCheck, ShieldAlert, Sparkles, ChevronRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { checkIn } from "@/app/actions/attendance";
-import { formatDate, statusBadgeClass, statusLabel, formatINR } from "@/lib/helpers";
+import { formatDate, formatINR, startOfDayUtcIso } from "@/lib/helpers";
 import type { MemberStatus } from "@/lib/supabase/types";
 import type { MemberStatusType } from "@/lib/helpers";
+import { statusBadgeClass, statusLabel } from "@/lib/helpers";
 import { toast } from "sonner";
 import MemberAvatar from "@/components/MemberAvatar";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
 export default function CheckInPage() {
-  const router = useRouter();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<MemberStatus[]>([]);
-  const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState<MemberStatus | null>(null);
   const [success, setSuccess] = useState(false);
   const [successTime, setSuccessTime] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
   const [checkedInTodayIds, setCheckedInTodayIds] = useState<Set<string>>(new Set());
   const [isPending, startTransition] = useTransition();
-  const inputRef = useRef<HTMLInputElement>(null);
   const [gymId, setGymId] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     inputRef.current?.focus();
+
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) return;
-      supabase.from("gyms").select("id").eq("owner_id", user.id).maybeSingle().then(({ data }) => {
-        if (data) {
+
+      supabase
+        .from("gyms")
+        .select("id")
+        .eq("owner_id", user.id)
+        .maybeSingle()
+        .then(({ data }) => {
+          if (!data) return;
+
           setGymId(data.id);
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
+
           supabase
             .from("attendance")
             .select("member_id")
             .eq("gym_id", data.id)
-            .gte("checked_in_at", today.toISOString())
-            .then(({ data: attData }) => {
-              if (attData) {
-                setCheckedInTodayIds(new Set(attData.map(a => a.member_id)));
-              }
+            .gte("checked_in_at", startOfDayUtcIso(new Date()))
+            .then(({ data: attendanceData }) => {
+              if (!attendanceData) return;
+              setCheckedInTodayIds(new Set(attendanceData.map((entry) => entry.member_id)));
             });
-        }
-      });
+        });
     });
   }, []);
 
   useEffect(() => {
-    if (!query.trim() || !gymId) {
-      setResults([]);
-      return;
-    }
+    if (!query.trim() || !gymId) return;
+
     const timer = setTimeout(async () => {
-      setLoading(true);
       const supabase = createClient();
       const { data } = await supabase
         .from("v_member_status")
@@ -66,40 +64,45 @@ export default function CheckInPage() {
         .eq("gym_id", gymId)
         .or(`full_name.ilike.%${query}%,phone.ilike.%${query}%`)
         .limit(10);
+
       setResults(data ?? []);
-      setLoading(false);
     }, 300);
+
     return () => clearTimeout(timer);
   }, [query, gymId]);
 
-  function handleSelect(m: MemberStatus) {
-    setSelected(m);
-    setQuery(m.full_name);
+  function handleSelect(member: MemberStatus) {
+    setSelected(member);
+    setQuery(member.full_name);
     setResults([]);
   }
 
   const isExpiredOrLapsed = selected?.status === "expired" || selected?.status === "lapsed";
   const alreadyCheckedIn = selected ? checkedInTodayIds.has(selected.id) : false;
+  const visibleResults = query.trim() ? results : [];
 
   function handleCheckIn() {
     if (isExpiredOrLapsed) {
       setShowConfirm(true);
       return;
     }
+
     doCheckIn();
   }
 
   function doCheckIn() {
     setShowConfirm(false);
     if (!selected || !gymId) return;
+
     startTransition(async () => {
       try {
         const now = new Date();
-        const timeStr = now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
         await checkIn(selected.id, gymId);
-        setCheckedInTodayIds(p => new Set([...p, selected.id]));
-        setSuccessTime(timeStr);
+
+        setCheckedInTodayIds((current) => new Set([...current, selected.id]));
+        setSuccessTime(now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }));
         setSuccess(true);
+
         setTimeout(() => {
           setSuccess(false);
           setSelected(null);
@@ -107,22 +110,20 @@ export default function CheckInPage() {
           setSuccessTime("");
           inputRef.current?.focus();
         }, 3000);
-      } catch (err) {
-        toast.error((err as Error).message);
+      } catch (error) {
+        toast.error((error as Error).message);
       }
     });
   }
 
   return (
     <div className="max-w-2xl mx-auto space-y-8 animate-fade-up">
-      {/* Header */}
       <div className="px-1">
         <h1 className="text-2xl font-bold text-text-primary tracking-tight">Access Control</h1>
         <p className="text-sm text-text-secondary mt-1">Scan or search members for immediate entry validation</p>
       </div>
 
       <div className="space-y-6">
-        {/* Success Flash */}
         {success && (
           <div className="bg-status-success-bg border-2 border-status-success-border rounded-[2rem] p-8 flex flex-col items-center text-center animate-fade-up shadow-lg">
             <div className="h-20 w-20 rounded-full bg-accent flex items-center justify-center mb-4 border-4 border-white shadow-md">
@@ -136,38 +137,39 @@ export default function CheckInPage() {
           </div>
         )}
 
-        {/* Search Input */}
         {!success && (
           <div className="relative group">
             <Search size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-accent transition-colors" />
             <input
               ref={inputRef}
               value={query}
-              onChange={e => { setQuery(e.target.value); setSelected(null); }}
+              onChange={(event) => {
+                setQuery(event.target.value);
+                setSelected(null);
+              }}
               placeholder="Search Name or Phone..."
               className="w-full h-16 rounded-[2rem] bg-white border-2 border-border pl-14 pr-6 text-base text-text-primary font-bold placeholder:text-text-muted/50 focus:border-accent focus:ring-8 focus:ring-accent/5 outline-none transition-all shadow-sm"
             />
           </div>
         )}
 
-        {/* Search Results Overlay-like list */}
-        {results.length > 0 && !selected && !success && (
+        {visibleResults.length > 0 && !selected && !success && (
           <div className="grid gap-3 animate-fade-in">
-            {results.map(m => (
+            {visibleResults.map((member) => (
               <button
-                key={m.id}
-                onClick={() => handleSelect(m)}
+                key={member.id}
+                onClick={() => handleSelect(member)}
                 className="w-full bg-white border border-border rounded-2xl p-4 flex items-center gap-4 hover:border-accent/40 hover:shadow-md transition-all text-left group"
               >
-                <MemberAvatar name={m.full_name} memberId={m.id} size="sm" status={m.status} />
+                <MemberAvatar name={member.full_name} memberId={member.id} size="sm" status={member.status} />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-bold text-text-primary group-hover:text-accent transition-colors">{m.full_name}</p>
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest border ${statusBadgeClass(m.status as MemberStatusType)}`}>
-                      {statusLabel(m.status as MemberStatusType)}
+                    <p className="text-sm font-bold text-text-primary group-hover:text-accent transition-colors">{member.full_name}</p>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest border ${statusBadgeClass(member.status as MemberStatusType)}`}>
+                      {statusLabel(member.status as MemberStatusType)}
                     </span>
                   </div>
-                  <p className="text-[11px] font-bold text-text-muted font-mono mt-0.5">{m.phone}</p>
+                  <p className="text-[11px] font-bold text-text-muted font-mono mt-0.5">{member.phone}</p>
                 </div>
                 <ChevronRight size={16} className="text-text-muted group-hover:text-accent group-hover:translate-x-1 transition-all" />
               </button>
@@ -175,7 +177,6 @@ export default function CheckInPage() {
           </div>
         )}
 
-        {/* Selected Member Detail */}
         {selected && !success && (
           <div className="bg-white border-2 border-border rounded-[2rem] p-8 space-y-8 animate-fade-up shadow-sm">
             <div className="flex flex-col items-center text-center space-y-4">
@@ -216,7 +217,6 @@ export default function CheckInPage() {
               </div>
             </div>
 
-            {/* Dues Alert */}
             {(selected.balance_due ?? 0) > 0 && (
               <div className="bg-status-danger-bg border border-status-danger-border rounded-2xl p-4 flex items-center gap-4">
                 <ShieldAlert size={20} className="text-status-danger-text shrink-0" />
@@ -235,9 +235,12 @@ export default function CheckInPage() {
               <ScanLine size={20} strokeWidth={3} />
               {isPending ? "Validating..." : "Authorize Entry"}
             </button>
-            
-            <button 
-              onClick={() => { setSelected(null); setQuery(""); }}
+
+            <button
+              onClick={() => {
+                setSelected(null);
+                setQuery("");
+              }}
               className="w-full text-[10px] font-bold text-text-muted uppercase tracking-widest hover:text-text-primary transition-colors"
             >
               Cancel and Reset
@@ -245,7 +248,6 @@ export default function CheckInPage() {
           </div>
         )}
 
-        {/* Empty State */}
         {!query && !selected && !success && (
           <div className="py-20 flex flex-col items-center justify-center text-center space-y-6 animate-fade-in">
             <div className="h-24 w-24 rounded-[2rem] bg-white border-2 border-border flex items-center justify-center shadow-sm">
@@ -253,13 +255,14 @@ export default function CheckInPage() {
             </div>
             <div className="space-y-1">
               <p className="text-sm font-bold text-text-secondary uppercase tracking-[0.2em]">Ready to Validate</p>
-              <p className="text-xs text-text-muted font-medium max-w-[280px]">Scan a member QR or search by phone number to initialize the access control sequence.</p>
+              <p className="text-xs text-text-muted font-medium max-w-[280px]">
+                Scan a member QR or search by phone number to initialize the access control sequence.
+              </p>
             </div>
           </div>
         )}
       </div>
 
-      {/* Confirmation Overlay */}
       {showConfirm && selected && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
           <div className="absolute inset-0 bg-sidebar/80 backdrop-blur-sm" onClick={() => setShowConfirm(false)} />

@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { LogOut, Save, Eye, EyeOff, Building2, MessageCircle, FileText, Download, ShieldCheck, Zap, ChevronRight } from "lucide-react";
+import { LogOut, Save, Eye, EyeOff, Building2, MessageCircle, FileText, Download, Zap, ChevronRight } from "lucide-react";
 import { memberInitials, cleanPhone } from "@/lib/helpers";
 import type { Gym } from "@/lib/supabase/types";
 import { updateGymSettings } from "@/app/actions/gym";
@@ -25,7 +25,7 @@ export default function SettingsClient({ gym }: Props) {
     phone: gym.phone,
     receipt_prefix: gym.receipt_prefix,
     invoice_prefix: gym.invoice_prefix,
-    whatsapp_api_key: gym.whatsapp_api_key,
+    whatsapp_api_key: "",
   });
 
   function handleChange(field: string, value: string) {
