@@ -30,6 +30,7 @@ export default function PlansClient({ gymId, plans }: Props) {
   const [showCreate, setShowCreate] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [form, setForm] = useState({ name: "", duration_days: 30, price: "" });
+  const [localPlans, setLocalPlans] = useState(plans);
 
   function handleCreate(e: React.FormEvent) {
     e.preventDefault();
@@ -47,11 +48,16 @@ export default function PlansClient({ gymId, plans }: Props) {
   }
 
   function handleToggle(planId: string) {
+    // Optimistic: flip instantly
+    setLocalPlans(prev => prev.map(p => p.id === planId ? { ...p, is_active: !p.is_active } : p));
+
     startTransition(async () => {
       try {
         await togglePlanActive(planId);
         router.refresh();
       } catch (err) {
+        // Revert on failure
+        setLocalPlans(prev => prev.map(p => p.id === planId ? { ...p, is_active: !p.is_active } : p));
         toast.error((err as Error).message);
       }
     });
@@ -75,7 +81,7 @@ export default function PlansClient({ gymId, plans }: Props) {
       </div>
 
       <div className="max-w-4xl mx-auto w-full">
-        {plans.length === 0 ? (
+        {localPlans.length === 0 ? (
           <div className="py-20">
             <EmptyState
               icon={ClipboardList}
@@ -86,7 +92,7 @@ export default function PlansClient({ gymId, plans }: Props) {
           </div>
         ) : (
           <div className="grid sm:grid-cols-2 gap-6">
-            {plans.map(plan => (
+            {localPlans.map(plan => (
               <div
                 key={plan.id}
                 className={`bg-white border-2 rounded-2xl p-6 space-y-6 transition-all shadow-sm ${
