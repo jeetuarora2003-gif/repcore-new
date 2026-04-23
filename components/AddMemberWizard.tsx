@@ -176,7 +176,26 @@ export default function AddMemberWizard({ isOpen, onClose, gymId, plans }: AddMe
                 <div className="space-y-6 animate-fade-up">
                   <div className="bg-white p-5 rounded-[1.5rem] border-2 border-border shadow-sm flex items-center gap-5">
                     <div className="relative group">
-                      <div className="h-20 w-20 rounded-full border-4 border-dashed border-border flex flex-col items-center justify-center bg-page group-hover:border-accent group-hover:bg-accent-light transition-all cursor-pointer overflow-hidden">
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        className="hidden" 
+                        id="photo-upload"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                              setPhotoUrl(reader.result as string);
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                      />
+                      <label 
+                        htmlFor="photo-upload"
+                        className="h-20 w-20 rounded-full border-4 border-dashed border-border flex flex-col items-center justify-center bg-page group-hover:border-accent group-hover:bg-accent-light transition-all cursor-pointer overflow-hidden"
+                      >
                         {photoUrl ? (
                           <img src={photoUrl} alt="Preview" className="h-full w-full object-cover" />
                         ) : (
@@ -185,8 +204,8 @@ export default function AddMemberWizard({ isOpen, onClose, gymId, plans }: AddMe
                             <span className="text-[8px] font-bold text-text-muted uppercase mt-1">Photo</span>
                           </>
                         )}
-                      </div>
-                      <div className="absolute -bottom-1 -right-1 h-7 w-7 bg-accent rounded-full flex items-center justify-center text-white border-4 border-white shadow-lg">
+                      </label>
+                      <div className="absolute -bottom-1 -right-1 h-7 w-7 bg-accent rounded-full flex items-center justify-center text-white border-4 border-white shadow-lg pointer-events-none">
                         <Plus size={12} strokeWidth={3} />
                       </div>
                     </div>
