@@ -115,7 +115,7 @@ export default function CheckInPage() {
     <div className="pb-24 min-h-screen">
       {/* Header */}
       <div className="sticky top-0 z-20 bg-[#121215]/95 backdrop-blur-md border-b border-[#3F3F46] px-4 py-3">
-        <h1 className="text-lg font-bold text-[#FAFAFA]">Check In</h1>
+        <h1 className="text-lg font-bold text-[#E4E4E7]">Check In</h1>
       </div>
 
       <div className="px-4 py-5 space-y-4">
@@ -140,7 +140,7 @@ export default function CheckInPage() {
             value={query}
             onChange={e => { setQuery(e.target.value); setSelected(null); }}
             placeholder="Search by name or phone..."
-            className="w-full h-14 rounded-2xl bg-[#27272A] border border-[#3F3F46] pl-11 pr-4 text-[#FAFAFA] placeholder-[#A1A1AA] focus:outline-none focus:border-[#10B981] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.15)] transition-all duration-200 text-base"
+            className="w-full h-14 rounded-2xl bg-[#27272A] border border-[#3F3F46] pl-11 pr-4 text-[#E4E4E7] placeholder-[#A1A1AA] focus:outline-none focus:border-[#10B981] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.15)] transition-all duration-200 text-base"
           />
         </div>
 
@@ -158,7 +158,7 @@ export default function CheckInPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className="text-sm font-semibold text-[#FAFAFA]">{m.full_name}</p>
+                      <p className="text-sm font-semibold text-[#E4E4E7]">{m.full_name}</p>
                       <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium ${statusBadgeClass(m.status as MemberStatusType)}`}>
                         {statusLabel(m.status as MemberStatusType)}
                       </span>
@@ -184,7 +184,7 @@ export default function CheckInPage() {
                   {memberInitials(selected.full_name)}
                 </div>
                 <div>
-                  <p className="text-base font-bold text-[#FAFAFA]">{selected.full_name}</p>
+                  <p className="text-base font-bold text-[#E4E4E7]">{selected.full_name}</p>
                   <div className="flex items-center gap-2">
                     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${statusBadgeClass(selected.status as MemberStatusType)}`}>
                       {statusLabel(selected.status as MemberStatusType)}
@@ -257,7 +257,7 @@ export default function CheckInPage() {
                 <AlertCircle size={20} className="text-[#EF4444]" />
               </div>
               <div>
-                <h3 className="text-base font-semibold text-[#FAFAFA]">Expired Subscription</h3>
+                <h3 className="text-base font-semibold text-[#E4E4E7]">Expired Subscription</h3>
                 <p className="text-sm text-[#A1A1AA]">This member&apos;s subscription has expired. Check in anyway?</p>
               </div>
             </div>

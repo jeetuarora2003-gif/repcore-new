@@ -33,7 +33,7 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringSo
         <p className="text-[10px] tracking-[0.2em] font-semibold text-[#71717A] uppercase mb-1.5">
           {getHourGreeting()}
         </p>
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-[#FAFAFA]">
+        <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-[#E4E4E7]">
           {gym.name}
         </h1>
       </div>
@@ -41,27 +41,25 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringSo
       {/* KPI Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         {[
-          { label: "Total Members", value: stats.total, sub: "registered", icon: Users, color: "text-[#10B981]", bg: "bg-[#10B981]/10", stripe: "bg-[#10B981]" },
-          { label: "Active Now", value: stats.active, sub: "currently active", icon: UserCheck, color: "text-[#10B981]", bg: "bg-[#10B981]/10", stripe: "bg-[#10B981]" },
-          { label: "Expiring Soon", value: stats.expiring, sub: "need renewal", icon: UserMinus, color: "text-[#F59E0B]", bg: "bg-[#F59E0B]/10", stripe: "bg-[#F59E0B]" },
-          { label: "Pending Dues", value: formatINR(stats.dues), sub: "outstanding", icon: AlertCircle, color: "text-[#EF4444]", bg: "bg-[#EF4444]/10", stripe: "bg-[#EF4444]", valueColor: "text-[#F59E0B]" },
+          { label: "Total Members", value: stats.total, sub: "registered", icon: Users, color: "text-[#10B981]", bg: "bg-transparent", iconBorder: "border-[#10B981]/20" },
+          { label: "Active Now", value: stats.active, sub: "currently active", icon: UserCheck, color: "text-[#10B981]", bg: "bg-transparent", iconBorder: "border-[#10B981]/20" },
+          { label: "Expiring Soon", value: stats.expiring, sub: "need renewal", icon: UserMinus, color: "text-[#F59E0B]", bg: "bg-transparent", iconBorder: "border-[#F59E0B]/20" },
+          { label: "Pending Dues", value: formatINR(stats.dues), sub: "outstanding", icon: AlertCircle, color: "text-[#F59E0B]", bg: "bg-transparent", iconBorder: "border-[#F59E0B]/20" },
         ].map((stat, i) => (
-          <div key={stat.label} className="card p-5 group relative overflow-hidden hover:translate-y-[-2px] hover:shadow-lg hover:shadow-black/20 animate-fade-up" style={{ animationDelay: `${100 + i * 100}ms` }}>
-            {/* Top accent stripe */}
-            <div className={`absolute top-0 left-0 right-0 h-[2px] ${stat.stripe} opacity-60`} />
+          <div key={stat.label} className="card p-5 group relative overflow-hidden animate-fade-up" style={{ animationDelay: `${100 + i * 100}ms` }}>
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-semibold text-[#A1A1AA] uppercase tracking-wider">
+              <span className="text-[11px] font-medium text-[#A1A1AA]">
                 {stat.label}
               </span>
-              <div className={`h-7 w-7 rounded-lg ${stat.bg} ${stat.color} flex items-center justify-center`}>
-                <stat.icon size={14} strokeWidth={2.5} />
+              <div className={`h-8 w-8 rounded-full border ${stat.iconBorder} ${stat.bg} ${stat.color} flex items-center justify-center transition-transform group-hover:scale-110 duration-500`}>
+                <stat.icon size={15} strokeWidth={1.5} />
               </div>
             </div>
             <div className="mt-4">
-              <h3 className={`text-3xl font-bold tracking-tighter tabular-nums ${stat.valueColor || "text-[#FAFAFA]"}`}>
+              <h3 className={`text-3xl md:text-4xl font-medium tracking-tight tabular-nums ${stat.color}`}>
                 {stat.value}
               </h3>
-              <p className="text-[11px] text-[#71717A] mt-1 font-medium">{stat.sub}</p>
+              <p className="text-xs text-[#71717A] mt-1.5">{stat.sub}</p>
             </div>
           </div>
         ))}
@@ -82,9 +80,9 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringSo
             <Link
               key={action.label}
               href={action.href}
-              className="flex items-center gap-2 h-10 px-4 bg-[#18181B] border border-white/[0.07] rounded-xl text-xs font-medium text-[#A1A1AA] hover:border-[#10B981]/30 hover:text-[#FAFAFA] hover:bg-[#27272A] transition-all shrink-0 group"
+              className="flex items-center gap-2.5 h-10 px-4 bg-[#18181B] rounded-full text-sm font-medium text-[#E4E4E7] hover:bg-[#27272A] transition-colors shrink-0 group shadow-[0_0_0_1px_rgba(255,255,255,0.04)] hover:shadow-[0_0_0_1px_rgba(255,255,255,0.08)]"
             >
-              <action.icon size={13} className="text-[#10B981] group-hover:text-[#34D399] transition-colors" />
+              <action.icon size={14} strokeWidth={1.5} className="text-[#A1A1AA] group-hover:text-[#E4E4E7] transition-colors" />
               {action.label}
             </Link>
           ))}
@@ -113,7 +111,7 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringSo
                   <div className="flex items-center gap-3">
                     <div className="h-2 w-2 rounded-full bg-[#F59E0B] shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-[#FAFAFA] truncate">{m.full_name}</p>
+                      <p className="text-sm font-medium text-[#E4E4E7] truncate">{m.full_name}</p>
                       <p className="text-xs text-[#71717A]">Expiring in {m.days_until_expiry} days</p>
                     </div>
                     <Link
@@ -148,7 +146,7 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringSo
                 <div key={a.id} className="card p-3 flex items-center gap-3 hover:bg-[#27272A] transition-colors">
                   <MemberAvatar name={a.members.full_name} memberId={a.members.id} size="sm" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-[#FAFAFA] truncate">
+                    <p className="text-sm font-medium text-[#E4E4E7] truncate">
                       {a.members.full_name}
                     </p>
                     <p className="text-[11px] text-[#71717A] font-mono">

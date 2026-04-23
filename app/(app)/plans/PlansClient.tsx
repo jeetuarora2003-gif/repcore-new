@@ -64,7 +64,7 @@ export default function PlansClient({ gymId, plans }: Props) {
             <div className="h-7 w-7 rounded-lg bg-[#10B981]/10 flex items-center justify-center text-[#10B981] border border-[#10B981]/20">
               <Zap size={14} strokeWidth={2.5} />
             </div>
-            <h1 className="text-sm font-semibold text-[#FAFAFA]">Membership Plans</h1>
+            <h1 className="text-sm font-semibold text-[#E4E4E7]">Membership Plans</h1>
           </div>
           <button
             onClick={() => setShowCreate(true)}
@@ -94,7 +94,7 @@ export default function PlansClient({ gymId, plans }: Props) {
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-[15px] font-semibold text-[#FAFAFA] tracking-tight truncate">{plan.name}</h3>
+                      <h3 className="text-[15px] font-semibold text-[#E4E4E7] tracking-tight truncate">{plan.name}</h3>
                       {plan.is_active && (
                         <span className="h-1.5 w-1.5 rounded-full bg-[#10B981] shadow-sm shadow-[#10B981]/50" />
                       )}
@@ -113,7 +113,7 @@ export default function PlansClient({ gymId, plans }: Props) {
                   <button
                     onClick={() => handleToggle(plan.id)}
                     disabled={isPending}
-                    className="flex items-center gap-2 text-xs font-semibold text-[#A1A1AA] hover:text-[#FAFAFA] transition-colors"
+                    className="flex items-center gap-2 text-xs font-semibold text-[#A1A1AA] hover:text-[#E4E4E7] transition-colors"
                   >
                     {plan.is_active ? (
                       <>
@@ -145,7 +145,7 @@ export default function PlansClient({ gymId, plans }: Props) {
               value={form.name}
               onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
               placeholder="e.g. 3 Months Gold"
-              className="w-full h-11 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#FAFAFA] placeholder-[#71717A] focus:outline-none focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 transition-all"
+              className="w-full h-11 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#E4E4E7] placeholder-[#71717A] focus:outline-none focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 transition-all"
             />
           </div>
 
@@ -174,7 +174,7 @@ export default function PlansClient({ gymId, plans }: Props) {
                 required
                 value={form.duration_days}
                 onChange={e => setForm(p => ({ ...p, duration_days: Number(e.target.value) }))}
-                className="w-full h-11 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#FAFAFA] focus:outline-none focus:border-[#10B981]/40 transition-all font-mono"
+                className="w-full h-11 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#E4E4E7] focus:outline-none focus:border-[#10B981]/40 transition-all font-mono"
               />
               <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-[#71717A] uppercase tracking-widest pointer-events-none">Days</span>
             </div>
@@ -189,7 +189,7 @@ export default function PlansClient({ gymId, plans }: Props) {
               value={form.price}
               onChange={e => setForm(p => ({ ...p, price: e.target.value }))}
               placeholder="0.00"
-              className="w-full h-11 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#FAFAFA] font-mono focus:outline-none focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 transition-all"
+              className="w-full h-11 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#E4E4E7] font-mono focus:outline-none focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 transition-all"
             />
           </div>
 

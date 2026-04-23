@@ -26,7 +26,7 @@ export default function LoadingScreen() {
           <div className="flex flex-col">
             <span className="text-2xl font-bold tracking-tight">
               <span className="text-[#10B981]">Rep</span>
-              <span className="text-[#FAFAFA]">Core</span>
+              <span className="text-[#E4E4E7]">Core</span>
             </span>
             <span className="text-[10px] text-[#71717A] font-bold tracking-[0.25em] uppercase -mt-1 ml-0.5">
               Gym Management

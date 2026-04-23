@@ -35,7 +35,7 @@
   --color-danger-dim: rgba(239,68,68,0.10);
 
   /* Text hierarchy — warm grays */
-  --color-text-1: #FAFAFA;
+  --color-text-1: #E4E4E7; /* Softened from FAFAFA to reduce harshness */
   --color-text-2: #A1A1AA;
   --color-text-3: #71717A;
 
@@ -82,7 +82,7 @@
 /* ─── Base ─── */
 @layer base {
   *, *::before, *::after {
-    border-color: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.04);
     -webkit-tap-highlight-color: transparent;
     box-sizing: border-box;
     /* Force default transition to be springy */
@@ -104,8 +104,8 @@
 
   input, textarea, select {
     background-color: #18181B;
-    color: #FAFAFA;
-    border: 1px solid rgba(255,255,255,0.10);
+    color: #E4E4E7;
+    border: 1px solid rgba(255,255,255,0.05); /* Softened from 0.10 */
     border-radius: 12px;
   }
 
@@ -153,20 +153,19 @@
   /* ─── Premium card with real depth ─── */
   .card {
     background-color: #18181B;
-    border: 1px solid rgba(255,255,255,0.08);
+    border: none;
     border-radius: 16px;
     box-shadow: 
-      0 1px 2px rgba(0,0,0,0.3),
-      0 4px 12px rgba(0,0,0,0.15),
-      inset 0 1px 0 rgba(255,255,255,0.04);
-    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+      0 0 0 1px rgba(255,255,255,0.04), /* Hairline border */
+      0 4px 12px rgba(0,0,0,0.2), /* Soft elevation */
+      inset 0 1px 0 rgba(255,255,255,0.05); /* Inner top highlight */
+    transition: box-shadow 0.2s cubic-bezier(0.32, 0.72, 0, 1), transform 0.2s cubic-bezier(0.32, 0.72, 0, 1);
   }
   .card:hover {
-    border-color: rgba(255,255,255,0.14);
     box-shadow: 
-      0 2px 4px rgba(0,0,0,0.3),
-      0 8px 24px rgba(0,0,0,0.2),
-      inset 0 1px 0 rgba(255,255,255,0.06);
+      0 0 0 1px rgba(255,255,255,0.08),
+      0 8px 24px rgba(0,0,0,0.3),
+      inset 0 1px 0 rgba(255,255,255,0.08);
   }
 
   /* Gradient buttons */

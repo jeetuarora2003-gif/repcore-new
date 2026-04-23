@@ -50,7 +50,7 @@ export default function AppShell({ gym, children }: Props) {
             <p className="text-[10px] font-semibold text-[#71717A] uppercase tracking-[0.12em] mb-2">
               Managing
             </p>
-            <p className="text-sm font-medium text-[#FAFAFA] truncate">
+            <p className="text-sm font-medium text-[#E4E4E7] truncate">
               {gym.name}
             </p>
           </div>
@@ -68,13 +68,13 @@ export default function AppShell({ gym, children }: Props) {
                 className={`relative flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm transition-all duration-150 group ${
                   active 
                     ? "bg-[#10B981]/8 text-white font-medium" 
-                    : "text-[#71717A] hover:text-[#FAFAFA] hover:bg-white/[0.03]"
+                    : "text-[#71717A] hover:text-[#E4E4E7] hover:bg-white/[0.03]"
                 }`}
               >
                 {active && (
                   <div className="absolute left-0 w-[2px] h-4 bg-[#10B981] rounded-full" />
                 )}
-                <item.icon size={15} strokeWidth={1.5} className={active ? "text-[#10B981]" : "text-[#71717A] group-hover:text-[#FAFAFA]"} />
+                <item.icon size={15} strokeWidth={1.5} className={active ? "text-[#10B981]" : "text-[#71717A] group-hover:text-[#E4E4E7]"} />
                 {item.label}
               </Link>
             );
@@ -93,7 +93,7 @@ export default function AppShell({ gym, children }: Props) {
               {memberInitials(gym.name)}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[11px] font-medium text-[#FAFAFA] truncate">{gym.name}</p>
+              <p className="text-[11px] font-medium text-[#E4E4E7] truncate">{gym.name}</p>
             </div>
             <Settings size={14} className="text-[#71717A]" />
           </Link>
@@ -104,7 +104,7 @@ export default function AppShell({ gym, children }: Props) {
       <div className="flex-1 md:ml-56 flex flex-col min-w-0">
         {/* Top Bar */}
         <header className="sticky top-0 z-40 h-[48px] glass border-b border-white/[0.05] flex items-center justify-between px-4 md:px-8">
-          <h2 className="text-sm font-semibold text-[#FAFAFA] tracking-tight">
+          <h2 className="text-sm font-semibold text-[#E4E4E7] tracking-tight">
             {getPageTitle()}
           </h2>
           <div className="h-8 w-8 rounded-full bg-gradient-to-br from-[#10B981] to-[#059669] flex items-center justify-center text-white text-[11px] font-semibold border border-white/10 shadow-lg shadow-[#10B981]/15">

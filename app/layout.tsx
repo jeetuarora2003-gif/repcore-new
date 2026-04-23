@@ -44,16 +44,21 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable} dark`}>
-      <body className="font-sans antialiased bg-[#09090B] text-[#FAFAFA]">
+      <body className="font-sans antialiased bg-[#09090B] text-[#E4E4E7] relative min-h-screen">
+        {/* Ambient background mesh */}
+        <div className="fixed inset-0 pointer-events-none z-[-1] flex items-start justify-center overflow-hidden">
+          <div className="w-[800px] h-[400px] bg-gradient-to-b from-[#10B981]/[0.03] to-transparent rounded-[100%] blur-3xl -translate-y-1/2" />
+        </div>
         {children}
         <Toaster 
           position="top-center" 
           toastOptions={{
             style: {
               background: "#18181B",
-              border: "1px solid rgba(255,255,255,0.08)",
-              color: "#FAFAFA",
+              border: "1px solid rgba(255,255,255,0.04)",
+              color: "#E4E4E7",
               borderRadius: "12px",
+              boxShadow: "0 0 0 1px rgba(255,255,255,0.04), 0 8px 24px rgba(0,0,0,0.4)"
             }
           }}
         />

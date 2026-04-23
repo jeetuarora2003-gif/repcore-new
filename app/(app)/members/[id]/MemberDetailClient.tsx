@@ -173,7 +173,7 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
             
             <div className="flex-1 text-center md:text-left space-y-4">
               <div className="flex flex-col md:flex-row items-center gap-3">
-                <h1 className="text-2xl font-bold tracking-tight text-[#FAFAFA]">{member.full_name}</h1>
+                <h1 className="text-2xl font-bold tracking-tight text-[#E4E4E7]">{member.full_name}</h1>
                 <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium tracking-tight ${statusBadgeClass(member.status as MemberStatusType)}`}>
                   {statusLabel(member.status as MemberStatusType)}
                 </span>
@@ -212,7 +212,7 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
                 </button>
                 <button
                   onClick={() => setShowPlan(true)}
-                  className="h-9 px-4 rounded-xl bg-surface border border-white/8 text-[#FAFAFA] text-xs font-semibold hover:border-white/12 hover:bg-surface-2 transition-all active:scale-95"
+                  className="h-9 px-4 rounded-xl bg-surface border border-white/8 text-[#E4E4E7] text-xs font-semibold hover:border-white/12 hover:bg-surface-2 transition-all active:scale-95"
                 >
                   Change Plan
                 </button>
@@ -224,7 +224,7 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
                 </button>
                 <button
                   onClick={handleRemind}
-                  className="h-9 w-9 flex items-center justify-center rounded-xl bg-surface border border-white/8 text-[#A1A1AA] hover:text-[#FAFAFA] transition-all"
+                  className="h-9 w-9 flex items-center justify-center rounded-xl bg-surface border border-white/8 text-[#A1A1AA] hover:text-[#E4E4E7] transition-all"
                 >
                   <Bell size={14} />
                 </button>
@@ -243,8 +243,8 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
               onClick={() => setTab(t)}
               className={`flex-1 py-2 text-xs font-medium capitalize rounded-xl transition-all duration-200 ${
                 tab === t
-                  ? "bg-surface-3 text-[#FAFAFA] shadow-sm"
-                  : "text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-white/3"
+                  ? "bg-surface-3 text-[#E4E4E7] shadow-sm"
+                  : "text-[#A1A1AA] hover:text-[#E4E4E7] hover:bg-white/3"
               }`}
             >
               {t}
@@ -262,14 +262,14 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
                   <div className="h-7 w-7 rounded-lg bg-[#10B981]/10 flex items-center justify-center text-[#10B981] border border-[#10B981]/20">
                     <Zap size={14} strokeWidth={2.5} />
                   </div>
-                  <h3 className="text-sm font-semibold text-[#FAFAFA]">Active Subscription</h3>
+                  <h3 className="text-sm font-semibold text-[#E4E4E7]">Active Subscription</h3>
                 </div>
 
                 {member.subscription_id ? (
                   <div className="space-y-5">
                     <div className="flex justify-between items-end">
                       <div>
-                        <p className="text-lg font-bold text-[#FAFAFA] tracking-tight">{member.plan_name}</p>
+                        <p className="text-lg font-bold text-[#E4E4E7] tracking-tight">{member.plan_name}</p>
                         <p className="text-xs text-[#A1A1AA] mt-0.5">Started {formatDate(member.start_date)}</p>
                       </div>
                       <div className="text-right">
@@ -304,7 +304,7 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
                   <div className="h-7 w-7 rounded-lg bg-[#A1A1AA]/10 flex items-center justify-center text-[#A1A1AA] border border-white/10">
                     <FileText size={14} />
                   </div>
-                  <h3 className="text-sm font-semibold text-[#FAFAFA]">Administrative Notes</h3>
+                  <h3 className="text-sm font-semibold text-[#E4E4E7]">Administrative Notes</h3>
                 </div>
                 <div className="bg-bg/50 rounded-xl p-4 border border-white/4 min-h-[100px]">
                   <p className="text-sm text-[#A1A1AA] leading-relaxed">
@@ -320,7 +320,7 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
               {/* Billing Summary */}
               <div className="grid grid-cols-3 gap-3">
                 {[
-                  { label: "Invoiced", value: formatINR(member.total_invoiced ?? 0), color: "text-[#FAFAFA]" },
+                  { label: "Invoiced", value: formatINR(member.total_invoiced ?? 0), color: "text-[#E4E4E7]" },
                   { label: "Paid", value: formatINR(member.total_paid ?? 0), color: "text-[#10B981]" },
                   { label: "Due", value: formatINR(member.balance_due ?? 0), color: (member.balance_due ?? 0) > 0 ? "text-[#EF4444]" : "text-[#10B981]" },
                 ].map((item) => (
@@ -342,7 +342,7 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
                       payments.map(p => (
                         <div key={p.id} className="flex items-center justify-between py-3.5 border-b border-white/5">
                           <div>
-                            <p className="text-sm font-medium text-[#FAFAFA]">{METHOD_LABELS[p.payment_method as PaymentMethod]}</p>
+                            <p className="text-sm font-medium text-[#E4E4E7]">{METHOD_LABELS[p.payment_method as PaymentMethod]}</p>
                             <p className="text-[11px] font-mono text-[#71717A] mt-0.5 uppercase">PAID {formatDate(p.paid_at)}</p>
                           </div>
                           <span className="text-sm font-bold font-mono text-[#F59E0B]">{formatINR(p.amount)}</span>
@@ -361,7 +361,7 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
                       invoices.map(inv => (
                         <div key={inv.id} className="flex items-center justify-between py-3.5 border-b border-white/5">
                           <div>
-                            <p className="text-sm font-medium text-[#FAFAFA]">#{inv.invoice_number}</p>
+                            <p className="text-sm font-medium text-[#E4E4E7]">#{inv.invoice_number}</p>
                             <p className="text-[11px] font-mono text-[#71717A] mt-0.5 uppercase">ISSUED {formatDate(inv.created_at)}</p>
                           </div>
                           <span className="text-sm font-bold font-mono text-[#F59E0B]">{formatINR(inv.amount)}</span>
@@ -412,7 +412,7 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
                   ) : (
                     attendance.map(a => (
                       <div key={a.id} className="card p-3 flex justify-between items-center group hover:bg-white/3 transition-all">
-                        <span className="text-xs font-semibold text-[#FAFAFA] font-mono">{formatDate(a.checked_in_at)}</span>
+                        <span className="text-xs font-semibold text-[#E4E4E7] font-mono">{formatDate(a.checked_in_at)}</span>
                         <span className="text-[11px] text-[#71717A] font-mono">{new Date(a.checked_in_at).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}</span>
                       </div>
                     ))
@@ -434,7 +434,7 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
               required 
               value={payForm.amount} 
               onChange={e => setPayForm(p => ({ ...p, amount: e.target.value }))} 
-              className="w-full h-11 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#FAFAFA] font-mono focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 outline-none transition-all" 
+              className="w-full h-11 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#E4E4E7] font-mono focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 outline-none transition-all" 
             />
           </div>
           <div>
@@ -467,7 +467,7 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
             <select 
               value={planForm.plan_id} 
               onChange={e => setPlanForm(p => ({ ...p, plan_id: e.target.value }))} 
-              className="w-full h-11 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#FAFAFA] focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 outline-none"
+              className="w-full h-11 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#E4E4E7] focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 outline-none"
             >
               {plans.map(pl => <option key={pl.id} value={pl.id}>{pl.name} — {pl.duration_days} days — {formatINR(pl.price)}</option>)}
             </select>
@@ -478,7 +478,7 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
               type="date" 
               value={planForm.start_date} 
               onChange={e => setPlanForm(p => ({ ...p, start_date: e.target.value }))} 
-              className="w-full h-11 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#FAFAFA] focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 outline-none" 
+              className="w-full h-11 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#E4E4E7] focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 outline-none" 
             />
           </div>
           <button type="submit" disabled={isPending} className="w-full h-12 rounded-xl bg-[#10B981] text-white text-sm font-semibold active:scale-[0.98] transition-all mt-4 shadow-lg shadow-[#10B981]/20">Assign Membership</button>

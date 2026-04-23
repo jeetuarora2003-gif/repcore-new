@@ -44,10 +44,10 @@ export default function BottomSheet({ open, onClose, title, children }: Props) {
         {/* Header */}
         {title && (
           <div className="flex items-center justify-between px-6 py-4 shrink-0">
-            <h2 className="text-lg font-bold tracking-tight text-[#FAFAFA]">{title}</h2>
+            <h2 className="text-lg font-bold tracking-tight text-[#E4E4E7]">{title}</h2>
             <button
               onClick={onClose}
-              className="h-8 w-8 rounded-full bg-white/5 flex items-center justify-center text-[#71717A] hover:text-[#FAFAFA] hover:bg-white/10 transition-all active:scale-90"
+              className="h-8 w-8 rounded-full bg-white/5 flex items-center justify-center text-[#71717A] hover:text-[#E4E4E7] hover:bg-white/10 transition-all active:scale-90"
             >
               <X size={16} />
             </button>

@@ -73,7 +73,7 @@ export default function MembersClient({ gymId, members }: Props) {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search by name or phone..."
-            className="w-full h-10 rounded-xl bg-[#27272A] border border-white/[0.08] pl-11 pr-4 text-sm text-[#FAFAFA] placeholder-[#71717A] focus:outline-none focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/[0.08] transition-all"
+            className="w-full h-10 rounded-xl bg-[#27272A] border border-white/[0.08] pl-11 pr-4 text-sm text-[#E4E4E7] placeholder-[#71717A] focus:outline-none focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/[0.08] transition-all"
           />
         </div>
         <div className="flex gap-2 overflow-x-auto scrollbar-hide">
@@ -84,7 +84,7 @@ export default function MembersClient({ gymId, members }: Props) {
               className={`h-8 px-4 rounded-lg text-[11px] font-semibold uppercase tracking-wider whitespace-nowrap transition-all border ${
                 filter === key
                   ? "bg-[#10B981]/12 text-[#10B981] border-[#10B981]/30"
-                  : "bg-[#18181B] text-[#A1A1AA] border-white/[0.07] hover:text-[#FAFAFA] hover:border-white/[0.12]"
+                  : "bg-[#18181B] text-[#A1A1AA] border-white/[0.07] hover:text-[#E4E4E7] hover:border-white/[0.12]"
               }`}
             >
               {label}
@@ -103,7 +103,7 @@ export default function MembersClient({ gymId, members }: Props) {
                 <MemberAvatar name={m.full_name} memberId={m.id} size="md" status={m.status} rounded="xl" />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 mb-1.5">
-                    <p className="text-[15px] font-semibold text-[#FAFAFA] tracking-tight truncate">{m.full_name}</p>
+                    <p className="text-[15px] font-semibold text-[#E4E4E7] tracking-tight truncate">{m.full_name}</p>
                     <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium tracking-tight shrink-0 ${statusBadgeClass(m.status as MemberStatusType)}`}>{statusLabel(m.status as MemberStatusType)}</span>
                   </div>
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
@@ -143,13 +143,13 @@ export default function MembersClient({ gymId, members }: Props) {
             ].map(({ field, label, placeholder, type, required }) => (
               <div key={field}>
                 <label className="text-xs font-medium text-[#A1A1AA] block mb-1.5">{label}</label>
-                <input type={type} required={required} value={form[field as keyof typeof form]} onChange={e => { const val = e.target.value; setForm(p => ({ ...p, [field]: field === "phone" ? cleanPhone(val) : val })); }} placeholder={placeholder} className="w-full h-11 rounded-xl bg-[#27272A] border border-white/[0.08] px-4 text-sm text-[#FAFAFA] placeholder-[#71717A] focus:outline-none focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/[0.08] transition-all" />
+                <input type={type} required={required} value={form[field as keyof typeof form]} onChange={e => { const val = e.target.value; setForm(p => ({ ...p, [field]: field === "phone" ? cleanPhone(val) : val })); }} placeholder={placeholder} className="w-full h-11 rounded-xl bg-[#27272A] border border-white/[0.08] px-4 text-sm text-[#E4E4E7] placeholder-[#71717A] focus:outline-none focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/[0.08] transition-all" />
               </div>
             ))}
           </div>
           <div>
             <label className="text-xs font-medium text-[#A1A1AA] block mb-1.5">Joining Date</label>
-            <input type="date" required value={form.joining_date} onChange={e => setForm(p => ({ ...p, joining_date: e.target.value }))} className="w-full h-11 rounded-xl bg-[#27272A] border border-white/[0.08] px-4 text-sm text-[#FAFAFA] focus:outline-none focus:border-[#10B981]/40 transition-all" />
+            <input type="date" required value={form.joining_date} onChange={e => setForm(p => ({ ...p, joining_date: e.target.value }))} className="w-full h-11 rounded-xl bg-[#27272A] border border-white/[0.08] px-4 text-sm text-[#E4E4E7] focus:outline-none focus:border-[#10B981]/40 transition-all" />
           </div>
           <button type="submit" disabled={isPending} className="w-full h-12 rounded-xl btn-primary text-sm disabled:opacity-50 mt-4">{isPending ? "Creating member..." : "Add Member"}</button>
         </form>

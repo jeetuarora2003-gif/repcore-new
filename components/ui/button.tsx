@@ -14,7 +14,7 @@ const buttonVariants = cva(
         secondary:
           "bg-[#1C2128] text-[#E6EDF3] hover:bg-[#21262D] text-[13px] font-medium",
         ghost:
-          "text-[#8B949E] hover:text-[#FAFAFA] hover:bg-[#161B22] text-[13px] font-medium",
+          "text-[#8B949E] hover:text-[#E4E4E7] hover:bg-[#161B22] text-[13px] font-medium",
         destructive:
           "bg-[#F85149]/10 text-[#F85149] hover:bg-[#F85149]/20 border border-[#F85149]/20",
         link: "text-[#10B981] underline-offset-4 hover:underline font-semibold",

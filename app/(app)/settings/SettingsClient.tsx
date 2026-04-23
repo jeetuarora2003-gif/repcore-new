@@ -65,7 +65,7 @@ export default function SettingsClient({ gym }: Props) {
               <div className="h-7 w-7 rounded-lg bg-[#10B981]/10 flex items-center justify-center text-[#10B981] border border-[#10B981]/20">
                 <Building2 size={14} />
               </div>
-              <h3 className="text-sm font-semibold text-[#FAFAFA]">Business Profile</h3>
+              <h3 className="text-sm font-semibold text-[#E4E4E7]">Business Profile</h3>
             </div>
             <div className="h-8 w-8 rounded-lg bg-surface-3 flex items-center justify-center text-[#10B981] text-[10px] font-bold border border-white/5">
               {memberInitials(form.name || "G")}
@@ -85,7 +85,7 @@ export default function SettingsClient({ gym }: Props) {
                   value={form[field as keyof typeof form]}
                   onChange={e => handleChange(field, e.target.value)}
                   placeholder={placeholder}
-                  className="w-full h-10 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#FAFAFA] placeholder-[#71717A] focus:outline-none focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 transition-all"
+                  className="w-full h-10 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#E4E4E7] placeholder-[#71717A] focus:outline-none focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 transition-all"
                 />
               </div>
             ))}
@@ -98,7 +98,7 @@ export default function SettingsClient({ gym }: Props) {
             <div className="h-7 w-7 rounded-lg bg-[#F59E0B]/10 flex items-center justify-center text-[#F59E0B] border border-[#F59E0B]/20">
               <FileText size={14} />
             </div>
-            <h3 className="text-sm font-semibold text-[#FAFAFA]">System Configuration</h3>
+            <h3 className="text-sm font-semibold text-[#E4E4E7]">System Configuration</h3>
           </div>
 
           <div className="grid sm:grid-cols-2 gap-6">
@@ -112,7 +112,7 @@ export default function SettingsClient({ gym }: Props) {
                   type="text"
                   value={form[field as keyof typeof form]}
                   onChange={e => handleChange(field, e.target.value)}
-                  className="w-full h-10 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#FAFAFA] font-mono focus:outline-none focus:border-[#10B981]/40 transition-all uppercase"
+                  className="w-full h-10 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#E4E4E7] font-mono focus:outline-none focus:border-[#10B981]/40 transition-all uppercase"
                 />
                 <p className="text-[10px] text-[#71717A] font-mono tracking-wider pl-1">
                   PREVIEW: {form[field as keyof typeof form] || "REP"}-{new Date().getFullYear()}-0001
@@ -128,7 +128,7 @@ export default function SettingsClient({ gym }: Props) {
             <div className="h-7 w-7 rounded-lg bg-[#10B981]/10 flex items-center justify-center text-[#10B981] border border-[#10B981]/20">
               <Zap size={14} strokeWidth={2.5} />
             </div>
-            <h3 className="text-sm font-semibold text-[#FAFAFA]">WhatsApp Integration</h3>
+            <h3 className="text-sm font-semibold text-[#E4E4E7]">WhatsApp Integration</h3>
           </div>
 
           <div className="space-y-5">
@@ -140,12 +140,12 @@ export default function SettingsClient({ gym }: Props) {
                   value={form.whatsapp_api_key}
                   onChange={e => handleChange("whatsapp_api_key", e.target.value)}
                   placeholder="sk-..."
-                  className="w-full h-10 rounded-xl bg-[#09090B] border border-white/8 px-4 pr-12 text-sm text-[#FAFAFA] font-mono placeholder-[#71717A] focus:outline-none focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 transition-all"
+                  className="w-full h-10 rounded-xl bg-[#09090B] border border-white/8 px-4 pr-12 text-sm text-[#E4E4E7] font-mono placeholder-[#71717A] focus:outline-none focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 transition-all"
                 />
                 <button
                   type="button"
                   onClick={() => setShowApiKey(!showApiKey)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#71717A] hover:text-[#FAFAFA] transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#71717A] hover:text-[#E4E4E7] transition-colors"
                 >
                   {showApiKey ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
@@ -157,7 +157,7 @@ export default function SettingsClient({ gym }: Props) {
                 <ShieldCheck size={16} className="text-[#10B981]" />
                 <span className="text-xs font-medium text-[#A1A1AA]">Messaging Balance</span>
               </div>
-              <span className="text-sm font-bold font-mono text-[#FAFAFA] tabular-nums">{gym.whatsapp_credits} units</span>
+              <span className="text-sm font-bold font-mono text-[#E4E4E7] tabular-nums">{gym.whatsapp_credits} units</span>
             </div>
           </div>
         </div>

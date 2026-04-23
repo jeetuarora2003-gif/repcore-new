@@ -41,7 +41,7 @@ function CustomTooltip({ active, payload, label }: { active?: boolean; payload?:
     return (
       <div className="bg-surface-2 border border-white/10 rounded-xl px-4 py-3 shadow-2xl">
         <p className="text-[10px] font-semibold text-[#71717A] uppercase tracking-wider mb-1.5">{label}</p>
-        <p className="text-base font-bold text-[#FAFAFA] font-mono">{formatINR(payload[0].value)}</p>
+        <p className="text-base font-bold text-[#E4E4E7] font-mono">{formatINR(payload[0].value)}</p>
       </div>
     );
   }
@@ -66,7 +66,7 @@ export default function ReportsClient({ monthRevenue, newMembersCount, totalDues
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
             { label: "This Month Revenue", value: formatINR(monthRevenue), icon: TrendingUp, color: "text-[#F59E0B]", bg: "bg-[#F59E0B]/10", valueColor: "text-[#F59E0B]" },
-            { label: "New Members", value: String(newMembersCount), icon: UserPlus, color: "text-[#10B981]", bg: "bg-[#10B981]/10", valueColor: "text-[#FAFAFA]" },
+            { label: "New Members", value: String(newMembersCount), icon: UserPlus, color: "text-[#10B981]", bg: "bg-[#10B981]/10", valueColor: "text-[#E4E4E7]" },
             { label: "Pending Dues", value: formatINR(totalDues), icon: AlertCircle, color: "text-[#EF4444]", bg: "bg-[#EF4444]/12", valueColor: "text-[#EF4444]" },
           ].map(({ label, value, icon: Icon, color, bg, valueColor }) => (
             <div key={label} className="card p-6 flex items-center gap-5">
@@ -84,7 +84,7 @@ export default function ReportsClient({ monthRevenue, newMembersCount, totalDues
         {/* Revenue Chart */}
         <div className="card p-6">
           <div className="flex items-center justify-between mb-8">
-            <h3 className="text-sm font-semibold text-[#FAFAFA] tracking-tight">Revenue History</h3>
+            <h3 className="text-sm font-semibold text-[#E4E4E7] tracking-tight">Revenue History</h3>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-1.5">
                 <div className="h-2 w-2 rounded-full bg-[#10B981]" />
@@ -119,7 +119,7 @@ export default function ReportsClient({ monthRevenue, newMembersCount, totalDues
                 return (
                   <div key={status} className="space-y-2.5">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-[#FAFAFA]">{label}</span>
+                      <span className="text-sm font-medium text-[#E4E4E7]">{label}</span>
                       <span className="text-xs font-bold font-mono text-[#A1A1AA]">{count}</span>
                     </div>
                     <div className="h-1.5 bg-surface-3 rounded-full overflow-hidden">

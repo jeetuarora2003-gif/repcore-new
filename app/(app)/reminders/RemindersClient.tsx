@@ -76,8 +76,8 @@ export default function RemindersClient({ gym, fiveDays, threeDays, oneDay, hist
               onClick={() => setTab(key)}
               className={`px-6 py-2 text-xs font-medium rounded-lg transition-all duration-200 ${
                 tab === key
-                  ? "bg-surface-3 text-[#FAFAFA] shadow-sm"
-                  : "text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-white/3"
+                  ? "bg-surface-3 text-[#E4E4E7] shadow-sm"
+                  : "text-[#A1A1AA] hover:text-[#E4E4E7] hover:bg-white/3"
               }`}
             >
               {label}
@@ -105,7 +105,7 @@ export default function RemindersClient({ gym, fiveDays, threeDays, oneDay, hist
                 >
                   <MemberAvatar name={m.full_name} memberId={m.id} size="md" rounded="xl" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-[15px] font-semibold text-[#FAFAFA] tracking-tight truncate mb-1">{m.full_name}</p>
+                    <p className="text-[15px] font-semibold text-[#E4E4E7] tracking-tight truncate mb-1">{m.full_name}</p>
                     <div className="flex flex-wrap gap-x-5 gap-y-1">
                       <div className="flex items-center gap-1.5">
                         <span className="text-[10px] font-semibold text-[#71717A] uppercase tracking-wider">Expires</span>
@@ -145,7 +145,7 @@ export default function RemindersClient({ gym, fiveDays, threeDays, oneDay, hist
                 <div className="flex items-center gap-3">
                   <div className="h-2 w-2 rounded-full bg-[#10B981]" />
                   <div>
-                    <p className="text-sm font-medium text-[#FAFAFA]">Stage {r.stage} reminder sent</p>
+                    <p className="text-sm font-medium text-[#E4E4E7]">Stage {r.stage} reminder sent</p>
                     <p className="text-[11px] font-mono text-[#71717A] uppercase mt-0.5">VIA {r.method} • {formatDate(r.sent_at)}</p>
                   </div>
                 </div>
