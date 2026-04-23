@@ -169,7 +169,7 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
       {/* Header Profile Section */}
       <div className="bg-white border border-border rounded-2xl p-6 md:p-8">
         <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
-          <MemberAvatar name={member.full_name} memberId={member.id} size="xl" status={member.status} />
+          <MemberAvatar name={member.full_name} memberId={member.id} photoUrl={member.photo_url} size="xl" status={member.status} />
           
           <div className="flex-1 text-center md:text-left space-y-4">
             <div className="flex flex-col md:flex-row items-center gap-3">
