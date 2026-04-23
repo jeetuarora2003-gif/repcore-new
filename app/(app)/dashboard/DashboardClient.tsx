@@ -41,12 +41,12 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringSo
       {/* KPI Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {[
-          { label: "Total Members", value: stats.total, sub: "registered", icon: Users, accent: "border-t-[#1A7A5E]", valColor: "text-text-primary" },
-          { label: "Active Now", value: stats.active, sub: "currently active", icon: UserCheck, accent: "border-t-[#1A7A5E]", valColor: "text-accent-text" },
-          { label: "Expiring Soon", value: stats.expiring, sub: "need renewal", icon: UserMinus, accent: "border-t-[#B85C00]", valColor: "text-status-warning-text" },
-          { label: "Pending Dues", value: formatINR(stats.dues), sub: "outstanding", icon: AlertCircle, accent: "border-t-[#C0392B]", valColor: "text-status-danger-text" },
+          { label: "Total Members", value: stats.total, sub: "registered", icon: Users, accent: "border-t-[#1A7A5E]", valColor: "text-text-primary", href: "/members" },
+          { label: "Active Now", value: stats.active, sub: "currently active", icon: UserCheck, accent: "border-t-[#1A7A5E]", valColor: "text-accent-text", href: "/members" },
+          { label: "Expiring Soon", value: stats.expiring, sub: "need renewal", icon: UserMinus, accent: "border-t-[#B85C00]", valColor: "text-status-warning-text", href: "/reminders" },
+          { label: "Pending Dues", value: formatINR(stats.dues), sub: "outstanding", icon: AlertCircle, accent: "border-t-[#C0392B]", valColor: "text-status-danger-text", href: "/dues" },
         ].map((stat, i) => (
-          <div key={stat.label} className={`bg-white border border-border rounded-xl p-5 border-t-[3px] ${stat.accent} animate-fade-up transition-colors hover:border-border-strong`} style={{ animationDelay: `${100 + i * 100}ms` }}>
+          <Link key={stat.label} href={stat.href} className={`bg-white border border-border rounded-xl p-5 border-t-[3px] ${stat.accent} animate-fade-up transition-colors hover:border-border-strong cursor-pointer`} style={{ animationDelay: `${100 + i * 100}ms` }}>
             <div className="flex items-center justify-between mb-4">
               <span className="text-[11px] font-bold text-text-muted uppercase tracking-widest">
                 {stat.label}
@@ -69,7 +69,7 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringSo
               </div>
               <p className="text-[10px] text-text-muted mt-1 uppercase font-bold tracking-wider">{stat.sub}</p>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
 
@@ -110,7 +110,7 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringSo
             { label: "Add Member", icon: Plus, href: "/members" },
             { label: "Add Plan", icon: Dumbbell, href: "/plans" },
             { label: "Record Check-in", icon: Zap, href: "/members" },
-            { label: "Check Dues", icon: TrendingUp, href: "/reports" },
+            { label: "Check Dues", icon: TrendingUp, href: "/dues" },
             { label: "Send Reminders", icon: Bell, href: "/reminders" },
           ].map((action) => (
             <Link
