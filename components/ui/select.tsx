@@ -4,7 +4,7 @@ import { CheckIcon, ChevronDownIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
-function Select({ ...props }: SelectPrimitive.Root.Props) {
+function Select({ ...props }: SelectPrimitive.Root.Props<string>) {
   return <SelectPrimitive.Root data-slot="select" {...props} />
 }
 
@@ -33,7 +33,6 @@ function SelectTrigger({
 function SelectContent({
   className,
   children,
-  position = "popper",
   ...props
 }: SelectPrimitive.Popup.Props) {
   return (
@@ -74,7 +73,7 @@ function SelectItem({
   className,
   children,
   ...props
-}: SelectPrimitive.Item.Props) {
+}: SelectPrimitive.Item.Props<string>) {
   return (
     <SelectPrimitive.Item
       data-slot="select-item"
