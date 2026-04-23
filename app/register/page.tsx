@@ -66,7 +66,7 @@ export default function RegisterPage() {
     });
 
     if (gymErr) {
-      toast.error("Account created but failed to set up gym. Please contact support.");
+      toast.error(`Gym setup failed: ${gymErr.message}`);
       setLoading(false);
       return;
     }
