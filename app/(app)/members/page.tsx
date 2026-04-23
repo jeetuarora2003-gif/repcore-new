@@ -20,5 +20,12 @@ export default async function MembersPage() {
     .eq("gym_id", gym.id)
     .order("full_name");
 
-  return <MembersClient gymId={gym.id} members={members ?? []} />;
+  const { data: plans } = await supabase
+    .from("plans")
+    .select("*")
+    .eq("gym_id", gym.id)
+    .eq("is_active", true)
+    .order("price", { ascending: true });
+
+  return <MembersClient gymId={gym.id} members={members ?? []} plans={plans ?? []} />;
 }

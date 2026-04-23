@@ -1,17 +1,14 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import Link from "next/link";
 import { Plus, Search, Phone, Users, ChevronRight } from "lucide-react";
-import { formatINR, formatDate, statusLabel, statusBadgeClass, cleanPhone } from "@/lib/helpers";
+import { formatINR, statusLabel, statusBadgeClass } from "@/lib/helpers";
 import type { MemberStatus } from "@/lib/supabase/types";
 import type { MemberStatusType } from "@/lib/helpers";
 import MemberAvatar from "@/components/MemberAvatar";
-import BottomSheet from "@/components/BottomSheet";
 import EmptyState from "@/components/EmptyState";
-import { createMember } from "@/app/actions/members";
-import { toast } from "sonner";
+import AddMemberWizard from "@/components/AddMemberWizard";
 
 type FilterType = "all" | "active" | "expiring_soon" | "expired" | "lapsed" | "has_dues";
 
@@ -24,20 +21,23 @@ const FILTERS: { key: FilterType; label: string }[] = [
   { key: "has_dues", label: "Has Dues" },
 ];
 
+interface Plan {
+  id: string;
+  name: string;
+  price: number;
+  duration_days: number;
+}
+
 interface Props {
   gymId: string;
   members: MemberStatus[];
+  plans: Plan[];
 }
 
-export default function MembersClient({ gymId, members }: Props) {
-  const router = useRouter();
+export default function MembersClient({ gymId, members, plans }: Props) {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<FilterType>("all");
   const [showAdd, setShowAdd] = useState(false);
-  const [isPending, startTransition] = useTransition();
-  const [form, setForm] = useState({
-    full_name: "", phone: "", email: "", joining_date: new Date().toISOString().split("T")[0], notes: ""
-  });
 
   const filtered = members.filter(m => {
     const matchSearch = m.full_name.toLowerCase().includes(search.toLowerCase()) ||
@@ -48,21 +48,6 @@ export default function MembersClient({ gymId, members }: Props) {
       m.status === filter;
     return matchSearch && matchFilter;
   });
-
-  function handleAddSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    startTransition(async () => {
-      try {
-        await createMember({ ...form, gym_id: gymId });
-        toast.success("Member added successfully");
-        setShowAdd(false);
-        setForm({ full_name: "", phone: "", email: "", joining_date: new Date().toISOString().split("T")[0], notes: "" });
-        router.refresh();
-      } catch (err) {
-        toast.error((err as Error).message);
-      }
-    });
-  }
 
   return (
     <div className="pb-24 min-h-screen bg-[#09090B]">
@@ -115,13 +100,14 @@ export default function MembersClient({ gymId, members }: Props) {
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
-                  {(m.balance_due ?? 0) > 0 && (
-                    <div className="text-right hidden sm:block">
-                      <p className="text-[10px] font-semibold text-[#71717A] uppercase tracking-wider mb-0.5">Dues</p>
-                      <p className="text-[13px] font-bold text-[#F59E0B] font-mono tabular-nums">{formatINR(m.balance_due!)}</p>
-                    </div>
-                  )}
-                  <ChevronRight size={16} className="text-[#71717A]" />
+                  <div className="flex flex-col items-end gap-1.5">
+                    {m.balance_due > 0 && (
+                      <span className="text-[10px] font-mono text-[#EF4444] bg-[#EF4444]/10 px-1.5 py-0.5 rounded">
+                        DUE {formatINR(m.balance_due)}
+                      </span>
+                    )}
+                  </div>
+                  <ChevronRight size={16} className="text-[#3F3F46] group-hover:text-[#10B981] transition-colors shrink-0" />
                 </div>
               </div>
             </Link>
@@ -129,31 +115,19 @@ export default function MembersClient({ gymId, members }: Props) {
         )}
       </div>
 
-      <button onClick={() => setShowAdd(true)} className="fixed bottom-20 right-6 md:bottom-8 md:right-8 z-30 h-12 w-12 rounded-2xl bg-gradient-to-br from-[#10B981] to-[#059669] flex items-center justify-center text-white shadow-lg shadow-[#10B981]/30 hover:shadow-[#10B981]/50 hover:scale-105 active:scale-95 transition-all duration-200">
+      <button
+        onClick={() => setShowAdd(true)}
+        className="fixed bottom-[84px] md:bottom-8 right-4 md:right-8 h-14 w-14 bg-gradient-to-br from-[#10B981] to-[#059669] rounded-2xl flex items-center justify-center text-white shadow-[0_8px_30px_rgba(16,185,129,0.3)] hover:scale-105 active:scale-95 transition-all z-30"
+      >
         <Plus size={24} strokeWidth={2.5} />
       </button>
 
-      <BottomSheet open={showAdd} onClose={() => setShowAdd(false)} title="Add New Member">
-        <form onSubmit={handleAddSubmit} className="space-y-5 pt-4 pb-10">
-          <div className="grid gap-5">
-            {[
-              { field: "full_name", label: "Full Name", placeholder: "John Smith", type: "text", required: true },
-              { field: "phone", label: "Phone Number", placeholder: "98765 43210", type: "tel", required: true },
-              { field: "email", label: "Email Address", placeholder: "john@example.com", type: "email", required: false },
-            ].map(({ field, label, placeholder, type, required }) => (
-              <div key={field}>
-                <label className="text-xs font-medium text-[#A1A1AA] block mb-1.5">{label}</label>
-                <input type={type} required={required} value={form[field as keyof typeof form]} onChange={e => { const val = e.target.value; setForm(p => ({ ...p, [field]: field === "phone" ? cleanPhone(val) : val })); }} placeholder={placeholder} className="w-full h-11 rounded-xl bg-[#27272A] border border-white/[0.08] px-4 text-sm text-[#E4E4E7] placeholder-[#71717A] focus:outline-none focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/[0.08] transition-all" />
-              </div>
-            ))}
-          </div>
-          <div>
-            <label className="text-xs font-medium text-[#A1A1AA] block mb-1.5">Joining Date</label>
-            <input type="date" required value={form.joining_date} onChange={e => setForm(p => ({ ...p, joining_date: e.target.value }))} className="w-full h-11 rounded-xl bg-[#27272A] border border-white/[0.08] px-4 text-sm text-[#E4E4E7] focus:outline-none focus:border-[#10B981]/40 transition-all" />
-          </div>
-          <button type="submit" disabled={isPending} className="w-full h-12 rounded-xl btn-primary text-sm disabled:opacity-50 mt-4">{isPending ? "Creating member..." : "Add Member"}</button>
-        </form>
-      </BottomSheet>
+      <AddMemberWizard 
+        isOpen={showAdd} 
+        onClose={() => setShowAdd(false)} 
+        gymId={gymId} 
+        plans={plans} 
+      />
     </div>
   );
 }
