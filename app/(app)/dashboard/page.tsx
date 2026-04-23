@@ -33,7 +33,7 @@ export default async function DashboardPage() {
       
     supabase
       .from("v_member_status")
-      .select("id, full_name, phone, plan_name, days_until_expiry, status")
+      .select("*")
       .eq("gym_id", gym.id)
       .in("status", ["expiring_soon", "active"])
       .lte("days_until_expiry", 7)
