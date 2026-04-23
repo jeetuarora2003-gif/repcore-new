@@ -103,7 +103,7 @@ export default function MembersClient({ gymId, members, plans }: Props) {
           filtered.map(m => (
             <Link key={m.id} href={`/members/${m.id}`} className="block group">
               <div className="bg-white border border-border rounded-xl p-4 flex items-center gap-4 hover:border-border-strong transition-all active:scale-[0.995] shadow-sm">
-                <MemberAvatar name={m.full_name} memberId={m.id} size="md" status={m.status} />
+                <MemberAvatar name={m.full_name} memberId={m.id} photoUrl={m.photo_url} size="md" status={m.status} />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 mb-1.5">
                     <p className="text-[15px] font-bold text-text-primary tracking-tight truncate group-hover:text-accent transition-colors">{m.full_name}</p>

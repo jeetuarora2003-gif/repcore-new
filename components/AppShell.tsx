@@ -109,7 +109,7 @@ export default function AppShell({ gym, children }: Props) {
       {/* Main Area */}
       <div className="flex-1 md:ml-[240px] flex flex-col min-w-0">
         {/* Top Bar */}
-        <header className="sticky top-0 z-40 bg-white border-b border-border flex items-center justify-between px-6 md:px-8 h-14">
+        <header className="fixed top-0 right-0 left-0 md:left-[240px] z-40 bg-white/80 backdrop-blur-md border-b border-border flex items-center justify-between px-6 md:px-8 h-14">
           <div className="flex flex-col">
             <h2 className="text-sm font-bold text-text-primary tracking-tight">
               {getPageTitle()}
@@ -128,7 +128,7 @@ export default function AppShell({ gym, children }: Props) {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 px-6 py-6 pb-24 md:pb-8">
+        <main className="flex-1 px-6 py-6 pt-20 pb-24 md:pb-8">
           <div className="max-w-7xl mx-auto animate-fade-in">
             {children}
           </div>
@@ -136,7 +136,7 @@ export default function AppShell({ gym, children }: Props) {
       </div>
 
       {/* Mobile Bottom Tab Bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-border flex items-center justify-around px-2 z-40 h-16 shadow-[0_-4px_16px_rgba(0,0,0,0.05)]">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-border flex items-center justify-around px-2 z-40 h-16 shadow-[0_-4px_16px_rgba(0,0,0,0.05)]">
         {[
           { label: "Home", href: "/dashboard", icon: Home },
           { label: "Members", href: "/members", icon: Users },

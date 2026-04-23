@@ -307,7 +307,7 @@ export default function AddMemberWizard({ isOpen, onClose, gymId, plans }: AddMe
                     })}
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3 bg-white p-5 rounded-[1.5rem] border-2 border-border shadow-sm">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-white p-5 rounded-[1.5rem] border-2 border-border shadow-sm">
                     <div className="space-y-1.5">
                       <label className="text-[9px] font-bold text-text-muted uppercase tracking-widest ml-1">Onboarding Date</label>
                       <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="w-full h-11 bg-page border-2 border-border rounded-xl px-4 text-[11px] text-text-primary font-bold focus:border-accent outline-none transition-all" />

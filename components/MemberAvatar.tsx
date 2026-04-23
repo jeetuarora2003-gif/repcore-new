@@ -5,6 +5,7 @@ import { memberInitials, avatarColor, statusAvatarColor } from "@/lib/helpers";
 interface Props {
   name: string;
   memberId: string;
+  photoUrl?: string | null;
   size?: "sm" | "md" | "lg" | "xl";
   status?: string;
   rounded?: "full" | "xl" | "2xl";
@@ -17,15 +18,19 @@ const sizes = {
   xl: "h-16 w-16 text-xl",
 };
 
-export default function MemberAvatar({ name, memberId, size = "md", status, rounded = "full" }: Props) {
+export default function MemberAvatar({ name, memberId, photoUrl, size = "md", status, rounded = "full" }: Props) {
   const bgClass = status ? statusAvatarColor(status, memberId) : avatarColor(memberId);
   const radius = rounded === "full" ? "rounded-full" : rounded === "xl" ? "rounded-xl" : "rounded-2xl";
   
   return (
     <div
-      className={`${sizes[size]} ${bgClass} ${radius} flex items-center justify-center font-bold tracking-tighter shrink-0 border border-white/5 shadow-sm`}
+      className={`${sizes[size]} ${bgClass} ${radius} flex items-center justify-center font-bold tracking-tighter shrink-0 border border-white/5 shadow-sm overflow-hidden`}
     >
-      {memberInitials(name)}
+      {photoUrl ? (
+        <img src={photoUrl} alt={name} className="h-full w-full object-cover" />
+      ) : (
+        memberInitials(name)
+      )}
     </div>
   );
 }

@@ -136,9 +136,13 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringSo
               expiringSoon.slice(0, 5).map((m) => (
                 <div key={m.id} className="p-4 hover:bg-hover transition-colors group">
                   <div className="flex items-center gap-4">
-                    <div className="h-10 w-10 rounded-full bg-status-warning-bg flex items-center justify-center text-status-warning-text font-bold text-xs shrink-0">
-                      {m.full_name.charAt(0)}
-                    </div>
+                    <MemberAvatar 
+                      name={m.full_name} 
+                      memberId={m.id} 
+                      photoUrl={m.photo_url}
+                      size="md"
+                      rounded="full"
+                    />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-bold text-text-primary truncate">{m.full_name}</p>
                       <p className="text-xs text-text-muted">Expiring in {m.days_until_expiry} days</p>
@@ -177,9 +181,13 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringSo
             ) : (
               recentCheckins.slice(0, 6).map((a) => (
                 <div key={a.id} className="p-4 flex items-center gap-4 hover:bg-hover transition-colors">
-                  <div className="h-10 w-10 rounded-full bg-status-info-bg flex items-center justify-center text-status-info-text font-bold text-xs shrink-0">
-                    {a.members.full_name.charAt(0)}
-                  </div>
+                  <MemberAvatar 
+                    name={a.members.full_name} 
+                    memberId={a.members.id} 
+                    photoUrl={a.members.photo_url}
+                    size="md"
+                    rounded="full"
+                  />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold text-text-primary truncate">
                       {a.members.full_name}
