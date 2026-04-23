@@ -6,18 +6,17 @@ export async function sendAutoRemindersForGym(gymId: string) {
   const supabase = await createClient();
 
   // 1. Fetch Gym Config
-  const { data: gym, error: gymErr } = await supabase
+  const { data: gym, error: gymErr } = await (supabase
     .from("gyms")
     .select(`
       id, name, phone, whatsapp_reminder_mode, whatsapp_phone_number, whatsapp_api_key
     `)
     .eq("id", gymId)
-    .single();
+    .single() as any);
 
   if (gymErr || !gym) return { success: false, error: "Gym not found" };
 
   // 2. Pre-checks
-  // @ts-expect-error
   if (gym.whatsapp_reminder_mode !== "auto") return { skipped: true, reason: "Manual mode" };
   
   const apiKey = decrypt(gym.whatsapp_api_key || "");
@@ -26,11 +25,11 @@ export async function sendAutoRemindersForGym(gymId: string) {
   }
 
   // 3. Fetch members in 5, 3, 1 stage
-  const { data: members, error: memErr } = await supabase
+  const { data: members, error: memErr } = await (supabase
     .from("v_member_status")
     .select("*")
     .eq("gym_id", gymId)
-    .gt("balance_due", 0); // Only send if balance > 0
+    .gt("balance_due", 0) as any);
 
   if (memErr) return { success: false, error: memErr.message };
 
