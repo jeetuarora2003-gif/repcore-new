@@ -36,45 +36,47 @@ export default function AppShell({ gym, children }: Props) {
   return (
     <div className="flex min-h-screen bg-[#09090B]">
       {/* Sidebar - Desktop */}
-      <aside className="hidden md:flex w-56 flex-col fixed inset-y-0 left-0 bg-[#121215] border-r border-white/[0.05] z-30">
+      <aside className="hidden md:flex w-[240px] flex-col fixed inset-y-0 left-0 bg-transparent border-r border-white/[0.03] z-30">
         {/* Top Section */}
-        <div className="p-4 pb-3">
-          <Link href="/dashboard" className="flex items-center gap-2.5 group">
-            <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-[#10B981] to-[#059669] flex items-center justify-center shadow-lg shadow-[#10B981]/20 transition-transform group-hover:scale-105">
-              <Dumbbell size={14} className="text-white" />
+        <div className="p-5 pb-4">
+          <Link href="/dashboard" className="flex items-center gap-3 group">
+            <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-[#10B981] to-[#059669] flex items-center justify-center shadow-[0_2px_10px_rgba(16,185,129,0.2)] transition-transform group-hover:scale-105 group-active:scale-95 duration-300">
+              <Dumbbell size={16} className="text-white" />
             </div>
-            <span className="text-sm font-semibold text-white tracking-tight">RepCore</span>
+            <span className="text-[15px] font-semibold text-[#E4E4E7] tracking-tight">RepCore</span>
           </Link>
           
-          <div className="mt-6">
-            <p className="text-[10px] font-semibold text-[#71717A] uppercase tracking-[0.12em] mb-2">
-              Managing
+          <div className="mt-8 px-1">
+            <p className="text-[10px] font-medium text-[#71717A] uppercase tracking-[0.15em] mb-1.5">
+              Workspace
             </p>
-            <p className="text-sm font-medium text-[#E4E4E7] truncate">
-              {gym.name}
-            </p>
+            <div className="flex items-center gap-2">
+              <div className="h-1.5 w-1.5 rounded-full bg-[#10B981] shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+              <p className="text-sm font-medium text-[#E4E4E7] truncate">
+                {gym.name}
+              </p>
+            </div>
           </div>
-          <hr className="border-white/[0.05] my-4" />
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-2 space-y-0.5">
+        <nav className="flex-1 px-3 pt-2 space-y-1">
           {NAV_ITEMS.map((item) => {
             const active = pathname === item.href;
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`relative flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm transition-all duration-150 group ${
+                className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-300 group ${
                   active 
-                    ? "bg-[#10B981]/8 text-white font-medium" 
-                    : "text-[#71717A] hover:text-[#E4E4E7] hover:bg-white/[0.03]"
+                    ? "bg-white/[0.04] text-[#E4E4E7] font-medium shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]" 
+                    : "text-[#71717A] hover:text-[#E4E4E7] hover:bg-white/[0.02]"
                 }`}
               >
                 {active && (
-                  <div className="absolute left-0 w-[2px] h-4 bg-[#10B981] rounded-full" />
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-1/2 bg-[#10B981] rounded-r-full shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
                 )}
-                <item.icon size={15} strokeWidth={1.5} className={active ? "text-[#10B981]" : "text-[#71717A] group-hover:text-[#E4E4E7]"} />
+                <item.icon size={16} strokeWidth={active ? 2 : 1.5} className={active ? "text-[#10B981]" : "text-[#71717A] group-hover:text-[#E4E4E7] transition-colors duration-300"} />
                 {item.label}
               </Link>
             );
@@ -82,20 +84,21 @@ export default function AppShell({ gym, children }: Props) {
         </nav>
 
         {/* Bottom Section */}
-        <div className="mt-auto p-3">
+        <div className="mt-auto p-4">
           <Link
             href="/settings"
-            className={`flex items-center gap-2.5 p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.05] hover:border-white/[0.10] transition-all ${
-              pathname === "/settings" ? "border-[#10B981]/30" : ""
+            className={`flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.04] transition-all duration-300 group ${
+              pathname === "/settings" ? "bg-white/[0.04]" : ""
             }`}
           >
-            <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-[#10B981]/25 to-[#059669]/15 flex items-center justify-center text-[#10B981] font-bold text-[10px]">
+            <div className="h-8 w-8 rounded-full bg-[#18181B] border border-white/[0.05] flex items-center justify-center text-[#E4E4E7] font-medium text-xs group-hover:border-white/[0.1] transition-colors">
               {memberInitials(gym.name)}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[11px] font-medium text-[#E4E4E7] truncate">{gym.name}</p>
+              <p className="text-xs font-medium text-[#E4E4E7] truncate">{gym.name}</p>
+              <p className="text-[10px] text-[#71717A] mt-0.5">Settings & Billing</p>
             </div>
-            <Settings size={14} className="text-[#71717A]" />
+            <Settings size={14} className="text-[#71717A] group-hover:rotate-45 transition-transform duration-500" />
           </Link>
         </div>
       </aside>
