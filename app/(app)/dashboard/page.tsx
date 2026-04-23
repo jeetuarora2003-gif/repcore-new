@@ -21,7 +21,7 @@ export default async function DashboardPage() {
     { data: expiringSoon },
   ] = await Promise.all([
     // High-performance RPC for counts and totals
-    supabase.rpc('get_dashboard_stats', { p_gym_id: gym.id }),
+    (supabase.rpc as any)('get_dashboard_stats', { p_gym_id: gym.id }),
     
     // Targeted lists
     supabase
