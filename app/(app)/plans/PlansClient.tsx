@@ -2,10 +2,10 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, ClipboardList, ToggleLeft, ToggleRight, Zap, CheckCircle2 } from "lucide-react";
+import { Plus, ClipboardList, ToggleLeft, ToggleRight, Zap, CheckCircle2, X } from "lucide-react";
 import { formatINR } from "@/lib/helpers";
 import type { Plan } from "@/lib/supabase/types";
-import BottomSheet from "@/components/BottomSheet";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import EmptyState from "@/components/EmptyState";
 import { createPlan, togglePlanActive } from "@/app/actions/plans";
 import { toast } from "sonner";
@@ -146,34 +146,45 @@ export default function PlansClient({ gymId, plans }: Props) {
         )}
       </div>
 
-      {/* Create Plan Sheet */}
-      <BottomSheet open={showCreate} onClose={() => setShowCreate(false)} title="New Membership Tier">
-        <form onSubmit={handleCreate} className="space-y-8 pt-4 pb-8">
-          <div className="space-y-6">
-            <div className="space-y-2">
+      {/* Create Plan Dialog */}
+      <Dialog open={showCreate} onOpenChange={setShowCreate}>
+        <DialogContent className="sm:max-w-md bg-white border border-border rounded-2xl p-0 gap-0 shadow-xl">
+          <DialogHeader className="px-6 pt-6 pb-4 border-b border-border">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-8 rounded-xl bg-accent/10 flex items-center justify-center border border-accent/20">
+                  <Zap size={16} className="text-accent" />
+                </div>
+                <DialogTitle className="text-base font-bold text-text-primary tracking-tight">New Membership Tier</DialogTitle>
+              </div>
+            </div>
+          </DialogHeader>
+
+          <form onSubmit={handleCreate} className="px-6 py-5 space-y-5">
+            <div className="space-y-1.5">
               <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Plan Designation</label>
               <Input
                 type="text"
                 required
                 value={form.name}
                 onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
-                placeholder="e.g. Platinum Annual Membership"
-                className="h-12 font-bold"
+                placeholder="e.g. Platinum Annual"
+                className="h-11 font-bold"
               />
             </div>
 
-            <div className="space-y-4">
-              <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Duration Profile</label>
+            <div className="space-y-3">
+              <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Duration</label>
               <div className="flex flex-wrap gap-2">
                 {DURATION_PRESETS.map(({ label, days }) => (
                   <button
                     key={days}
                     type="button"
                     onClick={() => setForm(p => ({ ...p, duration_days: days }))}
-                    className={`h-10 px-4 rounded-xl text-xs font-bold uppercase tracking-widest transition-all border-2 ${
+                    className={`h-9 px-3 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-all border ${
                       form.duration_days === days
                         ? "bg-accent text-white border-accent shadow-sm"
-                        : "bg-white text-text-muted border-border hover:bg-hover hover:border-border-strong"
+                        : "bg-page text-text-muted border-border hover:bg-hover hover:border-border-strong"
                     }`}
                   >
                     {label}
@@ -187,13 +198,13 @@ export default function PlansClient({ gymId, plans }: Props) {
                   required
                   value={form.duration_days}
                   onChange={e => setForm(p => ({ ...p, duration_days: Number(e.target.value) }))}
-                  className="h-12 font-bold font-mono pr-16"
+                  className="h-11 font-bold font-mono pr-16"
                 />
                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-text-muted uppercase tracking-widest pointer-events-none">Days</span>
               </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Enrollment Fee (₹)</label>
               <Input
                 type="number"
@@ -202,20 +213,20 @@ export default function PlansClient({ gymId, plans }: Props) {
                 value={form.price}
                 onChange={e => setForm(p => ({ ...p, price: e.target.value }))}
                 placeholder="0"
-                className="h-12 font-bold font-mono"
+                className="h-11 font-bold font-mono"
               />
             </div>
-          </div>
 
-          <Button
-            type="submit"
-            disabled={isPending}
-            className="w-full h-12 uppercase tracking-[0.2em] text-xs font-bold"
-          >
-            {isPending ? "Configuring Tier..." : "Finalize Membership Plan"}
-          </Button>
-        </form>
-      </BottomSheet>
+            <Button
+              type="submit"
+              disabled={isPending}
+              className="w-full h-11 uppercase tracking-[0.2em] text-xs font-bold mt-2"
+            >
+              {isPending ? "Configuring..." : "Finalize Plan"}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
