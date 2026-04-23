@@ -1,17 +1,49 @@
 "use client";
 
+import { useState, useCallback } from "react";
 import Link from "next/link";
-import { ChevronLeft, IndianRupee, Phone, ChevronRight, AlertCircle } from "lucide-react";
+import { ChevronLeft, IndianRupee, Phone, ChevronRight, AlertCircle, Loader2 } from "lucide-react";
 import { formatINR } from "@/lib/helpers";
 import type { MemberStatus } from "@/lib/supabase/types";
 import MemberAvatar from "@/components/MemberAvatar";
+import { createClient } from "@/lib/supabase/client";
 
 interface Props {
+  gymId: string;
   members: MemberStatus[];
+  totalDues: number;
 }
 
-export default function DuesClient({ members }: Props) {
-  const totalDues = members.reduce((sum, m) => sum + (m.balance_due ?? 0), 0);
+const PAGE_SIZE = 50;
+
+export default function DuesClient({ gymId, members: initialMembers, totalDues }: Props) {
+  const supabase = createClient();
+  const [members, setMembers] = useState<MemberStatus[]>(initialMembers);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(initialMembers.length === PAGE_SIZE);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const fetchMore = useCallback(async () => {
+    setIsLoading(true);
+    const nextPage = page + 1;
+    const from = nextPage * PAGE_SIZE;
+    const to = from + PAGE_SIZE - 1;
+
+    const { data } = await supabase
+      .from("v_member_status")
+      .select("*")
+      .eq("gym_id", gymId)
+      .gt("balance_due", 0)
+      .order("balance_due", { ascending: false })
+      .range(from, to);
+
+    if (data) {
+      setMembers(prev => [...prev, ...data]);
+      setHasMore(data.length === PAGE_SIZE);
+      setPage(nextPage);
+    }
+    setIsLoading(false);
+  }, [gymId, page, supabase]);
 
   return (
     <div className="space-y-8 animate-fade-up">
@@ -124,6 +156,19 @@ export default function DuesClient({ members }: Props) {
               </div>
             </Link>
           ))}
+          
+          {hasMore && (
+            <div className="pt-4 pb-8 flex justify-center bg-white">
+              <button
+                onClick={fetchMore}
+                disabled={isLoading}
+                className="flex items-center gap-2 h-10 px-6 rounded-full bg-page border border-border text-xs font-bold uppercase tracking-widest text-text-primary hover:bg-hover hover:border-border-strong transition-all disabled:opacity-50"
+              >
+                {isLoading && <Loader2 size={14} className="animate-spin" />}
+                Load More
+              </button>
+            </div>
+          )}
         </div>
       )}
 
@@ -131,7 +176,7 @@ export default function DuesClient({ members }: Props) {
       {members.length > 0 && (
         <div className="flex justify-between items-center px-2">
           <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest">
-            {members.length} member{members.length !== 1 ? "s" : ""} with pending dues
+            {members.length} {hasMore ? "shown" : `member${members.length !== 1 ? "s" : ""} with pending dues`}
           </p>
           <p className="text-xs font-bold text-text-muted">
             Total: <span className="text-status-danger-text font-mono">{formatINR(totalDues)}</span>

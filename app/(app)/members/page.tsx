@@ -18,7 +18,8 @@ export default async function MembersPage() {
     .from("v_member_status")
     .select("id, full_name, phone, photo_url, plan_name, balance_due, status")
     .eq("gym_id", gym.id)
-    .order("full_name");
+    .order("full_name")
+    .limit(50);
 
   const { data: plans } = await supabase
     .from("plans")

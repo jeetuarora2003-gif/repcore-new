@@ -1,14 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { Plus, Search, Phone, Users, ChevronRight, Filter } from "lucide-react";
+import { Plus, Search, Phone, Users, ChevronRight, Filter, Loader2 } from "lucide-react";
 import { formatINR, statusLabel, statusBadgeClass } from "@/lib/helpers";
 import type { MemberStatus } from "@/lib/supabase/types";
 import type { MemberStatusType } from "@/lib/helpers";
 import MemberAvatar from "@/components/MemberAvatar";
 import EmptyState from "@/components/EmptyState";
 import AddMemberWizard from "@/components/AddMemberWizard";
+import { createClient } from "@/lib/supabase/client";
 
 type FilterType = "all" | "active" | "expiring_soon" | "expired" | "lapsed" | "has_dues";
 
@@ -28,26 +29,82 @@ interface Plan {
   duration_days: number;
 }
 
+type MemberListItem = Pick<MemberStatus, "id" | "full_name" | "phone" | "photo_url" | "plan_name" | "balance_due" | "status">;
+
 interface Props {
   gymId: string;
-  members: Pick<MemberStatus, "id" | "full_name" | "phone" | "photo_url" | "plan_name" | "balance_due" | "status">[];
+  members: MemberListItem[];
   plans: Plan[];
 }
 
-export default function MembersClient({ gymId, members, plans }: Props) {
+const PAGE_SIZE = 50;
+
+export default function MembersClient({ gymId, members: initialMembers, plans }: Props) {
+  const supabase = createClient();
+  const [members, setMembers] = useState<MemberListItem[]>(initialMembers);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [filter, setFilter] = useState<FilterType>("all");
   const [showAdd, setShowAdd] = useState(false);
+  
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(initialMembers.length === PAGE_SIZE);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const filtered = members.filter(m => {
-    const matchSearch = m.full_name.toLowerCase().includes(search.toLowerCase()) ||
-      m.phone.includes(search);
-    const matchFilter =
-      filter === "all" ? true :
-      filter === "has_dues" ? (m.balance_due ?? 0) > 0 :
-      m.status === filter;
-    return matchSearch && matchFilter;
-  });
+  // Debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  // Fetch function
+  const fetchMembers = useCallback(async (reset: boolean = false) => {
+    setIsLoading(true);
+    const currentPage = reset ? 0 : page;
+    
+    let query = supabase
+      .from("v_member_status")
+      .select("id, full_name, phone, photo_url, plan_name, balance_due, status")
+      .eq("gym_id", gymId)
+      .order("full_name");
+
+    if (debouncedSearch) {
+      query = query.or(`full_name.ilike.%${debouncedSearch}%,phone.ilike.%${debouncedSearch}%`);
+    }
+
+    if (filter !== "all") {
+      if (filter === "has_dues") {
+        query = query.gt("balance_due", 0);
+      } else {
+        query = query.eq("status", filter);
+      }
+    }
+
+    const from = currentPage * PAGE_SIZE;
+    const to = from + PAGE_SIZE - 1;
+    query = query.range(from, to);
+
+    const { data } = await query;
+    
+    if (data) {
+      setMembers(prev => reset ? data : [...prev, ...data]);
+      setHasMore(data.length === PAGE_SIZE);
+      if (!reset) setPage(currentPage + 1);
+    }
+    setIsLoading(false);
+  }, [debouncedSearch, filter, gymId, page, supabase]);
+
+  // Reset page when search or filter changes
+  useEffect(() => {
+    // If it's the very first render and no filters are applied, use initialMembers
+    if (debouncedSearch === "" && filter === "all" && page === 0) {
+      setMembers(initialMembers);
+      setHasMore(initialMembers.length === PAGE_SIZE);
+      return;
+    }
+    setPage(0);
+    fetchMembers(true);
+  }, [debouncedSearch, filter]);
 
   return (
     <div className="space-y-6 animate-fade-up">
@@ -95,46 +152,64 @@ export default function MembersClient({ gymId, members, plans }: Props) {
 
       {/* Member List */}
       <div className="space-y-3">
-        {filtered.length === 0 ? (
+        {members.length === 0 && !isLoading ? (
           <div className="py-20">
             <EmptyState icon={Users} message={search ? "No members match your search" : "No members found"} actionLabel="Add Member" onAction={() => setShowAdd(true)} />
           </div>
         ) : (
-          filtered.map(m => (
-            <Link key={m.id} href={`/members/${m.id}`} className="block group">
-              <div className="bg-white border border-border rounded-xl p-4 flex items-center gap-4 hover:border-border-strong transition-all active:scale-[0.995] shadow-sm">
-                <MemberAvatar name={m.full_name} memberId={m.id} photoUrl={m.photo_url} size="md" status={m.status} />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-3 mb-1.5">
-                    <p className="text-[15px] font-bold text-text-primary tracking-tight truncate group-hover:text-accent transition-colors">{m.full_name}</p>
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold tracking-widest uppercase border ${statusBadgeClass(m.status as MemberStatusType)}`}>
-                      {statusLabel(m.status as MemberStatusType)}
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
-                    <p className="text-[12px] font-bold text-text-secondary flex items-center gap-2 font-mono">
-                      <Phone size={12} className="text-text-muted" />
-                      {m.phone}
-                    </p>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Plan:</span>
-                      <span className="text-[12px] font-bold text-text-secondary">{m.plan_name ?? "No plan"}</span>
+          <>
+            {members.map(m => (
+              <Link key={m.id} href={`/members/${m.id}`} className="block group">
+                <div className="bg-white border border-border rounded-xl p-4 flex items-center gap-4 hover:border-border-strong transition-all active:scale-[0.995] shadow-sm">
+                  <MemberAvatar name={m.full_name} memberId={m.id} photoUrl={m.photo_url} size="md" status={m.status} />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-3 mb-1.5">
+                      <p className="text-[15px] font-bold text-text-primary tracking-tight truncate group-hover:text-accent transition-colors">{m.full_name}</p>
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold tracking-widest uppercase border ${statusBadgeClass(m.status as MemberStatusType)}`}>
+                        {statusLabel(m.status as MemberStatusType)}
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
+                      <p className="text-[12px] font-bold text-text-secondary flex items-center gap-2 font-mono">
+                        <Phone size={12} className="text-text-muted" />
+                        {m.phone}
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Plan:</span>
+                        <span className="text-[12px] font-bold text-text-secondary">{m.plan_name ?? "No plan"}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-6">
-                  <div className="hidden md:flex flex-col items-end gap-1">
-                    {(m.balance_due ?? 0) > 0 && (
-                      <span className="text-[10px] font-bold text-status-danger-text bg-status-danger-bg border border-status-danger-border px-2 py-0.5 rounded-full uppercase tracking-widest">
-                        Due: {formatINR(m.balance_due)}
-                      </span>
-                    )}
+                  <div className="flex items-center gap-6">
+                    <div className="hidden md:flex flex-col items-end gap-1">
+                      {(m.balance_due ?? 0) > 0 && (
+                        <span className="text-[10px] font-bold text-status-danger-text bg-status-danger-bg border border-status-danger-border px-2 py-0.5 rounded-full uppercase tracking-widest">
+                          Due: {formatINR(m.balance_due)}
+                        </span>
+                      )}
+                    </div>
+                    <ChevronRight size={18} className="text-text-muted group-hover:text-accent transition-all group-hover:translate-x-1" />
                   </div>
-                  <ChevronRight size={18} className="text-text-muted group-hover:text-accent transition-all group-hover:translate-x-1" />
                 </div>
+              </Link>
+            ))}
+            
+            {hasMore && (
+              <div className="pt-4 pb-8 flex justify-center">
+                <button
+                  onClick={() => {
+                    setPage(p => p + 1);
+                    fetchMembers(false);
+                  }}
+                  disabled={isLoading}
+                  className="flex items-center gap-2 h-10 px-6 rounded-full bg-white border border-border text-xs font-bold uppercase tracking-widest text-text-primary hover:bg-hover hover:border-border-strong transition-all disabled:opacity-50"
+                >
+                  {isLoading && <Loader2 size={14} className="animate-spin" />}
+                  Load More
+                </button>
               </div>
-            </Link>
-          ))
+            )}
+          </>
         )}
       </div>
 
