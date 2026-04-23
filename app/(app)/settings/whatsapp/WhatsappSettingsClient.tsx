@@ -1,48 +1,24 @@
 "use client";
 
-import { useState, useTransition, useEffect } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft, Info, Check, Smartphone, Zap, Eye, EyeOff, Loader2, CreditCard, History, AlertCircle } from "lucide-react";
-import { formatINR } from "@/lib/helpers";
-import { updateReminderModeAction, updateWhatsappConfigAction, createRazorpayOrder, addCreditsAction } from "@/app/actions/whatsapp";
+import { ChevronLeft, Info, Check, Smartphone, Zap, Eye, EyeOff, Loader2 } from "lucide-react";
+import { updateReminderModeAction, updateWhatsappConfigAction } from "@/app/actions/whatsapp";
 import { toast } from "sonner";
-
-declare global {
-  interface Window {
-    Razorpay: any;
-  }
-}
 
 interface Props {
   gym: any;
-  balancePaise: number;
-  transactions: any[];
 }
 
-export default function WhatsappSettingsClient({ gym, balancePaise, transactions }: Props) {
+export default function WhatsappSettingsClient({ gym }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [showApiKey, setShowApiKey] = useState(false);
-  const [loadingRazorpay, setLoadingRazorpay] = useState(false);
 
   const [mode, setMode] = useState<'manual' | 'auto'>(gym.whatsapp_reminder_mode || 'manual');
   const [phone, setPhone] = useState(gym.whatsapp_phone_number || "");
   const [apiKey, setApiKey] = useState(""); // We don't show the encrypted key back
-  const [topupAmount, setTopupAmount] = useState(100);
-  const [customAmount, setCustomAmount] = useState("");
-
-  const balanceINR = balancePaise / 100;
-  const messagesRemaining = Math.floor(balancePaise / 15);
-  const isLowBalance = balancePaise < 2000; // Low if < ₹20
-
-  useEffect(() => {
-    // Load Razorpay script
-    const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    script.async = true;
-    document.body.appendChild(script);
-  }, []);
 
   function handleModeChange(newMode: 'manual' | 'auto') {
     setMode(newMode);
@@ -73,50 +49,6 @@ export default function WhatsappSettingsClient({ gym, balancePaise, transactions
         toast.error((err as Error).message);
       }
     });
-  }
-
-  async function handleTopup() {
-    const amount = customAmount ? parseInt(customAmount) : topupAmount;
-    if (isNaN(amount) || amount < 50) {
-      toast.error("Minimum top-up is ₹50");
-      return;
-    }
-
-    setLoadingRazorpay(true);
-    const orderRes = await createRazorpayOrder(amount * 100);
-    setLoadingRazorpay(false);
-
-    if (!orderRes.success) {
-      toast.error("Could not create payment order: " + orderRes.error);
-      return;
-    }
-
-    const options = {
-      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-      amount: orderRes.order.amount,
-      currency: "INR",
-      name: "RepCore WhatsApp Credits",
-      description: `Top-up for ${gym.name}`,
-      order_id: orderRes.order.id,
-      handler: async (response: any) => {
-        try {
-          await addCreditsAction(gym.id, orderRes.order.amount, response);
-          toast.success("Credits added successfully!");
-          setCustomAmount("");
-          router.refresh();
-        } catch (err) {
-          toast.error("Payment verification failed: " + (err as Error).message);
-        }
-      },
-      prefill: {
-        name: gym.name,
-        contact: gym.phone,
-      },
-      theme: { color: "#10B981" },
-    };
-
-    const rzp = new window.Razorpay(options);
-    rzp.open();
   }
 
   return (
@@ -161,10 +93,21 @@ export default function WhatsappSettingsClient({ gym, balancePaise, transactions
                   RepCore sends messages automatically on day 5, 3, and 1 before expiry — even when you're not online.
                 </p>
               </div>
-              <span className="bg-[#F59E0B]/10 text-[#F59E0B] text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide whitespace-nowrap">Uses message credits</span>
+              <span className="bg-[#10B981]/10 text-[#10B981] text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide whitespace-nowrap">Self-managed API</span>
             </div>
             {mode === 'auto' && <Check size={16} className="absolute right-4 bottom-4 text-[#10B981]" />}
           </button>
+        </div>
+
+        {/* Info Card */}
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-4 flex gap-4">
+          <Info className="text-blue-500 shrink-0 mt-0.5" size={18} />
+          <div className="space-y-2">
+            <p className="text-xs text-blue-100/70 leading-relaxed">
+              Auto-reminders require a WhatsApp Business API account (AiSensy, Gupshup, etc.). 
+              RepCore connects to your API to send messages automatically. You manage your wallet and template approvals directly on your API provider's dashboard.
+            </p>
+          </div>
         </div>
 
         {/* Auto Setup Section */}
@@ -224,101 +167,6 @@ export default function WhatsappSettingsClient({ gym, balancePaise, transactions
             </form>
           </div>
         )}
-
-        {/* Message Credits Section */}
-        <div className="space-y-6">
-          <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-4 flex gap-4">
-            <Info className="text-blue-500 shrink-0 mt-0.5" size={18} />
-            <p className="text-xs text-blue-100/70 leading-relaxed">
-              RepCore charges you nothing extra. WhatsApp (Meta) charges ₹0.15 per automated message. We pass this cost at exact rate — zero markup. Credits are only used when Auto mode is on.
-            </p>
-          </div>
-
-          <div className="card p-6 space-y-8 relative overflow-hidden">
-            {isLowBalance && (
-              <div className="absolute top-4 right-4 bg-[#EF4444]/10 text-[#EF4444] text-[10px] font-bold px-2 py-0.5 rounded border border-[#EF4444]/20 animate-pulse">
-                Low balance
-              </div>
-            )}
-
-            <div className="space-y-1">
-              <span className="text-xs font-medium text-[#A1A1AA]">Message credits</span>
-              <div className="flex items-baseline gap-2">
-                <h2 className="text-3xl font-bold font-mono text-[#E4E4E7]">{formatINR(balanceINR)}</h2>
-                <span className="text-xs text-[#71717A]">~{messagesRemaining} messages remaining</span>
-              </div>
-            </div>
-
-            <div className="space-y-5">
-              <div className="grid grid-cols-4 gap-3">
-                {[50, 100, 200, 500].map(amt => (
-                  <button 
-                    key={amt}
-                    onClick={() => { setTopupAmount(amt); setCustomAmount(""); }}
-                    className={`h-10 rounded-xl text-xs font-bold font-mono border transition-all ${topupAmount === amt && !customAmount ? "bg-[#10B981]/10 border-[#10B981] text-[#10B981]" : "bg-surface-2 border-white/5 text-[#A1A1AA] hover:border-white/10"}`}
-                  >
-                    ₹{amt}
-                  </button>
-                ))}
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-wider text-[#71717A] font-bold ml-1">Or enter custom amount (min ₹50)</label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#71717A] font-mono">₹</span>
-                  <input 
-                    type="number"
-                    value={customAmount}
-                    onChange={e => setCustomAmount(e.target.value)}
-                    placeholder="Enter amount"
-                    className="w-full h-12 bg-surface-2 border border-white/5 rounded-xl pl-8 pr-4 text-sm text-[#E4E4E7] font-mono focus:outline-none focus:border-[#10B981]/40 transition-all"
-                  />
-                </div>
-              </div>
-
-              <button 
-                onClick={handleTopup}
-                disabled={loadingRazorpay}
-                className="w-full h-14 bg-gradient-to-br from-[#10B981] to-[#059669] text-white rounded-2xl font-bold text-sm shadow-[0_8px_30px_rgba(16,185,129,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-              >
-                {loadingRazorpay ? <Loader2 size={20} className="animate-spin" /> : <CreditCard size={20} />}
-                Add credits via UPI →
-              </button>
-
-              <p className="text-[11px] text-[#71717A] text-center italic">
-                For a 200-member gym, auto reminders cost roughly ₹20–80 per month
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Transaction History */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 px-1">
-            <History size={14} className="text-[#A1A1AA]" />
-            <h3 className="text-xs font-bold uppercase tracking-widest text-[#71717A]">Recent credit activity</h3>
-          </div>
-
-          <div className="card divide-y divide-white/5">
-            {transactions.length === 0 ? (
-              <div className="p-12 text-center text-xs text-[#71717A]">No activity yet</div>
-            ) : (
-              transactions.map(tx => (
-                <div key={tx.id} className="p-4 flex items-center justify-between group">
-                  <div className="space-y-0.5">
-                    <p className="text-sm text-[#E4E4E7]">{tx.description}</p>
-                    <p className="text-[11px] text-[#71717A] font-mono uppercase">
-                      {new Date(tx.created_at).toLocaleDateString()} • {new Date(tx.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </p>
-                  </div>
-                  <span className={`text-sm font-bold font-mono tabular-nums ${tx.type === 'topup' ? "text-[#10B981]" : "text-[#71717A]"}`}>
-                    {tx.type === 'topup' ? "+" : "−"}₹{(tx.amount_paise / 100).toFixed(2)}
-                  </span>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
       </div>
     </div>
   );

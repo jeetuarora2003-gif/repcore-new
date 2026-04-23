@@ -5,13 +5,11 @@ import { formatDate } from "@/lib/helpers";
 export async function sendAutoRemindersForGym(gymId: string) {
   const supabase = await createClient();
 
-  // 1. Fetch Gym Config & Credits
-  // @ts-expect-error: whatsapp_reminder_mode is newly added and not yet in generated types
+  // 1. Fetch Gym Config
   const { data: gym, error: gymErr } = await supabase
     .from("gyms")
     .select(`
-      id, name, phone, whatsapp_reminder_mode, whatsapp_phone_number, whatsapp_api_key,
-      whatsapp_credits ( balance_paise )
+      id, name, phone, whatsapp_reminder_mode, whatsapp_phone_number, whatsapp_api_key
     `)
     .eq("id", gymId)
     .single();
@@ -22,19 +20,12 @@ export async function sendAutoRemindersForGym(gymId: string) {
   // @ts-expect-error
   if (gym.whatsapp_reminder_mode !== "auto") return { skipped: true, reason: "Manual mode" };
   
-  const balance = gym.whatsapp_credits?.[0]?.balance_paise || 0;
-  if (balance < 15) {
-    console.warn(`[AutoReminder] Low balance for gym ${gym.name}: ${balance} paise`);
-    return { success: false, error: "Low balance", balance };
-  }
-
   const apiKey = decrypt(gym.whatsapp_api_key || "");
   if (!apiKey || !gym.whatsapp_phone_number) {
     return { success: false, error: "WhatsApp API not configured" };
   }
 
   // 3. Fetch members in 5, 3, 1 stage
-  // We use the same view as the reminders page for consistency
   const { data: members, error: memErr } = await supabase
     .from("v_member_status")
     .select("*")
@@ -84,15 +75,16 @@ export async function sendAutoRemindersForGym(gymId: string) {
         const result = await response.json();
 
         if (response.ok && result.success) {
-          // Success: Stamp, Deduct, Log
+          // Success: Stamp
           await supabase.from("subscriptions").update({ [sentAtField]: new Date().toISOString() }).eq("id", m.subscription_id);
           
-          // Deduct 15 paise
-          await supabase.rpc("deduct_whatsapp_credits", { 
-            p_gym_id: gymId, 
-            p_amount: 15,
-            p_description: `Reminder sent · ${m.full_name}`,
-            p_member_id: m.id
+          // Insert into local history for UI visibility
+          await supabase.from("reminders").insert({
+            gym_id: gymId,
+            member_id: m.id,
+            subscription_id: m.subscription_id,
+            stage,
+            method: "auto_whatsapp"
           });
 
           sentCount++;

@@ -152,14 +152,6 @@ export default function SettingsClient({ gym }: Props) {
               </div>
             </div>
 
-            <div className="bg-surface-2 rounded-xl p-4 flex justify-between items-center border border-white/5 group hover:border-[#10B981]/20 transition-all">
-              <div className="flex items-center gap-3">
-                <ShieldCheck size={16} className="text-[#10B981]" />
-                <span className="text-xs font-medium text-[#A1A1AA]">Messaging Balance</span>
-              </div>
-              <span className="text-sm font-bold font-mono text-[#E4E4E7] tabular-nums">{gym.whatsapp_credits?.[0]?.balance_paise ? (gym.whatsapp_credits[0].balance_paise / 100).toFixed(2) : "0.00"} units</span>
-            </div>
-
             <Link 
               href="/settings/whatsapp"
               className="flex items-center justify-between p-4 bg-[#10B981]/5 border border-[#10B981]/20 rounded-xl hover:bg-[#10B981]/10 transition-all group"
@@ -167,8 +159,8 @@ export default function SettingsClient({ gym }: Props) {
               <div className="flex items-center gap-3">
                 <MessageCircle size={18} className="text-[#10B981]" />
                 <div className="text-left">
-                  <p className="text-xs font-semibold text-[#E4E4E7]">Automate Reminders</p>
-                  <p className="text-[10px] text-[#71717A]">Configure Auto-reminders & Credits</p>
+                  <p className="text-xs font-semibold text-[#E4E4E7]">WhatsApp Automation</p>
+                  <p className="text-[10px] text-[#71717A]">Configure Auto-reminders via API</p>
                 </div>
               </div>
               <ChevronRight size={16} className="text-[#71717A] group-hover:text-[#10B981] transition-transform group-hover:translate-x-1" />
