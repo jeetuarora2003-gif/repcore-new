@@ -75,7 +75,7 @@ export async function sendAutoRemindersForGym(gymId: string) {
 
         if (response.ok && result.success) {
           // Success: Stamp
-          await supabase.from("subscriptions").update({ [sentAtField]: new Date().toISOString() }).eq("id", m.subscription_id);
+          await supabase.from("subscriptions").update({ [sentAtField]: new Date().toISOString() } as any).eq("id", m.subscription_id);
           
           // Insert into local history for UI visibility
           await supabase.from("reminders").insert({
