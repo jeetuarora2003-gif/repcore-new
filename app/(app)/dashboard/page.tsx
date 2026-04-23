@@ -52,6 +52,7 @@ export default async function DashboardPage() {
     active: statsData?.active ?? 0,
     expiring: statsData?.expiring ?? 0,
     dues: statsData?.dues ?? 0,
+    newThisMonth: statsData?.new_this_month ?? 0,
   };
 
   return (

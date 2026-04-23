@@ -18,6 +18,7 @@ interface Props {
     active: number;
     expiring: number;
     dues: number;
+    newThisMonth: number;
   };
   recentCheckins: (Attendance & { members: MemberStatus })[];
   expiringSoon: MemberStatus[];
@@ -53,9 +54,19 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringSo
               <stat.icon size={16} className="text-text-muted" />
             </div>
             <div>
-              <h3 className={`text-3xl font-bold tracking-tight font-mono ${stat.valColor}`}>
-                {stat.value}
-              </h3>
+              <div className="flex items-baseline gap-2">
+                <h3 className={`text-3xl font-bold tracking-tight font-mono ${stat.valColor}`}>
+                  {stat.value}
+                </h3>
+                {stat.label === "Total Members" && stats.newThisMonth > 0 && (
+                  <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-accent/10 border border-accent/20 animate-fade-in">
+                    <TrendingUp size={10} className="text-accent" />
+                    <span className="text-[10px] font-bold text-accent">
+                      {stats.newThisMonth} new
+                    </span>
+                  </div>
+                )}
+              </div>
               <p className="text-[10px] text-text-muted mt-1 uppercase font-bold tracking-wider">{stat.sub}</p>
             </div>
           </div>

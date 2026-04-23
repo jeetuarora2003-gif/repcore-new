@@ -6,11 +6,18 @@ DECLARE
     v_active_members BIGINT;
     v_expiring_members BIGINT;
     v_total_dues NUMERIC;
+    v_new_members BIGINT;
 BEGIN
     -- Get total members
     SELECT count(*) INTO v_total_members 
     FROM members 
     WHERE gym_id = p_gym_id;
+
+    -- Get new members this month
+    SELECT count(*) INTO v_new_members
+    FROM members
+    WHERE gym_id = p_gym_id 
+    AND joining_date >= date_trunc('month', current_date)::date;
 
     -- Get active/expiring soon members and total dues in one pass over the view
     SELECT 
@@ -28,7 +35,8 @@ BEGIN
         'total', v_total_members,
         'active', v_active_members,
         'expiring', v_expiring_members,
-        'dues', v_total_dues
+        'dues', v_total_dues,
+        'new_this_month', v_new_members
     );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
