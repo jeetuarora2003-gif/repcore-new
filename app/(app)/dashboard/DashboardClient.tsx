@@ -4,7 +4,7 @@ import { useState } from "react";
 import { 
   Users, UserCheck, UserMinus, 
   AlertCircle, Plus, ChevronRight,
-  TrendingUp, Zap, Bell, CheckCircle2, Clock
+  TrendingUp, Zap, Bell, CheckCircle2, Clock, Dumbbell
 } from "lucide-react";
 import { formatINR, getHourGreeting } from "@/lib/helpers";
 import type { Gym, MemberStatus, Attendance } from "@/lib/supabase/types";
