@@ -37,6 +37,7 @@ export async function sendReminder(
   
   await supabase
     .from("subscriptions")
+    // @ts-expect-error
     .update({ [sentAtField]: new Date().toISOString() })
     .eq("id", subscriptionId);
 
