@@ -31,16 +31,16 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }
   active: { label: "Active", color: "#10B981", bg: "bg-[#10B981]" },
   expiring_soon: { label: "Expiring", color: "#F59E0B", bg: "bg-[#F59E0B]" },
   expired: { label: "Expired", color: "#EF4444", bg: "bg-[#EF4444]" },
-  lapsed: { label: "Lapsed", color: "#A1A1AA", bg: "bg-[#52525B]" },
+  lapsed: { label: "Lapsed", color: "#A1A1AA", bg: "bg-[#71717A]" },
   frozen: { label: "Frozen", color: "#388BFD", bg: "bg-[#388BFD]" },
-  no_plan: { label: "No Plan", color: "#52525B", bg: "bg-[#222228]" },
+  no_plan: { label: "No Plan", color: "#71717A", bg: "bg-[#3F3F46]" },
 };
 
 function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number }>; label?: string }) {
   if (active && payload?.length) {
     return (
       <div className="bg-surface-2 border border-white/10 rounded-xl px-4 py-3 shadow-2xl">
-        <p className="text-[10px] font-semibold text-[#52525B] uppercase tracking-wider mb-1.5">{label}</p>
+        <p className="text-[10px] font-semibold text-[#71717A] uppercase tracking-wider mb-1.5">{label}</p>
         <p className="text-base font-bold text-[#FAFAFA] font-mono">{formatINR(payload[0].value)}</p>
       </div>
     );
@@ -56,7 +56,7 @@ export default function ReportsClient({ monthRevenue, newMembersCount, totalDues
       status,
       count,
       label: STATUS_CONFIG[status]?.label ?? status,
-      fill: STATUS_CONFIG[status]?.color ?? "#52525B",
+      fill: STATUS_CONFIG[status]?.color ?? "#71717A",
     }));
 
   return (
@@ -74,7 +74,7 @@ export default function ReportsClient({ monthRevenue, newMembersCount, totalDues
                 <Icon size={22} className={color} />
               </div>
               <div>
-                <p className="text-[10px] font-semibold text-[#52525B] uppercase tracking-wider mb-1.5">{label}</p>
+                <p className="text-[10px] font-semibold text-[#71717A] uppercase tracking-wider mb-1.5">{label}</p>
                 <p className={`text-2xl font-bold font-mono tracking-tighter tabular-nums ${valueColor}`}>{value}</p>
               </div>
             </div>
@@ -88,7 +88,7 @@ export default function ReportsClient({ monthRevenue, newMembersCount, totalDues
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-1.5">
                 <div className="h-2 w-2 rounded-full bg-[#10B981]" />
-                <span className="text-[10px] font-semibold text-[#52525B] uppercase tracking-wider">Revenue</span>
+                <span className="text-[10px] font-semibold text-[#71717A] uppercase tracking-wider">Revenue</span>
               </div>
             </div>
           </div>
@@ -97,7 +97,7 @@ export default function ReportsClient({ monthRevenue, newMembersCount, totalDues
               <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.04)" strokeDasharray="3 3" />
               <XAxis
                 dataKey="month"
-                tick={{ fill: "#52525B", fontSize: 11, fontWeight: 600 }}
+                tick={{ fill: "#71717A", fontSize: 11, fontWeight: 600 }}
                 axisLine={false}
                 tickLine={false}
                 dy={12}
@@ -112,7 +112,7 @@ export default function ReportsClient({ monthRevenue, newMembersCount, totalDues
         <div className="grid md:grid-cols-2 gap-8">
           {/* Member Status Breakdown */}
           <div className="card p-6">
-            <p className="text-[10px] font-semibold text-[#52525B] uppercase tracking-[0.15em] mb-8">Status Breakdown</p>
+            <p className="text-[10px] font-semibold text-[#71717A] uppercase tracking-[0.15em] mb-8">Status Breakdown</p>
             <div className="space-y-6">
               {statusChartData.map(({ status, count, label, fill }) => {
                 const pct = totalMembers > 0 ? (count / totalMembers) * 100 : 0;
@@ -136,7 +136,7 @@ export default function ReportsClient({ monthRevenue, newMembersCount, totalDues
 
           {/* Payment Methods */}
           <div className="space-y-4">
-            <p className="text-[10px] font-semibold text-[#52525B] uppercase tracking-[0.15em] px-1">Payment Performance</p>
+            <p className="text-[10px] font-semibold text-[#71717A] uppercase tracking-[0.15em] px-1">Payment Performance</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {methodBreakdown.map(({ method, count, amount }) => (
                 <div key={method} className="card p-5">
@@ -144,9 +144,9 @@ export default function ReportsClient({ monthRevenue, newMembersCount, totalDues
                     <div className="h-8 w-8 rounded-xl bg-surface-3 flex items-center justify-center text-[#A1A1AA] border border-white/5">
                       {METHOD_ICONS[method]}
                     </div>
-                    <span className="text-[10px] font-bold text-[#52525B] uppercase tracking-widest">{count} txns</span>
+                    <span className="text-[10px] font-bold text-[#71717A] uppercase tracking-widest">{count} txns</span>
                   </div>
-                  <p className="text-[10px] font-semibold text-[#52525B] uppercase tracking-wider mb-1">{METHOD_LABELS[method]}</p>
+                  <p className="text-[10px] font-semibold text-[#71717A] uppercase tracking-wider mb-1">{METHOD_LABELS[method]}</p>
                   <p className="text-xl font-bold font-mono text-[#F59E0B] tracking-tight">{formatINR(amount)}</p>
                 </div>
               ))}

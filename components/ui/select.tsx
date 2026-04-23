@@ -24,7 +24,7 @@ function SelectTrigger({
     >
       {children}
       <ChevronDownIcon
-        className="size-4 shrink-0 text-[#52525B] group-aria-expanded:rotate-180 transition-transform duration-200"
+        className="size-4 shrink-0 text-[#71717A] group-aria-expanded:rotate-180 transition-transform duration-200"
       />
     </SelectPrimitive.Trigger>
   )
@@ -63,7 +63,7 @@ function SelectLabel({ className, ...props }: SelectPrimitive.GroupLabel.Props) 
   return (
     <SelectPrimitive.GroupLabel
       data-slot="select-label"
-      className={cn("px-3 py-1.5 text-[11px] font-semibold text-[#52525B] uppercase tracking-wider", className)}
+      className={cn("px-3 py-1.5 text-[11px] font-semibold text-[#71717A] uppercase tracking-wider", className)}
       {...props}
     />
   )

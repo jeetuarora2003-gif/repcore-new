@@ -107,7 +107,7 @@ export default function PlansClient({ gymId, plans }: Props) {
                 </div>
                 
                 <div className="flex justify-between items-center pt-2">
-                  <span className="text-[10px] font-bold text-[#52525B] uppercase tracking-[0.15em]">
+                  <span className="text-[10px] font-bold text-[#71717A] uppercase tracking-[0.15em]">
                     {plan.is_active ? "Available for assignment" : "Currently hidden"}
                   </span>
                   <button
@@ -145,7 +145,7 @@ export default function PlansClient({ gymId, plans }: Props) {
               value={form.name}
               onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
               placeholder="e.g. 3 Months Gold"
-              className="w-full h-11 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#FAFAFA] placeholder-[#52525B] focus:outline-none focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 transition-all"
+              className="w-full h-11 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#FAFAFA] placeholder-[#71717A] focus:outline-none focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 transition-all"
             />
           </div>
 
@@ -176,7 +176,7 @@ export default function PlansClient({ gymId, plans }: Props) {
                 onChange={e => setForm(p => ({ ...p, duration_days: Number(e.target.value) }))}
                 className="w-full h-11 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#FAFAFA] focus:outline-none focus:border-[#10B981]/40 transition-all font-mono"
               />
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-[#52525B] uppercase tracking-widest pointer-events-none">Days</span>
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-[#71717A] uppercase tracking-widest pointer-events-none">Days</span>
             </div>
           </div>
 

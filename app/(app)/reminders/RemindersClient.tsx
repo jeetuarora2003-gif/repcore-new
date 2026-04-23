@@ -108,11 +108,11 @@ export default function RemindersClient({ gym, fiveDays, threeDays, oneDay, hist
                     <p className="text-[15px] font-semibold text-[#FAFAFA] tracking-tight truncate mb-1">{m.full_name}</p>
                     <div className="flex flex-wrap gap-x-5 gap-y-1">
                       <div className="flex items-center gap-1.5">
-                        <span className="text-[10px] font-semibold text-[#52525B] uppercase tracking-wider">Expires</span>
+                        <span className="text-[10px] font-semibold text-[#71717A] uppercase tracking-wider">Expires</span>
                         <span className="text-xs font-bold text-[#F59E0B] font-mono">{formatDate(m.end_date)}</span>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <span className="text-[10px] font-semibold text-[#52525B] uppercase tracking-wider">Plan</span>
+                        <span className="text-[10px] font-semibold text-[#71717A] uppercase tracking-wider">Plan</span>
                         <span className="text-xs text-[#A1A1AA]">{m.plan_name ?? "No plan"}</span>
                       </div>
                     </div>
@@ -146,7 +146,7 @@ export default function RemindersClient({ gym, fiveDays, threeDays, oneDay, hist
                   <div className="h-2 w-2 rounded-full bg-[#10B981]" />
                   <div>
                     <p className="text-sm font-medium text-[#FAFAFA]">Stage {r.stage} reminder sent</p>
-                    <p className="text-[11px] font-mono text-[#52525B] uppercase mt-0.5">VIA {r.method} • {formatDate(r.sent_at)}</p>
+                    <p className="text-[11px] font-mono text-[#71717A] uppercase mt-0.5">VIA {r.method} • {formatDate(r.sent_at)}</p>
                   </div>
                 </div>
               </div>

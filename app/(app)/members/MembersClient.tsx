@@ -68,12 +68,12 @@ export default function MembersClient({ gymId, members }: Props) {
     <div className="pb-24 min-h-screen bg-[#09090B]">
       <div className="sticky top-[48px] z-20 glass border-b border-white/[0.05] px-4 py-5 md:px-8 space-y-5">
         <div className="relative">
-          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#52525B]" />
+          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#71717A]" />
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search by name or phone..."
-            className="w-full h-10 rounded-xl bg-[#1A1A1F] border border-white/[0.08] pl-11 pr-4 text-sm text-[#FAFAFA] placeholder-[#52525B] focus:outline-none focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/[0.08] transition-all"
+            className="w-full h-10 rounded-xl bg-[#27272A] border border-white/[0.08] pl-11 pr-4 text-sm text-[#FAFAFA] placeholder-[#71717A] focus:outline-none focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/[0.08] transition-all"
           />
         </div>
         <div className="flex gap-2 overflow-x-auto scrollbar-hide">
@@ -84,7 +84,7 @@ export default function MembersClient({ gymId, members }: Props) {
               className={`h-8 px-4 rounded-lg text-[11px] font-semibold uppercase tracking-wider whitespace-nowrap transition-all border ${
                 filter === key
                   ? "bg-[#10B981]/12 text-[#10B981] border-[#10B981]/30"
-                  : "bg-[#131316] text-[#A1A1AA] border-white/[0.07] hover:text-[#FAFAFA] hover:border-white/[0.12]"
+                  : "bg-[#18181B] text-[#A1A1AA] border-white/[0.07] hover:text-[#FAFAFA] hover:border-white/[0.12]"
               }`}
             >
               {label}
@@ -107,9 +107,9 @@ export default function MembersClient({ gymId, members }: Props) {
                     <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium tracking-tight shrink-0 ${statusBadgeClass(m.status as MemberStatusType)}`}>{statusLabel(m.status as MemberStatusType)}</span>
                   </div>
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                    <p className="text-[12px] text-[#52525B] flex items-center gap-1.5 font-mono"><Phone size={12} strokeWidth={1.5} />{m.phone}</p>
+                    <p className="text-[12px] text-[#71717A] flex items-center gap-1.5 font-mono"><Phone size={12} strokeWidth={1.5} />{m.phone}</p>
                     <div className="flex items-center gap-1.5">
-                      <span className="text-[10px] font-semibold text-[#52525B] uppercase tracking-wider">Plan</span>
+                      <span className="text-[10px] font-semibold text-[#71717A] uppercase tracking-wider">Plan</span>
                       <span className="text-[12px] text-[#A1A1AA]">{m.plan_name ?? "No plan"}</span>
                     </div>
                   </div>
@@ -117,11 +117,11 @@ export default function MembersClient({ gymId, members }: Props) {
                 <div className="flex items-center gap-4">
                   {(m.balance_due ?? 0) > 0 && (
                     <div className="text-right hidden sm:block">
-                      <p className="text-[10px] font-semibold text-[#52525B] uppercase tracking-wider mb-0.5">Dues</p>
+                      <p className="text-[10px] font-semibold text-[#71717A] uppercase tracking-wider mb-0.5">Dues</p>
                       <p className="text-[13px] font-bold text-[#F59E0B] font-mono tabular-nums">{formatINR(m.balance_due!)}</p>
                     </div>
                   )}
-                  <ChevronRight size={16} className="text-[#52525B]" />
+                  <ChevronRight size={16} className="text-[#71717A]" />
                 </div>
               </div>
             </Link>
@@ -143,13 +143,13 @@ export default function MembersClient({ gymId, members }: Props) {
             ].map(({ field, label, placeholder, type, required }) => (
               <div key={field}>
                 <label className="text-xs font-medium text-[#A1A1AA] block mb-1.5">{label}</label>
-                <input type={type} required={required} value={form[field as keyof typeof form]} onChange={e => { const val = e.target.value; setForm(p => ({ ...p, [field]: field === "phone" ? cleanPhone(val) : val })); }} placeholder={placeholder} className="w-full h-11 rounded-xl bg-[#1A1A1F] border border-white/[0.08] px-4 text-sm text-[#FAFAFA] placeholder-[#52525B] focus:outline-none focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/[0.08] transition-all" />
+                <input type={type} required={required} value={form[field as keyof typeof form]} onChange={e => { const val = e.target.value; setForm(p => ({ ...p, [field]: field === "phone" ? cleanPhone(val) : val })); }} placeholder={placeholder} className="w-full h-11 rounded-xl bg-[#27272A] border border-white/[0.08] px-4 text-sm text-[#FAFAFA] placeholder-[#71717A] focus:outline-none focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/[0.08] transition-all" />
               </div>
             ))}
           </div>
           <div>
             <label className="text-xs font-medium text-[#A1A1AA] block mb-1.5">Joining Date</label>
-            <input type="date" required value={form.joining_date} onChange={e => setForm(p => ({ ...p, joining_date: e.target.value }))} className="w-full h-11 rounded-xl bg-[#1A1A1F] border border-white/[0.08] px-4 text-sm text-[#FAFAFA] focus:outline-none focus:border-[#10B981]/40 transition-all" />
+            <input type="date" required value={form.joining_date} onChange={e => setForm(p => ({ ...p, joining_date: e.target.value }))} className="w-full h-11 rounded-xl bg-[#27272A] border border-white/[0.08] px-4 text-sm text-[#FAFAFA] focus:outline-none focus:border-[#10B981]/40 transition-all" />
           </div>
           <button type="submit" disabled={isPending} className="w-full h-12 rounded-xl btn-primary text-sm disabled:opacity-50 mt-4">{isPending ? "Creating member..." : "Add Member"}</button>
         </form>

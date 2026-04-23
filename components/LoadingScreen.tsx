@@ -28,7 +28,7 @@ export default function LoadingScreen() {
               <span className="text-[#10B981]">Rep</span>
               <span className="text-[#FAFAFA]">Core</span>
             </span>
-            <span className="text-[10px] text-[#52525B] font-bold tracking-[0.25em] uppercase -mt-1 ml-0.5">
+            <span className="text-[10px] text-[#71717A] font-bold tracking-[0.25em] uppercase -mt-1 ml-0.5">
               Gym Management
             </span>
           </div>

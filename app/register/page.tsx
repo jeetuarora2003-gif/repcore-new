@@ -92,7 +92,7 @@ export default function RegisterPage() {
               <span className="text-[#10B981]">Rep</span>
               <span className="text-[#FAFAFA]">Core</span>
             </span>
-            <span className="text-[10px] text-[#52525B] font-bold tracking-[0.25em] uppercase -mt-1 ml-0.5">
+            <span className="text-[10px] text-[#71717A] font-bold tracking-[0.25em] uppercase -mt-1 ml-0.5">
               Gym Management
             </span>
           </div>
@@ -126,7 +126,7 @@ export default function RegisterPage() {
                       value={form[field as keyof typeof form]}
                       onChange={e => onChange(field, e.target.value)}
                       placeholder={placeholder}
-                      className="w-full h-11 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#FAFAFA] placeholder-[#52525B] focus:outline-none focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 transition-all"
+                      className="w-full h-11 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#FAFAFA] placeholder-[#71717A] focus:outline-none focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 transition-all"
                     />
                   </div>
                 ))}
@@ -157,7 +157,7 @@ export default function RegisterPage() {
                     value={form.email}
                     onChange={e => onChange("email", e.target.value)}
                     placeholder="you@example.com"
-                    className="w-full h-11 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#FAFAFA] placeholder-[#52525B] focus:outline-none focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 transition-all"
+                    className="w-full h-11 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#FAFAFA] placeholder-[#71717A] focus:outline-none focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 transition-all"
                   />
                 </div>
 
@@ -171,12 +171,12 @@ export default function RegisterPage() {
                       value={form.password}
                       onChange={e => onChange("password", e.target.value)}
                       placeholder="Min 6 characters"
-                      className="w-full h-11 rounded-xl bg-[#09090B] border border-white/8 px-4 pr-12 text-sm text-[#FAFAFA] placeholder-[#52525B] focus:outline-none focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 transition-all"
+                      className="w-full h-11 rounded-xl bg-[#09090B] border border-white/8 px-4 pr-12 text-sm text-[#FAFAFA] placeholder-[#71717A] focus:outline-none focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 transition-all"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPw(!showPw)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#52525B] hover:text-[#FAFAFA]"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#71717A] hover:text-[#FAFAFA]"
                     >
                       {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>

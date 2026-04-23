@@ -36,7 +36,7 @@ export default function AppShell({ gym, children }: Props) {
   return (
     <div className="flex min-h-screen bg-[#09090B]">
       {/* Sidebar - Desktop */}
-      <aside className="hidden md:flex w-56 flex-col fixed inset-y-0 left-0 bg-[#0F0F12] border-r border-white/[0.05] z-30">
+      <aside className="hidden md:flex w-56 flex-col fixed inset-y-0 left-0 bg-[#121215] border-r border-white/[0.05] z-30">
         {/* Top Section */}
         <div className="p-4 pb-3">
           <Link href="/dashboard" className="flex items-center gap-2.5 group">
@@ -47,7 +47,7 @@ export default function AppShell({ gym, children }: Props) {
           </Link>
           
           <div className="mt-6">
-            <p className="text-[10px] font-semibold text-[#52525B] uppercase tracking-[0.12em] mb-2">
+            <p className="text-[10px] font-semibold text-[#71717A] uppercase tracking-[0.12em] mb-2">
               Managing
             </p>
             <p className="text-sm font-medium text-[#FAFAFA] truncate">
@@ -144,7 +144,7 @@ export default function AppShell({ gym, children }: Props) {
               key={item.href}
               href={item.href}
               className={`flex flex-col items-center gap-1 min-w-[60px] transition-all active:scale-95 ${
-                active ? "text-[#10B981]" : "text-[#52525B]"
+                active ? "text-[#10B981]" : "text-[#71717A]"
               }`}
             >
               <item.icon size={20} strokeWidth={active ? 2 : 1.5} />

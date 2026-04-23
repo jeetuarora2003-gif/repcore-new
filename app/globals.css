@@ -4,15 +4,17 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  /* Warm neutral surfaces */
+  /* ─── Layered depth system ─── 
+     Base → Surface → Surface-2 → Surface-3
+     Each step is a VISIBLE jump in lightness */
   --color-bg: #09090B;
-  --color-surface: #131316;
-  --color-surface-2: #1A1A1F;
-  --color-surface-3: #222228;
+  --color-surface: #18181B;
+  --color-surface-2: #27272A;
+  --color-surface-3: #3F3F46;
 
-  /* Borders */
-  --color-border: rgba(255,255,255,0.07);
-  --color-border-hover: rgba(255,255,255,0.14);
+  /* Borders — stronger for visible edges */
+  --color-border: rgba(255,255,255,0.08);
+  --color-border-hover: rgba(255,255,255,0.16);
 
   /* Emerald accent system */
   --color-accent: #10B981;
@@ -35,7 +37,7 @@
   /* Text hierarchy — warm grays */
   --color-text-1: #FAFAFA;
   --color-text-2: #A1A1AA;
-  --color-text-3: #52525B;
+  --color-text-3: #71717A;
 
   /* Shadcn compat */
   --color-background: var(--color-bg);
@@ -73,7 +75,7 @@
 /* ─── Base ─── */
 @layer base {
   *, *::before, *::after {
-    border-color: rgba(255,255,255,0.07);
+    border-color: rgba(255,255,255,0.08);
     -webkit-tap-highlight-color: transparent;
     box-sizing: border-box;
   }
@@ -87,40 +89,40 @@
   }
 
   ::selection {
-    background: rgba(16,185,129,0.20);
+    background: rgba(16,185,129,0.25);
     color: #FAFAFA;
   }
 
   input, textarea, select {
-    background-color: #1A1A1F;
+    background-color: #18181B;
     color: #FAFAFA;
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.10);
     border-radius: 12px;
   }
 
   input::placeholder, textarea::placeholder {
-    color: #52525B;
+    color: #71717A;
   }
 
   input:focus, textarea:focus, select:focus {
     outline: none;
     border-color: rgba(16,185,129,0.5);
-    box-shadow: 0 0 0 3px rgba(16,185,129,0.10);
+    box-shadow: 0 0 0 3px rgba(16,185,129,0.12);
   }
 }
 
 /* ─── Utilities ─── */
 @layer utilities {
-  /* Surfaces */
+  /* Surface depth system */
   .bg-bg { background-color: #09090B; }
-  .bg-surface { background-color: #131316; }
-  .bg-surface-2 { background-color: #1A1A1F; }
-  .bg-surface-3 { background-color: #222228; }
+  .bg-surface { background-color: #18181B; }
+  .bg-surface-2 { background-color: #27272A; }
+  .bg-surface-3 { background-color: #3F3F46; }
 
-  /* Text */
+  /* Text hierarchy */
   .text-1 { color: #FAFAFA; }
   .text-2 { color: #A1A1AA; }
-  .text-3 { color: #52525B; }
+  .text-3 { color: #71717A; }
 
   /* Accent */
   .text-accent { color: #10B981; }
@@ -139,15 +141,23 @@
   .text-danger { color: #EF4444; }
   .bg-danger-dim { background-color: rgba(239,68,68,0.10); }
 
-  /* Premium card */
+  /* ─── Premium card with real depth ─── */
   .card {
-    background-color: #131316;
-    border: 1px solid rgba(255,255,255,0.07);
+    background-color: #18181B;
+    border: 1px solid rgba(255,255,255,0.08);
     border-radius: 16px;
+    box-shadow: 
+      0 1px 2px rgba(0,0,0,0.3),
+      0 4px 12px rgba(0,0,0,0.15),
+      inset 0 1px 0 rgba(255,255,255,0.04);
     transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
   }
   .card:hover {
-    border-color: rgba(255,255,255,0.12);
+    border-color: rgba(255,255,255,0.14);
+    box-shadow: 
+      0 2px 4px rgba(0,0,0,0.3),
+      0 8px 24px rgba(0,0,0,0.2),
+      inset 0 1px 0 rgba(255,255,255,0.06);
   }
 
   /* Gradient buttons */
@@ -169,7 +179,7 @@
 
   /* Glass effect */
   .glass {
-    background: rgba(19,19,22,0.80);
+    background: rgba(9,9,11,0.85);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
   }
@@ -181,7 +191,7 @@
   /* Scrollbar */
   ::-webkit-scrollbar { width: 2px; height: 2px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 10px; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.10); border-radius: 10px; }
 
   .scrollbar-hide::-webkit-scrollbar { display: none; }
   .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }

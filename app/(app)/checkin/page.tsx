@@ -114,7 +114,7 @@ export default function CheckInPage() {
   return (
     <div className="pb-24 min-h-screen">
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-[#0F0F12]/95 backdrop-blur-md border-b border-[#222228] px-4 py-3">
+      <div className="sticky top-0 z-20 bg-[#121215]/95 backdrop-blur-md border-b border-[#3F3F46] px-4 py-3">
         <h1 className="text-lg font-bold text-[#FAFAFA]">Check In</h1>
       </div>
 
@@ -140,7 +140,7 @@ export default function CheckInPage() {
             value={query}
             onChange={e => { setQuery(e.target.value); setSelected(null); }}
             placeholder="Search by name or phone..."
-            className="w-full h-14 rounded-2xl bg-[#1A1A1F] border border-[#222228] pl-11 pr-4 text-[#FAFAFA] placeholder-[#A1A1AA] focus:outline-none focus:border-[#10B981] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.15)] transition-all duration-200 text-base"
+            className="w-full h-14 rounded-2xl bg-[#27272A] border border-[#3F3F46] pl-11 pr-4 text-[#FAFAFA] placeholder-[#A1A1AA] focus:outline-none focus:border-[#10B981] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.15)] transition-all duration-200 text-base"
           />
         </div>
 
@@ -237,7 +237,7 @@ export default function CheckInPage() {
         {/* Empty state */}
         {!query && !selected && !success && (
           <div className="flex flex-col items-center justify-center py-16 gap-4">
-            <div className="h-16 w-16 rounded-2xl bg-[#1A1A1F] flex items-center justify-center">
+            <div className="h-16 w-16 rounded-2xl bg-[#27272A] flex items-center justify-center">
               <ScanLine size={32} className="text-[#10B981]" />
             </div>
             <p className="text-[#A1A1AA] text-sm text-center">
@@ -251,7 +251,7 @@ export default function CheckInPage() {
       {showConfirm && selected && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowConfirm(false)} />
-          <div className="relative bg-[#131316] border border-[#222228] rounded-2xl p-6 max-w-sm w-full animate-fade-in-up">
+          <div className="relative bg-[#18181B] border border-[#3F3F46] rounded-2xl p-6 max-w-sm w-full animate-fade-in-up">
             <div className="flex items-center gap-3 mb-4">
               <div className="h-10 w-10 rounded-xl bg-[#EF4444]/15 flex items-center justify-center">
                 <AlertCircle size={20} className="text-[#EF4444]" />
@@ -264,7 +264,7 @@ export default function CheckInPage() {
             <div className="flex gap-2">
               <button
                 onClick={() => setShowConfirm(false)}
-                className="flex-1 h-12 rounded-xl bg-[#1A1A1F] text-[#A1A1AA] font-semibold active:scale-95 transition-transform duration-100"
+                className="flex-1 h-12 rounded-xl bg-[#27272A] text-[#A1A1AA] font-semibold active:scale-95 transition-transform duration-100"
               >
                 Cancel
               </button>

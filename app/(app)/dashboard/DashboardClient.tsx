@@ -30,7 +30,7 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringSo
 
       {/* Header */}
       <div className="animate-fade-up">
-        <p className="text-[10px] tracking-[0.2em] font-semibold text-[#52525B] uppercase mb-1.5">
+        <p className="text-[10px] tracking-[0.2em] font-semibold text-[#71717A] uppercase mb-1.5">
           {getHourGreeting()}
         </p>
         <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-[#FAFAFA]">
@@ -61,7 +61,7 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringSo
               <h3 className={`text-3xl font-bold tracking-tighter tabular-nums ${stat.valueColor || "text-[#FAFAFA]"}`}>
                 {stat.value}
               </h3>
-              <p className="text-[11px] text-[#52525B] mt-1 font-medium">{stat.sub}</p>
+              <p className="text-[11px] text-[#71717A] mt-1 font-medium">{stat.sub}</p>
             </div>
           </div>
         ))}
@@ -69,7 +69,7 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringSo
 
       {/* Quick Actions */}
       <div className="space-y-4 animate-fade-up [animation-delay:0.2s]">
-        <p className="text-[10px] font-semibold text-[#52525B] tracking-[0.2em] uppercase px-1">
+        <p className="text-[10px] font-semibold text-[#71717A] tracking-[0.2em] uppercase px-1">
           Quick Actions
         </p>
         <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2">
@@ -82,7 +82,7 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringSo
             <Link
               key={action.label}
               href={action.href}
-              className="flex items-center gap-2 h-10 px-4 bg-[#131316] border border-white/[0.07] rounded-xl text-xs font-medium text-[#A1A1AA] hover:border-[#10B981]/30 hover:text-[#FAFAFA] hover:bg-[#1A1A1F] transition-all shrink-0 group"
+              className="flex items-center gap-2 h-10 px-4 bg-[#18181B] border border-white/[0.07] rounded-xl text-xs font-medium text-[#A1A1AA] hover:border-[#10B981]/30 hover:text-[#FAFAFA] hover:bg-[#27272A] transition-all shrink-0 group"
             >
               <action.icon size={13} className="text-[#10B981] group-hover:text-[#34D399] transition-colors" />
               {action.label}
@@ -96,7 +96,7 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringSo
         <div className="space-y-4 animate-fade-up [animation-delay:0.3s]">
           <div className="flex items-center gap-2.5 px-1">
             <div className="h-2 w-2 rounded-full bg-[#F59E0B]" />
-            <h2 className="text-[10px] font-semibold tracking-[0.2em] uppercase text-[#52525B]">
+            <h2 className="text-[10px] font-semibold tracking-[0.2em] uppercase text-[#71717A]">
               Needs Attention
             </h2>
           </div>
@@ -114,7 +114,7 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringSo
                     <div className="h-2 w-2 rounded-full bg-[#F59E0B] shrink-0" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-[#FAFAFA] truncate">{m.full_name}</p>
-                      <p className="text-xs text-[#52525B]">Expiring in {m.days_until_expiry} days</p>
+                      <p className="text-xs text-[#71717A]">Expiring in {m.days_until_expiry} days</p>
                     </div>
                     <Link
                       href="/reminders"
@@ -133,7 +133,7 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringSo
         <div className="space-y-4 animate-fade-up [animation-delay:0.4s]">
           <div className="flex items-center gap-2.5 px-1">
             <div className="h-2 w-2 rounded-full bg-[#10B981] animate-pulse" />
-            <h2 className="text-[10px] font-semibold tracking-[0.2em] uppercase text-[#52525B]">
+            <h2 className="text-[10px] font-semibold tracking-[0.2em] uppercase text-[#71717A]">
               Live Activity
             </h2>
           </div>
@@ -145,17 +145,17 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringSo
               </div>
             ) : (
               recentCheckins.slice(0, 6).map((a) => (
-                <div key={a.id} className="card p-3 flex items-center gap-3 hover:bg-[#1A1A1F] transition-colors">
+                <div key={a.id} className="card p-3 flex items-center gap-3 hover:bg-[#27272A] transition-colors">
                   <MemberAvatar name={a.members.full_name} memberId={a.members.id} size="sm" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-[#FAFAFA] truncate">
                       {a.members.full_name}
                     </p>
-                    <p className="text-[11px] text-[#52525B] font-mono">
+                    <p className="text-[11px] text-[#71717A] font-mono">
                       Checked in at {new Date(a.checked_in_at).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
                     </p>
                   </div>
-                  <ChevronRight size={14} className="text-[#52525B]" />
+                  <ChevronRight size={14} className="text-[#71717A]" />
                 </div>
               ))
             )}

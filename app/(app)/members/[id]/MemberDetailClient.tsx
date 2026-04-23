@@ -203,7 +203,7 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
                   disabled={checkedInToday || isPending}
                   className={`h-9 px-4 rounded-xl flex items-center gap-2 text-xs font-semibold transition-all ${
                     checkedInToday 
-                      ? "bg-white/5 text-[#52525B] border border-white/5 cursor-not-allowed" 
+                      ? "bg-white/5 text-[#71717A] border border-white/5 cursor-not-allowed" 
                       : "bg-[#10B981] text-white shadow-lg shadow-[#10B981]/20 hover:brightness-110 active:scale-95"
                   }`}
                 >
@@ -276,7 +276,7 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
                         <p className={`text-sm font-bold font-mono ${daysRemaining > 7 ? "text-[#10B981]" : daysRemaining > 3 ? "text-[#F59E0B]" : "text-[#EF4444]"}`}>
                           {daysRemaining} Days Left
                         </p>
-                        <p className="text-[10px] text-[#52525B] uppercase tracking-wider font-semibold">Ends {formatDate(member.end_date)}</p>
+                        <p className="text-[10px] text-[#71717A] uppercase tracking-wider font-semibold">Ends {formatDate(member.end_date)}</p>
                       </div>
                     </div>
                     <div className="h-1.5 bg-surface-3 rounded-full overflow-hidden">
@@ -325,7 +325,7 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
                   { label: "Due", value: formatINR(member.balance_due ?? 0), color: (member.balance_due ?? 0) > 0 ? "text-[#EF4444]" : "text-[#10B981]" },
                 ].map((item) => (
                   <div key={item.label} className="card p-4 text-center">
-                    <p className="text-[10px] font-semibold text-[#52525B] uppercase tracking-widest mb-1">{item.label}</p>
+                    <p className="text-[10px] font-semibold text-[#71717A] uppercase tracking-widest mb-1">{item.label}</p>
                     <p className={`text-lg font-bold font-mono tracking-tighter ${item.color}`}>{item.value}</p>
                   </div>
                 ))}
@@ -334,16 +334,16 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
               {/* Ledger */}
               <div className="grid md:grid-cols-2 gap-8">
                 <div className="space-y-4">
-                  <p className="text-[10px] font-semibold text-[#52525B] tracking-[0.2em] uppercase px-1">Payment History</p>
+                  <p className="text-[10px] font-semibold text-[#71717A] tracking-[0.2em] uppercase px-1">Payment History</p>
                   <div className="space-y-px">
                     {payments.length === 0 ? (
-                      <p className="text-xs text-[#52525B] py-4 text-center italic">No payments yet</p>
+                      <p className="text-xs text-[#71717A] py-4 text-center italic">No payments yet</p>
                     ) : (
                       payments.map(p => (
                         <div key={p.id} className="flex items-center justify-between py-3.5 border-b border-white/5">
                           <div>
                             <p className="text-sm font-medium text-[#FAFAFA]">{METHOD_LABELS[p.payment_method as PaymentMethod]}</p>
-                            <p className="text-[11px] font-mono text-[#52525B] mt-0.5 uppercase">PAID {formatDate(p.paid_at)}</p>
+                            <p className="text-[11px] font-mono text-[#71717A] mt-0.5 uppercase">PAID {formatDate(p.paid_at)}</p>
                           </div>
                           <span className="text-sm font-bold font-mono text-[#F59E0B]">{formatINR(p.amount)}</span>
                         </div>
@@ -353,16 +353,16 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
                 </div>
 
                 <div className="space-y-4">
-                  <p className="text-[10px] font-semibold text-[#52525B] tracking-[0.2em] uppercase px-1">Recent Invoices</p>
+                  <p className="text-[10px] font-semibold text-[#71717A] tracking-[0.2em] uppercase px-1">Recent Invoices</p>
                   <div className="space-y-px">
                     {invoices.length === 0 ? (
-                      <p className="text-xs text-[#52525B] py-4 text-center italic">No invoices found</p>
+                      <p className="text-xs text-[#71717A] py-4 text-center italic">No invoices found</p>
                     ) : (
                       invoices.map(inv => (
                         <div key={inv.id} className="flex items-center justify-between py-3.5 border-b border-white/5">
                           <div>
                             <p className="text-sm font-medium text-[#FAFAFA]">#{inv.invoice_number}</p>
-                            <p className="text-[11px] font-mono text-[#52525B] mt-0.5 uppercase">ISSUED {formatDate(inv.created_at)}</p>
+                            <p className="text-[11px] font-mono text-[#71717A] mt-0.5 uppercase">ISSUED {formatDate(inv.created_at)}</p>
                           </div>
                           <span className="text-sm font-bold font-mono text-[#F59E0B]">{formatINR(inv.amount)}</span>
                         </div>
@@ -377,11 +377,11 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
           {tab === "attendance" && (
             <div className="grid md:grid-cols-3 gap-8">
               <div className="md:col-span-2 space-y-4">
-                <p className="text-[10px] font-semibold text-[#52525B] tracking-[0.2em] uppercase px-1">Monthly Attendance</p>
+                <p className="text-[10px] font-semibold text-[#71717A] tracking-[0.2em] uppercase px-1">Monthly Attendance</p>
                 <div className="card p-6">
                   <div className="grid grid-cols-7 gap-2">
                     {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(d => (
-                      <div key={d} className="h-8 flex items-center justify-center text-[10px] font-semibold text-[#52525B] uppercase tracking-tighter">{d}</div>
+                      <div key={d} className="h-8 flex items-center justify-center text-[10px] font-semibold text-[#71717A] uppercase tracking-tighter">{d}</div>
                     ))}
                     {Array.from({ length: firstDayOffset }).map((_, i) => <div key={`empty-${i}`} />)}
                     {Array.from({ length: daysInMonth }).map((_, i) => {
@@ -394,7 +394,7 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
                             ? "bg-[#10B981] border-[#10B981] text-white shadow-lg shadow-[#10B981]/20 scale-105 z-10" 
                             : isToday 
                               ? "border-[#10B981] text-[#10B981]" 
-                              : "bg-surface border-white/5 text-[#52525B] hover:border-white/10"
+                              : "bg-surface border-white/5 text-[#71717A] hover:border-white/10"
                         }`}>
                           {day}
                         </div>
@@ -405,15 +405,15 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
               </div>
 
               <div className="space-y-4">
-                <p className="text-[10px] font-semibold text-[#52525B] tracking-[0.2em] uppercase px-1">Recent History</p>
+                <p className="text-[10px] font-semibold text-[#71717A] tracking-[0.2em] uppercase px-1">Recent History</p>
                 <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2 scrollbar-hide">
                   {attendance.length === 0 ? (
-                    <div className="card p-8 text-center text-xs text-[#52525B]">No check-ins yet</div>
+                    <div className="card p-8 text-center text-xs text-[#71717A]">No check-ins yet</div>
                   ) : (
                     attendance.map(a => (
                       <div key={a.id} className="card p-3 flex justify-between items-center group hover:bg-white/3 transition-all">
                         <span className="text-xs font-semibold text-[#FAFAFA] font-mono">{formatDate(a.checked_in_at)}</span>
-                        <span className="text-[11px] text-[#52525B] font-mono">{new Date(a.checked_in_at).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}</span>
+                        <span className="text-[11px] text-[#71717A] font-mono">{new Date(a.checked_in_at).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}</span>
                       </div>
                     ))
                   )}

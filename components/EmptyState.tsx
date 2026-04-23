@@ -13,7 +13,7 @@ export default function EmptyState({ icon: Icon, message, actionLabel, onAction 
   return (
     <div className="flex flex-col items-center justify-center py-16 gap-5 text-center animate-fade-up">
       <div className="h-16 w-16 rounded-2xl bg-surface border border-white/6 flex items-center justify-center shadow-lg shadow-black/20">
-        <Icon size={28} className="text-[#52525B]" />
+        <Icon size={28} className="text-[#71717A]" />
       </div>
       <p className="text-[#A1A1AA] text-sm font-medium max-w-[240px] leading-relaxed">{message}</p>
       {actionLabel && onAction && (

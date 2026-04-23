@@ -85,7 +85,7 @@ export default function SettingsClient({ gym }: Props) {
                   value={form[field as keyof typeof form]}
                   onChange={e => handleChange(field, e.target.value)}
                   placeholder={placeholder}
-                  className="w-full h-10 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#FAFAFA] placeholder-[#52525B] focus:outline-none focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 transition-all"
+                  className="w-full h-10 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#FAFAFA] placeholder-[#71717A] focus:outline-none focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 transition-all"
                 />
               </div>
             ))}
@@ -114,7 +114,7 @@ export default function SettingsClient({ gym }: Props) {
                   onChange={e => handleChange(field, e.target.value)}
                   className="w-full h-10 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#FAFAFA] font-mono focus:outline-none focus:border-[#10B981]/40 transition-all uppercase"
                 />
-                <p className="text-[10px] text-[#52525B] font-mono tracking-wider pl-1">
+                <p className="text-[10px] text-[#71717A] font-mono tracking-wider pl-1">
                   PREVIEW: {form[field as keyof typeof form] || "REP"}-{new Date().getFullYear()}-0001
                 </p>
               </div>
@@ -140,12 +140,12 @@ export default function SettingsClient({ gym }: Props) {
                   value={form.whatsapp_api_key}
                   onChange={e => handleChange("whatsapp_api_key", e.target.value)}
                   placeholder="sk-..."
-                  className="w-full h-10 rounded-xl bg-[#09090B] border border-white/8 px-4 pr-12 text-sm text-[#FAFAFA] font-mono placeholder-[#52525B] focus:outline-none focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 transition-all"
+                  className="w-full h-10 rounded-xl bg-[#09090B] border border-white/8 px-4 pr-12 text-sm text-[#FAFAFA] font-mono placeholder-[#71717A] focus:outline-none focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 transition-all"
                 />
                 <button
                   type="button"
                   onClick={() => setShowApiKey(!showApiKey)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#52525B] hover:text-[#FAFAFA] transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#71717A] hover:text-[#FAFAFA] transition-colors"
                 >
                   {showApiKey ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
@@ -177,7 +177,7 @@ export default function SettingsClient({ gym }: Props) {
             <button
               type="button"
               disabled
-              className="h-10 rounded-xl bg-surface border border-white/6 text-[#52525B] text-xs font-medium flex items-center justify-center gap-2 cursor-not-allowed"
+              className="h-10 rounded-xl bg-surface border border-white/6 text-[#71717A] text-xs font-medium flex items-center justify-center gap-2 cursor-not-allowed"
             >
               <Download size={14} />
               Export Records
