@@ -46,54 +46,69 @@ export default function AppShell({ gym, children }: Props) {
   return (
     <div className="min-h-screen bg-[#0D0D14] flex">
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex flex-col w-64 shrink-0 bg-[#13131F] border-r border-[#1E1E30] fixed left-0 top-0 h-screen z-30">
+      <aside className="hidden md:flex flex-col w-64 shrink-0 bg-gradient-to-b from-[#0D0D14] to-[#111120] border-r border-white/5 fixed left-0 top-0 h-screen z-30">
         {/* Logo */}
-        <div className="flex items-center gap-2.5 px-5 py-5 border-b border-[#1E1E30]">
-          <div className="h-8 w-8 rounded-xl bg-[#6366F1] flex items-center justify-center shrink-0">
-            <Dumbbell size={16} className="text-white" />
+        <div className="flex items-center gap-3 px-6 py-7 border-b border-white/5">
+          <div className="relative">
+            <div className="h-2 w-2 rounded-full bg-[#6366F1] animate-pulse" />
+            <div className="absolute inset-0 h-2 w-2 rounded-full bg-[#6366F1] blur-md" />
           </div>
-          <span className="text-lg font-bold">
+          <span className="text-xl font-bold tracking-tight">
             <span className="text-[#6366F1]">Rep</span>
-            <span className="text-[#F1F5F9]">Core</span>
+            <span className="text-white">Core</span>
           </span>
         </div>
 
         {/* Gym info */}
-        <div className="px-5 py-3 border-b border-[#1E1E30]">
-          <p className="text-xs text-[#94A3B8] mb-0.5">Managing</p>
-          <p className="text-sm font-semibold text-[#F1F5F9] truncate">{gym.name}</p>
+        <div className="px-6 py-5">
+          <p className="text-[10px] uppercase tracking-wider font-bold text-[#94A3B8] mb-1">Managing</p>
+          <p className="text-sm font-semibold text-white truncate">{gym.name}</p>
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 py-3 px-3 space-y-0.5 overflow-y-auto">
+        <nav className="flex-1 py-4 px-4 space-y-1 overflow-y-auto">
           {SIDEBAR_ITEMS.map(({ href, icon: Icon, label }) => {
             const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
             return (
-              <Link
+              <motion.div
                 key={href}
-                href={href}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                  active
-                    ? "bg-[#6366F1]/15 text-[#6366F1]"
-                    : "text-[#94A3B8] hover:text-[#F1F5F9] hover:bg-[#1C1C2E]"
-                }`}
+                whileHover={{ x: 4 }}
+                transition={{ duration: 0.15 }}
               >
-                <Icon size={18} />
-                {label}
-              </Link>
+                <Link
+                  href={href}
+                  className={`relative flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all group ${
+                    active
+                      ? "text-white bg-gradient-to-r from-[#6366F1]/20 to-transparent border-l-2 border-[#6366F1]"
+                      : "text-[#94A3B8] hover:text-white hover:bg-white/5"
+                  }`}
+                >
+                  {active && (
+                    <motion.div
+                      layoutId="activeNav"
+                      className="absolute inset-0 bg-[#6366F1]/5 rounded-xl -z-10"
+                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                    />
+                  )}
+                  <Icon size={18} className={`${active ? "text-[#6366F1]" : "group-hover:text-white"}`} />
+                  {label}
+                </Link>
+              </motion.div>
             );
           })}
         </nav>
 
-        {/* User */}
-        <div className="px-4 py-4 border-t border-[#1E1E30]">
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-full bg-[#6366F1] flex items-center justify-center text-white text-xs font-semibold">
+        {/* User Card */}
+        <div className="px-4 py-6 border-t border-white/5">
+          <div className="bg-white/5 rounded-2xl p-4 flex items-center gap-3 border border-white/5">
+            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-[#6366F1] to-[#4F46E5] flex items-center justify-center text-white text-sm font-bold shadow-lg shadow-[#6366F1]/20">
               {memberInitials(gym.name)}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-[#F1F5F9] truncate">{gym.name}</p>
-              <Link href="/settings" className="text-xs text-[#94A3B8] hover:text-[#6366F1]">Settings</Link>
+              <p className="text-sm font-semibold text-white truncate">{gym.name}</p>
+              <Link href="/settings" className="text-[11px] font-medium text-[#94A3B8] hover:text-[#6366F1] transition-colors">
+                View Settings
+              </Link>
             </div>
           </div>
         </div>
@@ -117,7 +132,7 @@ export default function AppShell({ gym, children }: Props) {
       </main>
 
       {/* Mobile Bottom Tab Bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-[#1C1C2E]/90 backdrop-blur-lg border-t border-[#1E1E30] h-16 flex items-center">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-[#0D0D14]/80 backdrop-blur-xl border-t border-white/5 h-16 flex items-center px-4">
         {TAB_ITEMS.map(({ href, icon: Icon, label, accent }) => {
           const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
           const moreActive = href === "/more" && ["/plans", "/reports", "/settings"].some(p => pathname.startsWith(p));
@@ -126,7 +141,7 @@ export default function AppShell({ gym, children }: Props) {
             <Link
               key={href}
               href={href === "/more" ? "/plans" : href}
-              className={`flex-1 flex flex-col items-center justify-center gap-0.5 h-full transition-colors ${
+              className={`flex-1 flex flex-col items-center justify-center gap-1 h-full transition-all ${
                 accent
                   ? "relative"
                   : active || moreActive
@@ -135,13 +150,13 @@ export default function AppShell({ gym, children }: Props) {
               }`}
             >
               {accent ? (
-                <div className={`h-11 w-11 rounded-2xl flex items-center justify-center transition-colors ${active ? "bg-[#6366F1]" : "bg-[#6366F1]/80"}`}>
+                <div className={`h-11 w-11 rounded-2xl flex items-center justify-center transition-all ${active ? "bg-[#6366F1] shadow-lg shadow-[#6366F1]/30" : "bg-[#6366F1]/80"}`}>
                   <Icon size={22} className="text-white" />
                 </div>
               ) : (
                 <>
-                  <Icon size={20} />
-                  <span className="text-[10px] font-medium">{label}</span>
+                  <Icon size={20} className={active || moreActive ? "scale-110" : ""} />
+                  <span className="text-[10px] font-semibold">{label}</span>
                 </>
               )}
             </Link>
