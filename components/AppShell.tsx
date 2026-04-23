@@ -104,25 +104,25 @@ export default function AppShell({ gym, children }: Props) {
       </aside>
 
       {/* Main Area */}
-      <div className="flex-1 md:ml-56 flex flex-col min-w-0">
+      <div className="flex-1 md:ml-[240px] flex flex-col min-w-0">
         {/* Top Bar */}
-        <header className="sticky top-0 z-40 h-[48px] glass border-b border-white/[0.05] flex items-center justify-between px-4 md:px-8">
+        <header className="sticky top-0 z-40 pt-safe h-auto min-h-[48px] glass border-b border-white/[0.05] flex items-center justify-between px-4 md:px-8 py-3">
           <h2 className="text-sm font-semibold text-[#E4E4E7] tracking-tight">
             {getPageTitle()}
           </h2>
-          <div className="h-8 w-8 rounded-full bg-gradient-to-br from-[#10B981] to-[#059669] flex items-center justify-center text-white text-[11px] font-semibold border border-white/10 shadow-lg shadow-[#10B981]/15">
+          <div className="h-8 w-8 rounded-full bg-gradient-to-br from-[#10B981] to-[#059669] flex items-center justify-center text-white text-[11px] font-semibold shadow-[0_2px_10px_rgba(16,185,129,0.2)]">
             {memberInitials(gym.name)}
           </div>
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 pb-16 md:pb-8">
+        <main className="flex-1 pb-24 md:pb-8">
           {children}
         </main>
       </div>
 
       {/* Mobile Bottom Tab Bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 h-14 glass border-t border-white/[0.05] flex items-center justify-around px-2 z-40 pb-safe">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 pb-safe h-auto min-h-16 glass border-t border-white/[0.05] flex items-center justify-around px-2 z-40 pt-2 shadow-[0_-8px_32px_rgba(0,0,0,0.4)]">
         {[
           { label: "Home", href: "/dashboard", icon: Home },
           { label: "Members", href: "/members", icon: Users },
@@ -136,7 +136,7 @@ export default function AppShell({ gym, children }: Props) {
               <Link
                 key="checkin-special"
                 href={item.href}
-                className="flex flex-col items-center justify-center -mt-6 h-12 w-12 bg-gradient-to-br from-[#10B981] to-[#059669] rounded-xl text-white shadow-lg shadow-[#10B981]/30 active:scale-90 transition-all"
+                className="flex flex-col items-center justify-center -mt-8 h-12 w-12 bg-gradient-to-br from-[#10B981] to-[#059669] rounded-xl text-white shadow-[0_4px_16px_rgba(16,185,129,0.4)] active:scale-95 transition-all"
               >
                 <item.icon size={22} strokeWidth={2} />
               </Link>

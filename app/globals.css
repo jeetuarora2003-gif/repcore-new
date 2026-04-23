@@ -89,6 +89,11 @@
     transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
   }
 
+  html, body {
+    overscroll-behavior-y: none; /* Prevent rubber-banding on iOS */
+    -webkit-overflow-scrolling: touch;
+  }
+
   body {
     background-color: #09090B;
     color: #FAFAFA;
@@ -187,7 +192,7 @@
 
   /* Glass effect */
   .glass {
-    background: rgba(9,9,11,0.85);
+    background: rgba(18, 18, 21, 0.4);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
   }
@@ -212,3 +217,10 @@
 }
 
 .animate-fade-up { animation: fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+/* --- Safe Area Utilities for PWA --- */
+@layer utilities {
+  .pt-safe { padding-top: max(env(safe-area-inset-top), 1rem); }
+  .pb-safe { padding-bottom: max(env(safe-area-inset-bottom), 1rem); }
+  .mb-safe { margin-bottom: env(safe-area-inset-bottom, 0px); }
+}
