@@ -2,13 +2,16 @@
 
 import { useState, useRef, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Search, ScanLine, Check, AlertCircle } from "lucide-react";
+import { Search, ScanLine, Check, AlertCircle, UserCheck, ShieldAlert, Sparkles, ChevronRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { checkIn } from "@/app/actions/attendance";
-import { formatDate, statusBadgeClass, statusLabel, statusAvatarColor, avatarColor, memberInitials } from "@/lib/helpers";
+import { formatDate, statusBadgeClass, statusLabel, formatINR } from "@/lib/helpers";
 import type { MemberStatus } from "@/lib/supabase/types";
 import type { MemberStatusType } from "@/lib/helpers";
 import { toast } from "sonner";
+import MemberAvatar from "@/components/MemberAvatar";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export default function CheckInPage() {
   const router = useRouter();
@@ -32,7 +35,6 @@ export default function CheckInPage() {
       supabase.from("gyms").select("id").eq("owner_id", user.id).maybeSingle().then(({ data }) => {
         if (data) {
           setGymId(data.id);
-          // Fetch today's check-ins
           const today = new Date();
           today.setHours(0, 0, 0, 0);
           supabase
@@ -104,7 +106,7 @@ export default function CheckInPage() {
           setQuery("");
           setSuccessTime("");
           inputRef.current?.focus();
-        }, 2000);
+        }, 3000);
       } catch (err) {
         toast.error((err as Error).message);
       }
@@ -112,169 +114,181 @@ export default function CheckInPage() {
   }
 
   return (
-    <div className="pb-24 min-h-screen">
+    <div className="max-w-2xl mx-auto space-y-8 animate-fade-up">
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-[#121215]/95 backdrop-blur-md border-b border-[#3F3F46] px-4 py-3">
-        <h1 className="text-lg font-bold text-[#E4E4E7]">Check In</h1>
+      <div className="px-1">
+        <h1 className="text-2xl font-bold text-text-primary tracking-tight">Access Control</h1>
+        <p className="text-sm text-text-secondary mt-1">Scan or search members for immediate entry validation</p>
       </div>
 
-      <div className="px-4 py-5 space-y-4">
+      <div className="space-y-6">
         {/* Success Flash */}
         {success && (
-          <div className="bg-[#22C55E]/15 border border-[#22C55E]/30 rounded-2xl p-5 flex items-center gap-4 animate-success-flash">
-            <div className="h-12 w-12 rounded-full bg-[#22C55E] flex items-center justify-center shrink-0">
-              <Check size={24} className="text-white" />
+          <div className="bg-status-success-bg border-2 border-status-success-border rounded-[2rem] p-8 flex flex-col items-center text-center animate-fade-up shadow-lg">
+            <div className="h-20 w-20 rounded-full bg-accent flex items-center justify-center mb-4 border-4 border-white shadow-md">
+              <UserCheck size={36} className="text-white" />
             </div>
-            <div>
-              <p className="font-semibold text-[#22C55E] text-lg">{selected?.full_name}</p>
-              <p className="text-sm text-[#22C55E]/80">Checked in at {successTime} ✓</p>
-            </div>
-          </div>
-        )}
-
-        {/* Search */}
-        <div className="relative group">
-          <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#A1A1AA] group-focus-within:text-[#10B981] transition-colors" />
-          <input
-            ref={inputRef}
-            value={query}
-            onChange={e => { setQuery(e.target.value); setSelected(null); }}
-            placeholder="Search by name or phone..."
-            className="w-full h-14 rounded-2xl bg-[#27272A] border border-[#3F3F46] pl-11 pr-4 text-[#E4E4E7] placeholder-[#A1A1AA] focus:outline-none focus:border-[#10B981] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.15)] transition-all duration-200 text-base"
-          />
-        </div>
-
-        {/* Search Results */}
-        {results.length > 0 && (
-          <div className="space-y-2">
-            {results.map(m => (
-                <button
-                  key={m.id}
-                  onClick={() => handleSelect(m)}
-                  className="w-full premium-card p-4 flex items-center gap-3 active:opacity-80 transition-all text-left"
-                >
-                  <div className={`h-10 w-10 rounded-full ${statusAvatarColor(m.status, m.id)} flex items-center justify-center text-white text-sm font-semibold`}>
-                    {memberInitials(m.full_name)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-semibold text-[#E4E4E7]">{m.full_name}</p>
-                      <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium ${statusBadgeClass(m.status as MemberStatusType)}`}>
-                        {statusLabel(m.status as MemberStatusType)}
-                      </span>
-                    </div>
-                    <p className="text-xs text-[#A1A1AA]">{m.phone}</p>
-                  </div>
-                  {(m.balance_due ?? 0) > 0 && (
-                    <div className="flex items-center gap-1 text-xs text-[#EF4444]">
-                      <AlertCircle size={12} />
-                      Dues
-                    </div>
-                  )}
-                </button>
-              ))}
-            </div>
-          )}
-  
-          {/* Selected Member Card */}
-          {selected && !success && (
-            <div className="premium-card p-4 space-y-3">
-              <div className="flex items-center gap-3">
-                <div className={`h-12 w-12 rounded-full ${statusAvatarColor(selected.status, selected.id)} flex items-center justify-center text-white font-semibold`}>
-                  {memberInitials(selected.full_name)}
-                </div>
-                <div>
-                  <p className="text-base font-bold text-[#E4E4E7]">{selected.full_name}</p>
-                  <div className="flex items-center gap-2">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${statusBadgeClass(selected.status as MemberStatusType)}`}>
-                      {statusLabel(selected.status as MemberStatusType)}
-                    </span>
-                    {selected.plan_name && (
-                      <span className="text-xs text-[#A1A1AA]">{selected.plan_name}</span>
-                    )}
-                  </div>
-                </div>
-              </div>
-  
-              {/* Already checked in today */}
-              {alreadyCheckedIn && (
-                <div className="bg-[#22C55E]/10 border border-[#22C55E]/20 rounded-xl p-2.5 flex items-center gap-2">
-                  <Check size={14} className="text-[#22C55E]" />
-                  <p className="text-xs text-[#22C55E] font-medium">Already checked in today</p>
-                </div>
-              )}
-  
-              {selected.end_date && (
-                <p className="text-xs text-[#A1A1AA]">
-                  Expires: {formatDate(selected.end_date)}
-                  {(selected.days_until_expiry ?? 99) <= 5 && (selected.days_until_expiry ?? 99) >= 0 && (
-                    <span className="text-[#F59E0B] ml-1">· Expiring soon!</span>
-                  )}
-                </p>
-              )}
-  
-              {(selected.balance_due ?? 0) > 0 && (
-                <div className="bg-[#EF4444]/10 border border-[#EF4444]/20 rounded-xl p-2.5 flex items-center gap-2">
-                  <AlertCircle size={14} className="text-[#EF4444]" />
-                  <p className="text-xs text-[#EF4444]">Has outstanding dues</p>
-                </div>
-              )}
-            </div>
-          )}
-  
-          {/* Check In Button */}
-          {selected && !success && (
-            <button
-              onClick={handleCheckIn}
-              disabled={isPending}
-              className="w-full h-14 rounded-2xl bg-[#22C55E] text-white text-base font-bold flex items-center justify-center gap-2 active:scale-95 transition-all duration-200 disabled:opacity-60 shadow-lg shadow-[#22C55E]/20 primary-button"
-            >
-              <ScanLine size={20} />
-              {isPending ? "Checking in..." : `Check In ${selected.full_name.split(" ")[0]}`}
-            </button>
-          )}
-
-        {/* Empty state */}
-        {!query && !selected && !success && (
-          <div className="flex flex-col items-center justify-center py-16 gap-4">
-            <div className="h-16 w-16 rounded-2xl bg-[#27272A] flex items-center justify-center">
-              <ScanLine size={32} className="text-[#10B981]" />
-            </div>
-            <p className="text-[#A1A1AA] text-sm text-center">
-              Search for a member above to check them in
+            <h2 className="text-[10px] font-bold text-accent-text uppercase tracking-[0.4em] mb-2">Access Granted</h2>
+            <p className="text-2xl font-bold text-text-primary tracking-tight">{selected?.full_name}</p>
+            <p className="text-[11px] font-bold text-accent-text mt-2 uppercase tracking-widest bg-white/50 px-4 py-1.5 rounded-full border border-status-success-border">
+              Validated at {successTime}
             </p>
           </div>
         )}
-      </div>
 
-      {/* Confirmation Dialog for expired/lapsed */}
-      {showConfirm && selected && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowConfirm(false)} />
-          <div className="relative bg-[#18181B] border border-[#3F3F46] rounded-2xl p-6 max-w-sm w-full animate-fade-in-up">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="h-10 w-10 rounded-xl bg-[#EF4444]/15 flex items-center justify-center">
-                <AlertCircle size={20} className="text-[#EF4444]" />
-              </div>
+        {/* Search Input */}
+        {!success && (
+          <div className="relative group">
+            <Search size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-accent transition-colors" />
+            <input
+              ref={inputRef}
+              value={query}
+              onChange={e => { setQuery(e.target.value); setSelected(null); }}
+              placeholder="Search Name or Phone..."
+              className="w-full h-16 rounded-[2rem] bg-white border-2 border-border pl-14 pr-6 text-base text-text-primary font-bold placeholder:text-text-muted/50 focus:border-accent focus:ring-8 focus:ring-accent/5 outline-none transition-all shadow-sm"
+            />
+          </div>
+        )}
+
+        {/* Search Results Overlay-like list */}
+        {results.length > 0 && !selected && !success && (
+          <div className="grid gap-3 animate-fade-in">
+            {results.map(m => (
+              <button
+                key={m.id}
+                onClick={() => handleSelect(m)}
+                className="w-full bg-white border border-border rounded-2xl p-4 flex items-center gap-4 hover:border-accent/40 hover:shadow-md transition-all text-left group"
+              >
+                <MemberAvatar name={m.full_name} memberId={m.id} size="sm" status={m.status} />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-bold text-text-primary group-hover:text-accent transition-colors">{m.full_name}</p>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest border ${statusBadgeClass(m.status as MemberStatusType)}`}>
+                      {statusLabel(m.status as MemberStatusType)}
+                    </span>
+                  </div>
+                  <p className="text-[11px] font-bold text-text-muted font-mono mt-0.5">{m.phone}</p>
+                </div>
+                <ChevronRight size={16} className="text-text-muted group-hover:text-accent group-hover:translate-x-1 transition-all" />
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Selected Member Detail */}
+        {selected && !success && (
+          <div className="bg-white border-2 border-border rounded-[2rem] p-8 space-y-8 animate-fade-up shadow-sm">
+            <div className="flex flex-col items-center text-center space-y-4">
+              <MemberAvatar name={selected.full_name} memberId={selected.id} size="lg" status={selected.status} />
               <div>
-                <h3 className="text-base font-semibold text-[#E4E4E7]">Expired Subscription</h3>
-                <p className="text-sm text-[#A1A1AA]">This member&apos;s subscription has expired. Check in anyway?</p>
+                <h3 className="text-2xl font-bold text-text-primary tracking-tight">{selected.full_name}</h3>
+                <div className="flex items-center justify-center gap-3 mt-2">
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] border ${statusBadgeClass(selected.status as MemberStatusType)}`}>
+                    {statusLabel(selected.status as MemberStatusType)}
+                  </span>
+                  {selected.plan_name && (
+                    <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest bg-page px-3 py-1 rounded-full border border-border">
+                      {selected.plan_name}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setShowConfirm(false)}
-                className="flex-1 h-12 rounded-xl bg-[#27272A] text-[#A1A1AA] font-semibold active:scale-95 transition-transform duration-100"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={doCheckIn}
-                disabled={isPending}
-                className="flex-1 h-12 rounded-xl bg-[#22C55E] text-white font-semibold active:scale-95 transition-transform duration-100 disabled:opacity-60"
-              >
-                Check In
-              </button>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-page p-4 rounded-2xl border border-border">
+                <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-1">Status Check</p>
+                {alreadyCheckedIn ? (
+                  <div className="flex items-center gap-2 text-accent-text font-bold text-xs uppercase tracking-tight">
+                    <Check size={14} strokeWidth={3} /> Double Check-in
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-text-primary font-bold text-xs uppercase tracking-tight">
+                    <Sparkles size={14} className="text-accent" /> First Visit Today
+                  </div>
+                )}
+              </div>
+              <div className="bg-page p-4 rounded-2xl border border-border">
+                <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-1">Expiry Forecast</p>
+                <div className={`text-xs font-bold uppercase ${isExpiredOrLapsed ? "text-status-danger-text" : "text-text-primary"}`}>
+                  {selected.end_date ? formatDate(selected.end_date) : "No Plan"}
+                </div>
+              </div>
+            </div>
+
+            {/* Dues Alert */}
+            {(selected.balance_due ?? 0) > 0 && (
+              <div className="bg-status-danger-bg border border-status-danger-border rounded-2xl p-4 flex items-center gap-4">
+                <ShieldAlert size={20} className="text-status-danger-text shrink-0" />
+                <div>
+                  <p className="text-[10px] font-bold text-status-danger-text uppercase tracking-widest">Outstanding Collection</p>
+                  <p className="text-sm font-bold text-status-danger-text font-mono">Dues: {formatINR(selected.balance_due)}</p>
+                </div>
+              </div>
+            )}
+
+            <button
+              onClick={handleCheckIn}
+              disabled={isPending}
+              className="w-full h-16 rounded-2xl bg-accent hover:bg-accent-hover text-white text-xs font-bold uppercase tracking-[0.3em] flex items-center justify-center gap-3 transition-all shadow-xl shadow-accent/20 active:scale-[0.98] disabled:opacity-50"
+            >
+              <ScanLine size={20} strokeWidth={3} />
+              {isPending ? "Validating..." : "Authorize Entry"}
+            </button>
+            
+            <button 
+              onClick={() => { setSelected(null); setQuery(""); }}
+              className="w-full text-[10px] font-bold text-text-muted uppercase tracking-widest hover:text-text-primary transition-colors"
+            >
+              Cancel and Reset
+            </button>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!query && !selected && !success && (
+          <div className="py-20 flex flex-col items-center justify-center text-center space-y-6 animate-fade-in">
+            <div className="h-24 w-24 rounded-[2rem] bg-white border-2 border-border flex items-center justify-center shadow-sm">
+              <ScanLine size={40} className="text-text-muted opacity-30" />
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm font-bold text-text-secondary uppercase tracking-[0.2em]">Ready to Validate</p>
+              <p className="text-xs text-text-muted font-medium max-w-[280px]">Scan a member QR or search by phone number to initialize the access control sequence.</p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Confirmation Overlay */}
+      {showConfirm && selected && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div className="absolute inset-0 bg-sidebar/80 backdrop-blur-sm" onClick={() => setShowConfirm(false)} />
+          <div className="relative bg-white border-2 border-border rounded-[2.5rem] p-10 max-w-sm w-full animate-fade-up shadow-2xl">
+            <div className="flex flex-col items-center text-center space-y-6">
+              <div className="h-16 w-16 rounded-2xl bg-status-danger-bg flex items-center justify-center text-status-danger-text border border-status-danger-border">
+                <ShieldAlert size={32} />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-lg font-bold text-text-primary uppercase tracking-tight">Expired Credentials</h3>
+                <p className="text-xs text-text-secondary font-medium leading-relaxed">
+                  This member&apos;s subscription architecture has reached its terminal date. Do you wish to override and authorize entry anyway?
+                </p>
+              </div>
+              <div className="flex flex-col w-full gap-3">
+                <button
+                  onClick={doCheckIn}
+                  disabled={isPending}
+                  className="h-12 rounded-xl bg-status-danger-text text-white text-[10px] font-bold uppercase tracking-widest shadow-lg shadow-status-danger-text/20 transition-all active:scale-95"
+                >
+                  Override & Authorize
+                </button>
+                <button
+                  onClick={() => setShowConfirm(false)}
+                  className="h-12 rounded-xl bg-white border-2 border-border text-text-muted text-[10px] font-bold uppercase tracking-widest hover:bg-hover transition-all"
+                >
+                  Cancel Access
+                </button>
+              </div>
             </div>
           </div>
         </div>
