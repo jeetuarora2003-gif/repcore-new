@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useEffect } from "react";
 import { format, addDays } from "date-fns";
-import { Check, Camera, Search, User, CreditCard, ChevronRight, CheckCircle2, MessageCircle, Sparkles, Smartphone, ShieldCheck } from "lucide-react";
+import { Check, Camera, Search, User, CreditCard, ChevronRight, CheckCircle2, MessageCircle, Sparkles, Smartphone, ShieldCheck, Plus } from "lucide-react";
 import BottomSheet from "@/components/BottomSheet";
 import { createMembershipSaleAction } from "@/app/actions/members";
 import { toast } from "sonner";
