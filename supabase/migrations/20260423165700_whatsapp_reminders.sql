@@ -13,6 +13,7 @@ ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS reminder_3_sent_at TIMESTAMPT
 ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS reminder_1_sent_at TIMESTAMPTZ;
 
 -- 3. Update View to include reminder timestamps
+DROP VIEW IF EXISTS v_member_status;
 CREATE OR REPLACE VIEW v_member_status AS
 SELECT
   m.id,

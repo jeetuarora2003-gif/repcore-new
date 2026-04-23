@@ -9,7 +9,7 @@ export default async function DashboardPage() {
 
   const { data: gym } = await supabase
     .from("gyms")
-    .select("*, whatsapp_credits(balance_paise)")
+    .select("*")
     .eq("owner_id", user.id)
     .maybeSingle();
   if (!gym) redirect("/register");
