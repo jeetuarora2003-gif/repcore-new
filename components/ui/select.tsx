@@ -45,15 +45,15 @@ function SelectContent({
         )}
         {...props}
       >
-        <SelectPrimitive.ScrollUpButton className="flex cursor-default items-center justify-center py-1">
+        <SelectPrimitive.ScrollUpArrow className="flex cursor-default items-center justify-center py-1">
           <ChevronDownIcon className="size-4 rotate-180" />
-        </SelectPrimitive.ScrollUpButton>
+        </SelectPrimitive.ScrollUpArrow>
         <div className="p-1">
           {children}
         </div>
-        <SelectPrimitive.ScrollDownButton className="flex cursor-default items-center justify-center py-1">
+        <SelectPrimitive.ScrollDownArrow className="flex cursor-default items-center justify-center py-1">
           <ChevronDownIcon className="size-4" />
-        </SelectPrimitive.ScrollDownButton>
+        </SelectPrimitive.ScrollDownArrow>
       </SelectPrimitive.Popup>
     </SelectPrimitive.Portal>
   )
