@@ -2,13 +2,15 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, ClipboardList, ToggleLeft, ToggleRight, Zap } from "lucide-react";
+import { Plus, ClipboardList, ToggleLeft, ToggleRight, Zap, CheckCircle2 } from "lucide-react";
 import { formatINR } from "@/lib/helpers";
 import type { Plan } from "@/lib/supabase/types";
 import BottomSheet from "@/components/BottomSheet";
 import EmptyState from "@/components/EmptyState";
 import { createPlan, togglePlanActive } from "@/app/actions/plans";
 import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 interface Props {
   gymId: string;
@@ -56,74 +58,84 @@ export default function PlansClient({ gymId, plans }: Props) {
   }
 
   return (
-    <div className="pb-24 min-h-screen bg-[#09090B] animate-fade-up">
-      {/* Header Sticky */}
-      <div className="sticky top-[48px] z-20 bg-[#09090B]/95 backdrop-blur-md border-b border-white/5 px-4 py-4 md:px-8">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-7 w-7 rounded-lg bg-[#10B981]/10 flex items-center justify-center text-[#10B981] border border-[#10B981]/20">
-              <Zap size={14} strokeWidth={2.5} />
-            </div>
-            <h1 className="text-sm font-semibold text-[#E4E4E7]">Membership Plans</h1>
-          </div>
-          <button
-            onClick={() => setShowCreate(true)}
-            className="h-9 px-4 rounded-xl bg-[#10B981] flex items-center gap-2 text-white text-xs font-semibold shadow-lg shadow-[#10B981]/20 active:scale-95 transition-all hover:brightness-110"
-          >
-            <Plus size={16} />
-            Create Plan
-          </button>
+    <div className="space-y-10 animate-fade-up">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-text-primary tracking-tight">Membership Architecture</h1>
+          <p className="text-sm text-text-secondary mt-1">Design and manage subscription tiers for your members</p>
         </div>
+        <Button
+          onClick={() => setShowCreate(true)}
+          className="gap-2 px-6 h-11 uppercase tracking-[0.2em] text-xs font-bold"
+        >
+          <Plus size={18} strokeWidth={3} />
+          Create New Plan
+        </Button>
       </div>
 
-      <div className="px-4 py-6 md:px-8 max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto w-full">
         {plans.length === 0 ? (
-          <EmptyState
-            icon={ClipboardList}
-            message="No plans yet. Create your first membership plan!"
-            actionLabel="Create Plan"
-            onAction={() => setShowCreate(true)}
-          />
+          <div className="py-20">
+            <EmptyState
+              icon={ClipboardList}
+              message="No plans yet. Create your first membership plan!"
+              actionLabel="Create Plan"
+              onAction={() => setShowCreate(true)}
+            />
+          </div>
         ) : (
-          <div className="grid sm:grid-cols-2 gap-4">
+          <div className="grid sm:grid-cols-2 gap-6">
             {plans.map(plan => (
               <div
                 key={plan.id}
-                className={`card p-5 space-y-4 ${plan.is_active ? "border-white/6" : "opacity-50 border-white/4"}`}
+                className={`bg-white border-2 rounded-2xl p-6 space-y-6 transition-all shadow-sm ${
+                  plan.is_active 
+                    ? "border-border border-t-accent hover:border-accent/40" 
+                    : "opacity-60 border-border border-t-text-muted grayscale"
+                }`}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-[15px] font-semibold text-[#E4E4E7] tracking-tight truncate">{plan.name}</h3>
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="text-lg font-bold text-text-primary tracking-tight truncate">{plan.name}</h3>
                       {plan.is_active && (
-                        <span className="h-1.5 w-1.5 rounded-full bg-[#10B981] shadow-sm shadow-[#10B981]/50" />
+                        <div className="h-2 w-2 rounded-full bg-accent animate-pulse" />
                       )}
                     </div>
-                    <p className="text-xs text-[#A1A1AA] font-mono tracking-wider uppercase">{plan.duration_days} DAYS DURATION</p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest bg-page px-2 py-0.5 rounded-full border border-border">
+                        {plan.duration_days} DAYS
+                      </span>
+                    </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-[#10B981] font-mono tracking-tighter">{formatINR(plan.price)}</p>
+                    <p className="text-2xl font-bold text-accent-text font-mono tracking-tighter">{formatINR(plan.price)}</p>
                   </div>
                 </div>
                 
-                <div className="flex justify-between items-center pt-2">
-                  <span className="text-[10px] font-bold text-[#71717A] uppercase tracking-[0.15em]">
-                    {plan.is_active ? "Available for assignment" : "Currently hidden"}
+                <div className="flex justify-between items-center pt-4 border-t border-border/60">
+                  <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest flex items-center gap-1.5">
+                    {plan.is_active ? (
+                      <><CheckCircle2 size={12} className="text-accent" /> Active Tier</>
+                    ) : (
+                      "Inactive Tier"
+                    )}
                   </span>
                   <button
                     onClick={() => handleToggle(plan.id)}
                     disabled={isPending}
-                    className="flex items-center gap-2 text-xs font-semibold text-[#A1A1AA] hover:text-[#E4E4E7] transition-colors"
+                    className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-text-muted hover:text-text-primary transition-all active:scale-95"
                   >
                     {plan.is_active ? (
                       <>
-                        <ToggleRight size={20} className="text-[#10B981]" />
-                        Active
+                        <ToggleRight size={24} className="text-accent" />
+                        Enabled
                       </>
                     ) : (
                       <>
-                        <ToggleLeft size={20} />
-                        Inactive
+                        <ToggleLeft size={24} />
+                        Disabled
                       </>
                     )}
                   </button>
@@ -135,71 +147,73 @@ export default function PlansClient({ gymId, plans }: Props) {
       </div>
 
       {/* Create Plan Sheet */}
-      <BottomSheet open={showCreate} onClose={() => setShowCreate(false)} title="Create New Plan">
-        <form onSubmit={handleCreate} className="space-y-6 pt-4 pb-8">
-          <div>
-            <label className="text-xs font-medium text-[#A1A1AA] block mb-1.5">Plan Name</label>
-            <input
-              type="text"
-              required
-              value={form.name}
-              onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
-              placeholder="e.g. 3 Months Gold"
-              className="w-full h-11 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#E4E4E7] placeholder-[#71717A] focus:outline-none focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 transition-all"
-            />
-          </div>
-
-          <div>
-            <label className="text-xs font-medium text-[#A1A1AA] block mb-3">Duration Presets</label>
-            <div className="flex flex-wrap gap-2 mb-4">
-              {DURATION_PRESETS.map(({ label, days }) => (
-                <button
-                  key={days}
-                  type="button"
-                  onClick={() => setForm(p => ({ ...p, duration_days: days }))}
-                  className={`h-9 px-4 rounded-xl text-xs font-medium transition-all border ${
-                    form.duration_days === days
-                      ? "bg-[#10B981]/10 border-[#10B981]/40 text-[#10B981]"
-                      : "bg-[#09090B] text-[#A1A1AA] border-white/8 hover:border-white/12"
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-            <div className="relative">
-              <input
-                type="number"
-                min="1"
+      <BottomSheet open={showCreate} onClose={() => setShowCreate(false)} title="New Membership Tier">
+        <form onSubmit={handleCreate} className="space-y-8 pt-4 pb-8">
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Plan Designation</label>
+              <Input
+                type="text"
                 required
-                value={form.duration_days}
-                onChange={e => setForm(p => ({ ...p, duration_days: Number(e.target.value) }))}
-                className="w-full h-11 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#E4E4E7] focus:outline-none focus:border-[#10B981]/40 transition-all font-mono"
+                value={form.name}
+                onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
+                placeholder="e.g. Platinum Annual Membership"
+                className="h-12 font-bold"
               />
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-[#71717A] uppercase tracking-widest pointer-events-none">Days</span>
+            </div>
+
+            <div className="space-y-4">
+              <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Duration Profile</label>
+              <div className="flex flex-wrap gap-2">
+                {DURATION_PRESETS.map(({ label, days }) => (
+                  <button
+                    key={days}
+                    type="button"
+                    onClick={() => setForm(p => ({ ...p, duration_days: days }))}
+                    className={`h-10 px-4 rounded-xl text-xs font-bold uppercase tracking-widest transition-all border-2 ${
+                      form.duration_days === days
+                        ? "bg-accent text-white border-accent shadow-sm"
+                        : "bg-white text-text-muted border-border hover:bg-hover hover:border-border-strong"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <div className="relative">
+                <Input
+                  type="number"
+                  min="1"
+                  required
+                  value={form.duration_days}
+                  onChange={e => setForm(p => ({ ...p, duration_days: Number(e.target.value) }))}
+                  className="h-12 font-bold font-mono pr-16"
+                />
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-text-muted uppercase tracking-widest pointer-events-none">Days</span>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Enrollment Fee (₹)</label>
+              <Input
+                type="number"
+                required
+                min="0"
+                value={form.price}
+                onChange={e => setForm(p => ({ ...p, price: e.target.value }))}
+                placeholder="0"
+                className="h-12 font-bold font-mono"
+              />
             </div>
           </div>
 
-          <div>
-            <label className="text-xs font-medium text-[#A1A1AA] block mb-1.5">Plan Price (₹)</label>
-            <input
-              type="number"
-              required
-              min="0"
-              value={form.price}
-              onChange={e => setForm(p => ({ ...p, price: e.target.value }))}
-              placeholder="0.00"
-              className="w-full h-11 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#E4E4E7] font-mono focus:outline-none focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 transition-all"
-            />
-          </div>
-
-          <button
+          <Button
             type="submit"
             disabled={isPending}
-            className="w-full h-12 rounded-xl bg-[#10B981] text-white text-sm font-semibold shadow-lg shadow-[#10B981]/20 active:scale-[0.98] transition-all disabled:opacity-50 mt-2"
+            className="w-full h-12 uppercase tracking-[0.2em] text-xs font-bold"
           >
-            {isPending ? "Building plan..." : "Create Membership Plan"}
-          </button>
+            {isPending ? "Configuring Tier..." : "Finalize Membership Plan"}
+          </Button>
         </form>
       </BottomSheet>
     </div>

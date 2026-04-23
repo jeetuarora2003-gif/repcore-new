@@ -11,15 +11,18 @@ interface Props {
 
 export default function EmptyState({ icon: Icon, message, actionLabel, onAction }: Props) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 gap-5 text-center animate-fade-up">
-      <div className="h-16 w-16 rounded-2xl bg-surface border border-white/6 flex items-center justify-center shadow-lg shadow-black/20">
-        <Icon size={28} className="text-[#71717A]" />
+    <div className="flex flex-col items-center justify-center py-12 gap-6 text-center animate-fade-up">
+      <div className="h-20 w-20 rounded-3xl bg-white border border-border flex items-center justify-center shadow-sm">
+        <Icon size={32} className="text-text-muted opacity-40" />
       </div>
-      <p className="text-[#A1A1AA] text-sm font-medium max-w-[240px] leading-relaxed">{message}</p>
+      <div className="space-y-1">
+        <p className="text-text-secondary text-sm font-bold uppercase tracking-widest">{message}</p>
+        <p className="text-text-muted text-[11px] font-medium max-w-[280px]">No records found for the selected criteria. Try adjusting your filters or adding new data.</p>
+      </div>
       {actionLabel && onAction && (
         <button
           onClick={onAction}
-          className="h-10 px-6 rounded-xl bg-[#10B981] text-white text-sm font-semibold shadow-lg shadow-[#10B981]/20 active:scale-95 transition-all hover:brightness-110"
+          className="h-11 px-8 rounded-full bg-accent text-white text-xs font-bold uppercase tracking-[0.2em] shadow-lg shadow-accent/20 active:scale-95 transition-all hover:bg-accent-hover"
         >
           {actionLabel}
         </button>

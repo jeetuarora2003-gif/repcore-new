@@ -6,7 +6,7 @@ import Link from "next/link";
 import {
   ChevronLeft, Phone, ScanLine, CreditCard, Bell, Snowflake,
   Plus, MessageCircle, Check, AlertCircle, ChevronDown, ChevronUp,
-  Mail, Calendar, FileText, Zap
+  Mail, Calendar, FileText, Zap, Clock, History, IndianRupee
 } from "lucide-react";
 import { formatINR, formatDate, statusBadgeClass, statusLabel, memberInitials } from "@/lib/helpers";
 import type { Gym, Invoice, Payment, Attendance, Plan, Reminder, MemberStatus, Subscription } from "@/lib/supabase/types";
@@ -18,6 +18,7 @@ import { recordPayment, addSubscription } from "@/app/actions/subscriptions";
 import { toggleFreeze } from "@/app/actions/members";
 import { markReminderSent } from "@/app/actions/reminders";
 import { toast } from "sonner";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Props {
   gym: Gym;
@@ -164,92 +165,80 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
   );
 
   return (
-    <div className="pb-24 min-h-screen bg-[#09090B] animate-fade-up">
+    <div className="space-y-8 animate-fade-up">
       {/* Header Profile Section */}
-      <div className="bg-gradient-to-b from-surface to-[#09090B] pt-6 pb-10 px-4 md:px-8 border-b border-white/5">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
-            <MemberAvatar name={member.full_name} memberId={member.id} size="xl" status={member.status} rounded="2xl" />
+      <div className="bg-white border border-border rounded-2xl p-6 md:p-8">
+        <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
+          <MemberAvatar name={member.full_name} memberId={member.id} size="xl" status={member.status} />
+          
+          <div className="flex-1 text-center md:text-left space-y-4">
+            <div className="flex flex-col md:flex-row items-center gap-3">
+              <h1 className="text-2xl font-bold tracking-tight text-text-primary">{member.full_name}</h1>
+              <span className={`inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold tracking-wide uppercase border ${statusBadgeClass(member.status as MemberStatusType)}`}>
+                {statusLabel(member.status as MemberStatusType)}
+              </span>
+            </div>
             
-            <div className="flex-1 text-center md:text-left space-y-4">
-              <div className="flex flex-col md:flex-row items-center gap-3">
-                <h1 className="text-2xl font-bold tracking-tight text-[#E4E4E7]">{member.full_name}</h1>
-                <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium tracking-tight ${statusBadgeClass(member.status as MemberStatusType)}`}>
-                  {statusLabel(member.status as MemberStatusType)}
-                </span>
+            <div className="flex flex-wrap justify-center md:justify-start gap-6">
+              <a href={`tel:${member.phone}`} className="flex items-center gap-2 text-sm font-bold text-text-secondary hover:text-accent transition-colors font-mono">
+                <Phone size={14} />
+                {member.phone}
+              </a>
+              <div className="flex items-center gap-2 text-sm font-semibold text-text-muted">
+                <Calendar size={14} />
+                Joined {formatDate(member.joining_date)}
               </div>
-              
-              <div className="flex flex-wrap justify-center md:justify-start gap-6">
-                <a href={`tel:${member.phone}`} className="flex items-center gap-2 text-sm text-[#A1A1AA] hover:text-[#10B981] transition-colors font-mono">
-                  <Phone size={14} strokeWidth={1.5} />
-                  {member.phone}
-                </a>
-                {member.email && (
-                  <div className="flex items-center gap-2 text-sm text-[#A1A1AA]">
-                    <Mail size={14} strokeWidth={1.5} />
-                    {member.email}
-                  </div>
-                )}
-                <div className="flex items-center gap-2 text-sm text-[#A1A1AA] font-mono">
-                  <Calendar size={14} strokeWidth={1.5} />
-                  Joined {formatDate(member.joining_date)}
-                </div>
-              </div>
+            </div>
 
-              {/* Action Buttons */}
-              <div className="flex flex-wrap justify-center md:justify-start gap-2 pt-2">
-                <button
-                  onClick={handleCheckIn}
-                  disabled={checkedInToday || isPending}
-                  className={`h-9 px-4 rounded-xl flex items-center gap-2 text-xs font-semibold transition-all ${
-                    checkedInToday 
-                      ? "bg-white/5 text-[#71717A] border border-white/5 cursor-not-allowed" 
-                      : "bg-[#10B981] text-white shadow-lg shadow-[#10B981]/20 hover:brightness-110 active:scale-95"
-                  }`}
-                >
-                  <ScanLine size={14} />
-                  {checkedInToday ? "Checked In" : "Quick Check-in"}
-                </button>
-                <button
-                  onClick={() => setShowPlan(true)}
-                  className="h-9 px-4 rounded-xl bg-surface border border-white/8 text-[#E4E4E7] text-xs font-semibold hover:border-white/12 hover:bg-surface-2 transition-all active:scale-95"
-                >
-                  Change Plan
-                </button>
-                <button
-                  onClick={() => setShowPayment(true)}
-                  className="h-9 px-4 rounded-xl bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/20 text-xs font-semibold hover:bg-[#10B981]/15 transition-all active:scale-95"
-                >
-                  Record Payment
-                </button>
-                <button
-                  onClick={handleRemind}
-                  className="h-9 w-9 flex items-center justify-center rounded-xl bg-surface border border-white/8 text-[#A1A1AA] hover:text-[#E4E4E7] transition-all"
-                >
-                  <Bell size={14} />
-                </button>
-              </div>
+            {/* Action Buttons */}
+            <div className="flex flex-wrap justify-center md:justify-start gap-2 pt-2">
+              <button
+                onClick={handleCheckIn}
+                disabled={checkedInToday || isPending}
+                className={`h-10 px-5 rounded-full flex items-center gap-2 text-xs font-bold transition-all ${
+                  checkedInToday 
+                    ? "bg-hover text-text-muted border border-border cursor-not-allowed" 
+                    : "bg-accent text-white shadow-lg shadow-accent/20 hover:bg-accent-hover active:scale-95"
+                }`}
+              >
+                <ScanLine size={16} />
+                {checkedInToday ? "Checked In" : "Quick Check-in"}
+              </button>
+              <button
+                onClick={() => setShowPlan(true)}
+                className="h-10 px-5 rounded-full bg-white border border-border text-text-primary text-xs font-bold hover:bg-hover hover:border-border-strong transition-all active:scale-95 shadow-sm"
+              >
+                Change Plan
+              </button>
+              <button
+                onClick={() => setShowPayment(true)}
+                className="h-10 px-5 rounded-full bg-status-success-bg text-status-success-text border border-status-success-border text-xs font-bold hover:brightness-95 transition-all active:scale-95 shadow-sm"
+              >
+                Record Payment
+              </button>
+              <button
+                onClick={handleRemind}
+                className="h-10 w-10 flex items-center justify-center rounded-full bg-white border border-border text-text-muted hover:text-text-primary hover:border-border-strong transition-all shadow-sm"
+              >
+                <Bell size={16} />
+              </button>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 md:px-8 mt-8">
+      <div className="max-w-4xl mx-auto space-y-8">
         {/* Tab Bar */}
-        <div className="bg-surface border border-white/6 rounded-2xl p-1 flex gap-1 mb-8">
-          {(["overview", "billing", "attendance"] as TabType[]).map(t => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`flex-1 py-2 text-xs font-medium capitalize rounded-xl transition-all duration-200 ${
-                tab === t
-                  ? "bg-surface-3 text-[#E4E4E7] shadow-sm"
-                  : "text-[#A1A1AA] hover:text-[#E4E4E7] hover:bg-white/3"
-              }`}
-            >
-              {t}
-            </button>
-          ))}
+        <div className="sticky top-[56px] z-20 py-2 bg-page/80 backdrop-blur-md">
+          <Tabs value={tab} onValueChange={(v: string) => setTab(v as TabType)}>
+            <TabsList className="bg-white border border-border w-full flex">
+              {(["overview", "billing", "attendance"] as TabType[]).map(t => (
+                <TabsTrigger key={t} value={t} className="flex-1 capitalize">
+                  {t}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
         </div>
 
         {/* Tab Content */}
@@ -257,32 +246,32 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
           {tab === "overview" && (
             <div className="grid md:grid-cols-2 gap-6">
               {/* Subscription Status */}
-              <div className="card p-5 space-y-6">
+              <div className="bg-white border border-border rounded-2xl p-6 space-y-6">
                 <div className="flex items-center gap-3">
-                  <div className="h-7 w-7 rounded-lg bg-[#10B981]/10 flex items-center justify-center text-[#10B981] border border-[#10B981]/20">
-                    <Zap size={14} strokeWidth={2.5} />
+                  <div className="h-8 w-8 rounded-lg bg-accent-light flex items-center justify-center text-accent-text border border-accent-border">
+                    <Zap size={16} strokeWidth={2.5} />
                   </div>
-                  <h3 className="text-sm font-semibold text-[#E4E4E7]">Active Subscription</h3>
+                  <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider">Subscription</h3>
                 </div>
 
                 {member.subscription_id ? (
                   <div className="space-y-5">
                     <div className="flex justify-between items-end">
                       <div>
-                        <p className="text-lg font-bold text-[#E4E4E7] tracking-tight">{member.plan_name}</p>
-                        <p className="text-xs text-[#A1A1AA] mt-0.5">Started {formatDate(member.start_date)}</p>
+                        <p className="text-xl font-bold text-text-primary tracking-tight">{member.plan_name}</p>
+                        <p className="text-xs font-semibold text-text-muted mt-0.5 uppercase">Started {formatDate(member.start_date)}</p>
                       </div>
                       <div className="text-right">
-                        <p className={`text-sm font-bold font-mono ${daysRemaining > 7 ? "text-[#10B981]" : daysRemaining > 3 ? "text-[#F59E0B]" : "text-[#EF4444]"}`}>
+                        <p className={`text-sm font-bold font-mono ${daysRemaining > 7 ? "text-status-success-text" : daysRemaining > 3 ? "text-status-warning-text" : "text-status-danger-text"}`}>
                           {daysRemaining} Days Left
                         </p>
-                        <p className="text-[10px] text-[#71717A] uppercase tracking-wider font-semibold">Ends {formatDate(member.end_date)}</p>
+                        <p className="text-[10px] text-text-muted uppercase tracking-widest font-bold">Ends {formatDate(member.end_date)}</p>
                       </div>
                     </div>
-                    <div className="h-1.5 bg-surface-3 rounded-full overflow-hidden">
+                    <div className="h-2 bg-hover rounded-full overflow-hidden">
                       <div 
                         className={`h-full transition-all duration-500 ${
-                          daysRemaining > 7 ? "bg-[#10B981]" : daysRemaining > 3 ? "bg-[#F59E0B]" : "bg-[#EF4444]"
+                          daysRemaining > 7 ? "bg-accent" : daysRemaining > 3 ? "bg-status-warning-text" : "bg-status-danger-text"
                         }`} 
                         style={{ width: `${progress}%` }} 
                       />
@@ -290,8 +279,8 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
                   </div>
                 ) : (
                   <div className="py-4 text-center">
-                    <p className="text-sm text-[#A1A1AA] mb-4">No active plan found</p>
-                    <button onClick={() => setShowPlan(true)} className="px-5 h-9 rounded-xl bg-[#10B981] text-white text-xs font-semibold hover:brightness-110 transition-all">
+                    <p className="text-sm font-semibold text-text-muted mb-4">No active plan found</p>
+                    <button onClick={() => setShowPlan(true)} className="px-6 h-10 rounded-full bg-accent text-white text-xs font-bold hover:bg-accent-hover transition-all shadow-sm">
                       Assign Plan
                     </button>
                   </div>
@@ -299,15 +288,15 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
               </div>
 
               {/* Notes / Meta */}
-              <div className="card p-5 space-y-4">
+              <div className="bg-white border border-border rounded-2xl p-6 space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="h-7 w-7 rounded-lg bg-[#A1A1AA]/10 flex items-center justify-center text-[#A1A1AA] border border-white/10">
-                    <FileText size={14} />
+                  <div className="h-8 w-8 rounded-lg bg-hover flex items-center justify-center text-text-muted border border-border">
+                    <FileText size={16} />
                   </div>
-                  <h3 className="text-sm font-semibold text-[#E4E4E7]">Administrative Notes</h3>
+                  <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider">Internal Notes</h3>
                 </div>
-                <div className="bg-bg/50 rounded-xl p-4 border border-white/4 min-h-[100px]">
-                  <p className="text-sm text-[#A1A1AA] leading-relaxed">
+                <div className="bg-page rounded-xl p-4 border border-border min-h-[100px]">
+                  <p className="text-sm text-text-secondary leading-relaxed font-medium">
                     {member.notes || "No additional notes for this member."}
                   </p>
                 </div>
@@ -318,15 +307,15 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
           {tab === "billing" && (
             <div className="space-y-8">
               {/* Billing Summary */}
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-4">
                 {[
-                  { label: "Invoiced", value: formatINR(member.total_invoiced ?? 0), color: "text-[#E4E4E7]" },
-                  { label: "Paid", value: formatINR(member.total_paid ?? 0), color: "text-[#10B981]" },
-                  { label: "Due", value: formatINR(member.balance_due ?? 0), color: (member.balance_due ?? 0) > 0 ? "text-[#EF4444]" : "text-[#10B981]" },
+                  { label: "Invoiced", value: formatINR(member.total_invoiced ?? 0), color: "text-text-primary" },
+                  { label: "Paid", value: formatINR(member.total_paid ?? 0), color: "text-status-success-text" },
+                  { label: "Due", value: formatINR(member.balance_due ?? 0), color: (member.balance_due ?? 0) > 0 ? "text-status-danger-text" : "text-status-success-text" },
                 ].map((item) => (
-                  <div key={item.label} className="card p-4 text-center">
-                    <p className="text-[10px] font-semibold text-[#71717A] uppercase tracking-widest mb-1">{item.label}</p>
-                    <p className={`text-lg font-bold font-mono tracking-tighter ${item.color}`}>{item.value}</p>
+                  <div key={item.label} className="bg-white border border-border rounded-2xl p-5 text-center shadow-sm">
+                    <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-1">{item.label}</p>
+                    <p className={`text-xl font-bold font-mono tracking-tighter ${item.color}`}>{item.value}</p>
                   </div>
                 ))}
               </div>
@@ -334,18 +323,21 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
               {/* Ledger */}
               <div className="grid md:grid-cols-2 gap-8">
                 <div className="space-y-4">
-                  <p className="text-[10px] font-semibold text-[#71717A] tracking-[0.2em] uppercase px-1">Payment History</p>
-                  <div className="space-y-px">
+                  <p className="text-[10px] font-bold text-text-muted tracking-[0.2em] uppercase px-1 flex items-center gap-2">
+                    <IndianRupee size={10} />
+                    Payment History
+                  </p>
+                  <div className="bg-white border border-border rounded-2xl divide-y divide-border overflow-hidden">
                     {payments.length === 0 ? (
-                      <p className="text-xs text-[#71717A] py-4 text-center italic">No payments yet</p>
+                      <p className="text-xs text-text-muted py-8 text-center italic font-semibold">No payments recorded</p>
                     ) : (
                       payments.map(p => (
-                        <div key={p.id} className="flex items-center justify-between py-3.5 border-b border-white/5">
+                        <div key={p.id} className="flex items-center justify-between p-4 hover:bg-hover transition-colors">
                           <div>
-                            <p className="text-sm font-medium text-[#E4E4E7]">{METHOD_LABELS[p.payment_method as PaymentMethod]}</p>
-                            <p className="text-[11px] font-mono text-[#71717A] mt-0.5 uppercase">PAID {formatDate(p.paid_at)}</p>
+                            <p className="text-sm font-bold text-text-primary">{METHOD_LABELS[p.payment_method as PaymentMethod]}</p>
+                            <p className="text-[10px] font-bold text-text-muted mt-0.5 uppercase tracking-wider">{formatDate(p.paid_at)}</p>
                           </div>
-                          <span className="text-sm font-bold font-mono text-[#F59E0B]">{formatINR(p.amount)}</span>
+                          <span className="text-sm font-bold font-mono text-status-success-text">+{formatINR(p.amount)}</span>
                         </div>
                       ))
                     )}
@@ -353,18 +345,21 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
                 </div>
 
                 <div className="space-y-4">
-                  <p className="text-[10px] font-semibold text-[#71717A] tracking-[0.2em] uppercase px-1">Recent Invoices</p>
-                  <div className="space-y-px">
+                  <p className="text-[10px] font-bold text-text-muted tracking-[0.2em] uppercase px-1 flex items-center gap-2">
+                    <FileText size={10} />
+                    Invoices
+                  </p>
+                  <div className="bg-white border border-border rounded-2xl divide-y divide-border overflow-hidden">
                     {invoices.length === 0 ? (
-                      <p className="text-xs text-[#71717A] py-4 text-center italic">No invoices found</p>
+                      <p className="text-xs text-text-muted py-8 text-center italic font-semibold">No invoices issued</p>
                     ) : (
                       invoices.map(inv => (
-                        <div key={inv.id} className="flex items-center justify-between py-3.5 border-b border-white/5">
+                        <div key={inv.id} className="flex items-center justify-between p-4 hover:bg-hover transition-colors">
                           <div>
-                            <p className="text-sm font-medium text-[#E4E4E7]">#{inv.invoice_number}</p>
-                            <p className="text-[11px] font-mono text-[#71717A] mt-0.5 uppercase">ISSUED {formatDate(inv.created_at)}</p>
+                            <p className="text-sm font-bold text-text-primary">#{inv.invoice_number}</p>
+                            <p className="text-[10px] font-bold text-text-muted mt-0.5 uppercase tracking-wider">{formatDate(inv.created_at)}</p>
                           </div>
-                          <span className="text-sm font-bold font-mono text-[#F59E0B]">{formatINR(inv.amount)}</span>
+                          <span className="text-sm font-bold font-mono text-text-primary">{formatINR(inv.amount)}</span>
                         </div>
                       ))
                     )}
@@ -377,11 +372,14 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
           {tab === "attendance" && (
             <div className="grid md:grid-cols-3 gap-8">
               <div className="md:col-span-2 space-y-4">
-                <p className="text-[10px] font-semibold text-[#71717A] tracking-[0.2em] uppercase px-1">Monthly Attendance</p>
-                <div className="card p-6">
-                  <div className="grid grid-cols-7 gap-2">
+                <p className="text-[10px] font-bold text-text-muted tracking-[0.2em] uppercase px-1 flex items-center gap-2">
+                  <Calendar size={10} />
+                  Check-in Heatmap
+                </p>
+                <div className="bg-white border border-border rounded-2xl p-6 shadow-sm">
+                  <div className="grid grid-cols-7 gap-3">
                     {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(d => (
-                      <div key={d} className="h-8 flex items-center justify-center text-[10px] font-semibold text-[#71717A] uppercase tracking-tighter">{d}</div>
+                      <div key={d} className="h-8 flex items-center justify-center text-[10px] font-bold text-text-muted uppercase tracking-widest">{d}</div>
                     ))}
                     {Array.from({ length: firstDayOffset }).map((_, i) => <div key={`empty-${i}`} />)}
                     {Array.from({ length: daysInMonth }).map((_, i) => {
@@ -389,12 +387,12 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
                       const attended = attendedDays.has(day);
                       const isToday = day === now.getDate();
                       return (
-                        <div key={day} className={`aspect-square rounded-lg flex items-center justify-center text-xs font-bold font-mono transition-all border ${
+                        <div key={day} className={`aspect-square rounded-xl flex items-center justify-center text-xs font-bold font-mono transition-all border ${
                           attended 
-                            ? "bg-[#10B981] border-[#10B981] text-white shadow-lg shadow-[#10B981]/20 scale-105 z-10" 
+                            ? "bg-accent border-accent text-white shadow-md shadow-accent/20 scale-105 z-10" 
                             : isToday 
-                              ? "border-[#10B981] text-[#10B981]" 
-                              : "bg-surface border-white/5 text-[#71717A] hover:border-white/10"
+                              ? "border-accent text-accent ring-2 ring-accent/10" 
+                              : "bg-page border-border text-text-muted hover:border-border-strong hover:bg-hover"
                         }`}>
                           {day}
                         </div>
@@ -405,15 +403,20 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
               </div>
 
               <div className="space-y-4">
-                <p className="text-[10px] font-semibold text-[#71717A] tracking-[0.2em] uppercase px-1">Recent History</p>
-                <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2 scrollbar-hide">
+                <p className="text-[10px] font-bold text-text-muted tracking-[0.2em] uppercase px-1 flex items-center gap-2">
+                  <History size={10} />
+                  Recent Log
+                </p>
+                <div className="bg-white border border-border rounded-2xl divide-y divide-border overflow-hidden max-h-[440px] overflow-y-auto scrollbar-hide">
                   {attendance.length === 0 ? (
-                    <div className="card p-8 text-center text-xs text-[#71717A]">No check-ins yet</div>
+                    <div className="p-12 text-center text-xs text-text-muted font-semibold italic">No check-ins logged</div>
                   ) : (
                     attendance.map(a => (
-                      <div key={a.id} className="card p-3 flex justify-between items-center group hover:bg-white/3 transition-all">
-                        <span className="text-xs font-semibold text-[#E4E4E7] font-mono">{formatDate(a.checked_in_at)}</span>
-                        <span className="text-[11px] text-[#71717A] font-mono">{new Date(a.checked_in_at).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}</span>
+                      <div key={a.id} className="p-4 flex justify-between items-center hover:bg-hover transition-colors">
+                        <span className="text-xs font-bold text-text-primary font-mono">{formatDate(a.checked_in_at)}</span>
+                        <span className="text-[11px] text-text-muted font-bold font-mono uppercase">
+                          {new Date(a.checked_in_at).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
+                        </span>
                       </div>
                     ))
                   )}
@@ -428,27 +431,27 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
       <BottomSheet open={showPayment} onClose={() => setShowPayment(false)} title="Record New Payment">
         <form onSubmit={handlePayment} className="space-y-6 pt-4 pb-8">
           <div>
-            <label className="text-xs font-medium text-[#A1A1AA] block mb-1.5">Payment Amount (₹)</label>
+            <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest block mb-2">Payment Amount (₹)</label>
             <input 
               type="number" 
               required 
               value={payForm.amount} 
               onChange={e => setPayForm(p => ({ ...p, amount: e.target.value }))} 
-              className="w-full h-11 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#E4E4E7] font-mono focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 outline-none transition-all" 
+              className="w-full h-12 rounded-xl bg-page border border-border px-4 text-sm text-text-primary font-bold font-mono focus:border-accent focus:ring-4 focus:ring-accent/5 outline-none transition-all" 
             />
           </div>
           <div>
-            <label className="text-xs font-medium text-[#A1A1AA] block mb-3">Payment Method</label>
+            <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest block mb-3">Payment Method</label>
             <div className="grid grid-cols-2 gap-2">
               {PAYMENT_METHODS.map(m => (
                 <button 
                   key={m} 
                   type="button" 
                   onClick={() => setPayForm(p => ({ ...p, method: m }))} 
-                  className={`h-11 rounded-xl text-xs font-medium transition-all border ${
+                  className={`h-11 rounded-xl text-xs font-bold transition-all border ${
                     payForm.method === m 
-                      ? "bg-[#10B981]/10 border-[#10B981]/40 text-[#10B981] shadow-sm shadow-[#10B981]/10" 
-                      : "bg-surface border-white/6 text-[#A1A1AA] hover:border-white/12"
+                      ? "bg-accent-light border-accent/40 text-accent-text shadow-sm" 
+                      : "bg-white border-border text-text-muted hover:bg-hover hover:border-border-strong"
                   }`}
                 >
                   {METHOD_LABELS[m]}
@@ -456,32 +459,32 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
               ))}
             </div>
           </div>
-          <button type="submit" disabled={isPending} className="w-full h-12 rounded-xl bg-[#10B981] text-white text-sm font-semibold active:scale-[0.98] transition-all disabled:opacity-50 mt-4 shadow-lg shadow-[#10B981]/20">Record Transaction</button>
+          <button type="submit" disabled={isPending} className="w-full h-12 rounded-xl bg-accent text-white text-sm font-bold active:scale-[0.98] transition-all disabled:opacity-50 mt-4 shadow-lg shadow-accent/20 uppercase tracking-widest">Record Transaction</button>
         </form>
       </BottomSheet>
 
       <BottomSheet open={showPlan} onClose={() => setShowPlan(false)} title="Assign New Plan">
         <form onSubmit={handleAddPlan} className="space-y-6 pt-4 pb-8">
           <div>
-            <label className="text-xs font-medium text-[#A1A1AA] block mb-1.5">Select Membership Plan</label>
+            <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest block mb-2">Membership Plan</label>
             <select 
               value={planForm.plan_id} 
               onChange={e => setPlanForm(p => ({ ...p, plan_id: e.target.value }))} 
-              className="w-full h-11 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#E4E4E7] focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 outline-none"
+              className="w-full h-12 rounded-xl bg-page border border-border px-4 text-sm text-text-primary font-bold focus:border-accent focus:ring-4 focus:ring-accent/5 outline-none"
             >
               {plans.map(pl => <option key={pl.id} value={pl.id}>{pl.name} — {pl.duration_days} days — {formatINR(pl.price)}</option>)}
             </select>
           </div>
           <div>
-            <label className="text-xs font-medium text-[#A1A1AA] block mb-1.5">Effective Start Date</label>
+            <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest block mb-2">Activation Date</label>
             <input 
               type="date" 
               value={planForm.start_date} 
               onChange={e => setPlanForm(p => ({ ...p, start_date: e.target.value }))} 
-              className="w-full h-11 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#E4E4E7] focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 outline-none" 
+              className="w-full h-12 rounded-xl bg-page border border-border px-4 text-sm text-text-primary font-bold focus:border-accent focus:ring-4 focus:ring-accent/5 outline-none" 
             />
           </div>
-          <button type="submit" disabled={isPending} className="w-full h-12 rounded-xl bg-[#10B981] text-white text-sm font-semibold active:scale-[0.98] transition-all mt-4 shadow-lg shadow-[#10B981]/20">Assign Membership</button>
+          <button type="submit" disabled={isPending} className="w-full h-12 rounded-xl bg-accent text-white text-sm font-bold active:scale-[0.98] transition-all mt-4 shadow-lg shadow-accent/20 uppercase tracking-widest">Confirm Plan Change</button>
         </form>
       </BottomSheet>
     </div>

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { 
   Users, UserCheck, UserMinus, 
   AlertCircle, Plus, ChevronRight,
-  TrendingUp, Zap, Bell
+  TrendingUp, Zap, Bell, CheckCircle2, Clock
 } from "lucide-react";
 import { formatINR, getHourGreeting } from "@/lib/helpers";
 import type { Gym, MemberStatus, Attendance } from "@/lib/supabase/types";
@@ -25,53 +25,76 @@ interface Props {
 
 export default function DashboardClient({ gym, stats, recentCheckins, expiringSoon }: Props) {
   return (
-    <div className="relative pb-24 px-4 pt-6 md:pt-10 md:px-8 space-y-10 overflow-hidden">
-      {/* Ambient Glow */}
-      <div className="absolute top-[-120px] right-[-80px] w-[400px] h-[400px] bg-[#10B981]/[0.04] rounded-full blur-[120px] pointer-events-none" />
-
+    <div className="space-y-10">
       {/* Header */}
       <div className="animate-fade-up">
-        <p className="text-[10px] tracking-[0.2em] font-semibold text-[#71717A] uppercase mb-1.5">
+        <p className="text-[10px] tracking-[0.2em] font-bold text-text-muted uppercase mb-1.5">
           {getHourGreeting()}
         </p>
-        <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-[#E4E4E7]">
+        <h1 className="text-3xl font-bold tracking-tight text-text-primary">
           {gym.name}
         </h1>
+        <p className="text-sm text-text-secondary mt-1">Manage your gym operations and member growth</p>
       </div>
 
       {/* KPI Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {[
-          { label: "Total Members", value: stats.total, sub: "registered", icon: Users, color: "text-[#10B981]", bg: "bg-transparent", iconBorder: "border-[#10B981]/20" },
-          { label: "Active Now", value: stats.active, sub: "currently active", icon: UserCheck, color: "text-[#10B981]", bg: "bg-transparent", iconBorder: "border-[#10B981]/20" },
-          { label: "Expiring Soon", value: stats.expiring, sub: "need renewal", icon: UserMinus, color: "text-[#F59E0B]", bg: "bg-transparent", iconBorder: "border-[#F59E0B]/20" },
-          { label: "Pending Dues", value: formatINR(stats.dues), sub: "outstanding", icon: AlertCircle, color: "text-[#F59E0B]", bg: "bg-transparent", iconBorder: "border-[#F59E0B]/20" },
+          { label: "Total Members", value: stats.total, sub: "registered", icon: Users, accent: "border-t-[#1A7A5E]", valColor: "text-text-primary" },
+          { label: "Active Now", value: stats.active, sub: "currently active", icon: UserCheck, accent: "border-t-[#1A7A5E]", valColor: "text-accent-text" },
+          { label: "Expiring Soon", value: stats.expiring, sub: "need renewal", icon: UserMinus, accent: "border-t-[#B85C00]", valColor: "text-status-warning-text" },
+          { label: "Pending Dues", value: formatINR(stats.dues), sub: "outstanding", icon: AlertCircle, accent: "border-t-[#C0392B]", valColor: "text-status-danger-text" },
         ].map((stat, i) => (
-          <div key={stat.label} className="card p-5 group relative overflow-hidden animate-fade-up" style={{ animationDelay: `${100 + i * 100}ms` }}>
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-medium text-[#A1A1AA]">
+          <div key={stat.label} className={`bg-white border border-border rounded-xl p-5 border-t-[3px] ${stat.accent} animate-fade-up transition-colors hover:border-border-strong`} style={{ animationDelay: `${100 + i * 100}ms` }}>
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-[11px] font-bold text-text-muted uppercase tracking-widest">
                 {stat.label}
               </span>
-              <div className={`h-8 w-8 rounded-full border ${stat.iconBorder} ${stat.bg} ${stat.color} flex items-center justify-center transition-transform group-hover:scale-110 duration-500`}>
-                <stat.icon size={15} strokeWidth={1.5} />
-              </div>
+              <stat.icon size={16} className="text-text-muted" />
             </div>
-            <div className="mt-4">
-              <h3 className={`text-3xl md:text-4xl font-medium tracking-tight tabular-nums ${stat.color}`}>
+            <div>
+              <h3 className={`text-3xl font-bold tracking-tight font-mono ${stat.valColor}`}>
                 {stat.value}
               </h3>
-              <p className="text-xs text-[#71717A] mt-1.5">{stat.sub}</p>
+              <p className="text-[10px] text-text-muted mt-1 uppercase font-bold tracking-wider">{stat.sub}</p>
             </div>
           </div>
         ))}
       </div>
 
+      {/* Pulse Bar (Activity Summary) */}
+      <div className="bg-white border border-border rounded-xl overflow-hidden animate-fade-up [animation-delay:0.2s]">
+        <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-border">
+          <div className="p-5 space-y-1">
+            <p className="text-[11px] font-bold text-text-muted uppercase tracking-widest">Today's Check-ins</p>
+            <div className="flex items-end gap-2">
+              <span className="text-3xl font-bold font-mono text-accent">{recentCheckins.length}</span>
+              <span className="text-[10px] text-accent-text font-bold mb-1.5 uppercase tracking-wide">Members</span>
+            </div>
+          </div>
+          <div className="p-5 space-y-1">
+            <p className="text-[11px] font-bold text-text-muted uppercase tracking-widest">Revenue Collected</p>
+            <div className="flex items-end gap-2">
+              <span className="text-3xl font-bold font-mono text-text-primary">₹0</span>
+              <span className="text-[10px] text-status-success-text font-bold mb-1.5 uppercase tracking-wide">Today</span>
+            </div>
+          </div>
+          <div className="p-5 space-y-1">
+            <p className="text-[11px] font-bold text-text-muted uppercase tracking-widest">New Members</p>
+            <div className="flex items-end gap-2">
+              <span className="text-3xl font-bold font-mono text-text-primary">0</span>
+              <span className="text-[10px] text-text-secondary font-bold mb-1.5 uppercase tracking-wide">Joinings</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Quick Actions */}
-      <div className="space-y-4 animate-fade-up [animation-delay:0.2s]">
-        <p className="text-[10px] font-semibold text-[#71717A] tracking-[0.2em] uppercase px-1">
+      <div className="space-y-4 animate-fade-up [animation-delay:0.3s]">
+        <p className="text-[10px] font-bold text-text-muted tracking-[0.2em] uppercase px-1">
           Quick Actions
         </p>
-        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2">
+        <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
           {[
             { label: "Add Member", icon: Plus, href: "/members" },
             { label: "Record Check-in", icon: Zap, href: "/members" },
@@ -81,43 +104,48 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringSo
             <Link
               key={action.label}
               href={action.href}
-              className="flex items-center gap-2.5 h-10 px-4 bg-[#18181B] rounded-full text-sm font-medium text-[#E4E4E7] hover:bg-[#27272A] transition-colors shrink-0 group shadow-[0_0_0_1px_rgba(255,255,255,0.04)] hover:shadow-[0_0_0_1px_rgba(255,255,255,0.08)]"
+              className="flex items-center gap-2.5 h-11 px-6 bg-white border border-border rounded-full text-sm font-semibold text-text-primary hover:bg-hover hover:border-border-strong transition-all shrink-0 active:scale-95"
             >
-              <action.icon size={14} strokeWidth={1.5} className="text-[#A1A1AA] group-hover:text-[#E4E4E7] transition-colors" />
+              <action.icon size={16} className="text-accent" />
               {action.label}
             </Link>
           ))}
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-8 md:gap-10">
+      <div className="grid lg:grid-cols-2 gap-8">
         {/* Needs Attention */}
-        <div className="space-y-4 animate-fade-up [animation-delay:0.3s]">
-          <div className="flex items-center gap-2.5 px-1">
-            <div className="h-2 w-2 rounded-full bg-[#F59E0B]" />
-            <h2 className="text-[10px] font-semibold tracking-[0.2em] uppercase text-[#71717A]">
-              Needs Attention
-            </h2>
+        <div className="space-y-4 animate-fade-up [animation-delay:0.4s]">
+          <div className="flex items-center justify-between px-1">
+            <div className="flex items-center gap-2.5">
+              <div className="h-2 w-2 rounded-full bg-status-warning-text" />
+              <h2 className="text-[10px] font-bold tracking-[0.2em] uppercase text-text-muted">
+                Needs Attention
+              </h2>
+            </div>
+            <Link href="/reminders" className="text-[10px] font-bold text-accent hover:underline uppercase tracking-wider">View All</Link>
           </div>
           
-          <div className="space-y-2">
+          <div className="bg-white border border-border rounded-xl divide-y divide-border overflow-hidden">
             {expiringSoon.length === 0 ? (
-              <div className="card p-4 flex items-center gap-3">
-                <div className="h-2 w-2 rounded-full bg-[#10B981] animate-pulse" />
-                <p className="text-sm text-[#A1A1AA]">All clear — no reminders due today</p>
+              <div className="p-8 text-center">
+                <CheckCircle2 size={32} className="mx-auto text-status-success-text mb-3 opacity-20" />
+                <p className="text-sm font-medium text-text-secondary">All clear — no reminders due today</p>
               </div>
             ) : (
               expiringSoon.slice(0, 5).map((m) => (
-                <div key={m.id} className="card p-3.5 hover:border-[#F59E0B]/20 group transition-all">
-                  <div className="flex items-center gap-3">
-                    <div className="h-2 w-2 rounded-full bg-[#F59E0B] shrink-0" />
+                <div key={m.id} className="p-4 hover:bg-hover transition-colors group">
+                  <div className="flex items-center gap-4">
+                    <div className="h-10 w-10 rounded-full bg-status-warning-bg flex items-center justify-center text-status-warning-text font-bold text-xs shrink-0">
+                      {m.full_name.charAt(0)}
+                    </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-[#E4E4E7] truncate">{m.full_name}</p>
-                      <p className="text-xs text-[#71717A]">Expiring in {m.days_until_expiry} days</p>
+                      <p className="text-sm font-bold text-text-primary truncate">{m.full_name}</p>
+                      <p className="text-xs text-text-muted">Expiring in {m.days_until_expiry} days</p>
                     </div>
                     <Link
                       href="/reminders"
-                      className="bg-[#10B981]/10 text-[#10B981] rounded-lg px-3 py-1.5 text-xs font-medium hover:bg-[#10B981]/20 transition-all opacity-0 group-hover:opacity-100"
+                      className="bg-accent text-white rounded-lg px-4 py-2 text-xs font-bold hover:bg-accent-hover transition-all opacity-0 group-hover:opacity-100 shadow-sm"
                     >
                       Remind
                     </Link>
@@ -129,32 +157,38 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringSo
         </div>
 
         {/* Live Activity */}
-        <div className="space-y-4 animate-fade-up [animation-delay:0.4s]">
-          <div className="flex items-center gap-2.5 px-1">
-            <div className="h-2 w-2 rounded-full bg-[#10B981] animate-pulse" />
-            <h2 className="text-[10px] font-semibold tracking-[0.2em] uppercase text-[#71717A]">
-              Live Activity
-            </h2>
+        <div className="space-y-4 animate-fade-up [animation-delay:0.5s]">
+          <div className="flex items-center justify-between px-1">
+            <div className="flex items-center gap-2.5">
+              <div className="h-2 w-2 rounded-full bg-accent animate-pulse" />
+              <h2 className="text-[10px] font-bold tracking-[0.2em] uppercase text-text-muted">
+                Live Check-ins
+              </h2>
+            </div>
+            <Link href="/reports" className="text-[10px] font-bold text-accent hover:underline uppercase tracking-wider">Full Log</Link>
           </div>
           
-          <div className="space-y-2">
+          <div className="bg-white border border-border rounded-xl divide-y divide-border overflow-hidden">
             {recentCheckins.length === 0 ? (
-              <div className="card p-8 text-center">
-                <p className="text-sm text-[#A1A1AA]">Waiting for check-ins...</p>
+              <div className="p-8 text-center">
+                <Clock size={32} className="mx-auto text-text-muted mb-3 opacity-20" />
+                <p className="text-sm font-medium text-text-secondary">Waiting for check-ins...</p>
               </div>
             ) : (
               recentCheckins.slice(0, 6).map((a) => (
-                <div key={a.id} className="card p-3 flex items-center gap-3 hover:bg-[#27272A] transition-colors">
-                  <MemberAvatar name={a.members.full_name} memberId={a.members.id} size="sm" />
+                <div key={a.id} className="p-4 flex items-center gap-4 hover:bg-hover transition-colors">
+                  <div className="h-10 w-10 rounded-full bg-status-info-bg flex items-center justify-center text-status-info-text font-bold text-xs shrink-0">
+                    {a.members.full_name.charAt(0)}
+                  </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-[#E4E4E7] truncate">
+                    <p className="text-sm font-bold text-text-primary truncate">
                       {a.members.full_name}
                     </p>
-                    <p className="text-[11px] text-[#71717A] font-mono">
+                    <p className="text-[11px] text-text-muted font-mono font-medium">
                       Checked in at {new Date(a.checked_in_at).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
                     </p>
                   </div>
-                  <ChevronRight size={14} className="text-[#71717A]" />
+                  <ChevronRight size={16} className="text-text-muted" />
                 </div>
               ))
             )}
