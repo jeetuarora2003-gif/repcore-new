@@ -26,7 +26,7 @@ export default async function DashboardPage() {
     // Targeted lists
     supabase
       .from("attendance")
-      .select("*, members(full_name)")
+      .select("*, members(id, full_name, photo_url)")
       .eq("gym_id", gym.id)
       .order("checked_in_at", { ascending: false })
       .limit(5),
