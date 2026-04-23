@@ -104,7 +104,7 @@ export default function RemindersClient({ gym, fiveDays, threeDays, oneDay, hist
               return (
                 <div
                   key={m.id}
-                  className="bg-[#13131F] border border-[#1E1E30] rounded-2xl p-4 flex items-center gap-3"
+                  className="premium-card p-4 flex items-center gap-3"
                 >
                   <MemberAvatar name={m.full_name} memberId={m.id} size="md" />
                   <div className="flex-1 min-w-0">
@@ -121,7 +121,7 @@ export default function RemindersClient({ gym, fiveDays, threeDays, oneDay, hist
                     <button
                       onClick={() => handleWhatsApp(m)}
                       disabled={isPending}
-                      className="h-10 w-10 rounded-xl bg-[#22C55E]/15 flex items-center justify-center text-[#22C55E] active:scale-95 transition-transform disabled:opacity-60"
+                      className="h-10 w-10 rounded-xl bg-[#22C55E]/15 flex items-center justify-center text-[#22C55E] active:scale-95 transition-all duration-200 disabled:opacity-60 primary-button"
                     >
                       <MessageCircle size={18} />
                     </button>
@@ -135,7 +135,7 @@ export default function RemindersClient({ gym, fiveDays, threeDays, oneDay, hist
             <EmptyState icon={Bell} message="No reminders sent yet" />
           ) : (
             history.map(r => (
-              <div key={r.id} className="bg-[#13131F] border border-[#1E1E30] rounded-2xl p-3 flex items-center justify-between">
+              <div key={r.id} className="premium-card p-3 flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-[#F1F5F9]">Stage {r.stage} reminder</p>
                   <p className="text-xs text-[#94A3B8]">{formatDate(r.sent_at)}</p>

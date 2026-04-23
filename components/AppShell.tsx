@@ -132,34 +132,38 @@ export default function AppShell({ gym, children }: Props) {
       </main>
 
       {/* Mobile Bottom Tab Bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-[#0D0D14]/80 backdrop-blur-xl border-t border-white/5 h-16 flex items-center px-4">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-[#111120]/95 backdrop-blur-xl border-t border-white/8 h-16 flex items-center px-4">
         {TAB_ITEMS.map(({ href, icon: Icon, label, accent }) => {
           const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
           const moreActive = href === "/more" && ["/plans", "/reports", "/settings"].some(p => pathname.startsWith(p));
 
           return (
-            <Link
-              key={href}
-              href={href === "/more" ? "/plans" : href}
-              className={`flex-1 flex flex-col items-center justify-center gap-1 h-full transition-all ${
-                accent
-                  ? "relative"
-                  : active || moreActive
-                  ? "text-[#6366F1]"
-                  : "text-[#94A3B8]"
-              }`}
-            >
-              {accent ? (
-                <div className={`h-11 w-11 rounded-2xl flex items-center justify-center transition-all ${active ? "bg-[#6366F1] shadow-lg shadow-[#6366F1]/30" : "bg-[#6366F1]/80"}`}>
-                  <Icon size={22} className="text-white" />
-                </div>
-              ) : (
-                <>
-                  <Icon size={20} className={active || moreActive ? "scale-110" : ""} />
-                  <span className="text-[10px] font-semibold">{label}</span>
-                </>
-              )}
-            </Link>
+            <motion.div key={href} whileTap={{ scale: 0.9 }} className="flex-1">
+              <Link
+                href={href === "/more" ? "/plans" : href}
+                className={`flex flex-col items-center justify-center gap-1 h-full transition-all ${
+                  accent
+                    ? "relative"
+                    : active || moreActive
+                    ? "text-[#6366F1] font-medium"
+                    : "text-[#94A3B8]"
+                }`}
+              >
+                {accent ? (
+                  <div className={`h-11 w-11 rounded-2xl flex items-center justify-center transition-all ${active ? "bg-[#6366F1] shadow-lg shadow-[#6366F1]/30" : "bg-[#6366F1]/80"}`}>
+                    <Icon size={22} className="text-white" />
+                  </div>
+                ) : (
+                  <>
+                    {(active || moreActive) && (
+                      <div className="w-1 h-1 rounded-full bg-[#6366F1] mb-1" />
+                    )}
+                    <Icon size={20} className={active || moreActive ? "scale-110" : ""} />
+                    <span className="text-[10px]">{label}</span>
+                  </>
+                )}
+              </Link>
+            </motion.div>
           );
         })}
       </nav>

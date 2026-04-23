@@ -133,14 +133,14 @@ export default function CheckInPage() {
         )}
 
         {/* Search */}
-        <div className="relative">
-          <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#94A3B8]" />
+        <div className="relative group">
+          <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#94A3B8] group-focus-within:text-[#6366F1] transition-colors" />
           <input
             ref={inputRef}
             value={query}
             onChange={e => { setQuery(e.target.value); setSelected(null); }}
             placeholder="Search by name or phone..."
-            className="w-full h-14 rounded-2xl bg-[#1C1C2E] border border-[#1E1E30] pl-11 pr-4 text-[#F1F5F9] placeholder-[#94A3B8] focus:outline-none focus:border-[#6366F1] transition-colors text-base"
+            className="w-full h-14 rounded-2xl bg-[#1C1C2E] border border-[#1E1E30] pl-11 pr-4 text-[#F1F5F9] placeholder-[#94A3B8] focus:outline-none focus:border-[#6366F1] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.15)] transition-all duration-200 text-base"
           />
         </div>
 
@@ -148,91 +148,91 @@ export default function CheckInPage() {
         {results.length > 0 && (
           <div className="space-y-2">
             {results.map(m => (
-              <button
-                key={m.id}
-                onClick={() => handleSelect(m)}
-                className="w-full bg-[#13131F] border border-[#1E1E30] rounded-2xl p-4 flex items-center gap-3 active:opacity-80 transition-opacity text-left hover:border-[#6366F1]/50"
-              >
-                <div className={`h-10 w-10 rounded-full ${statusAvatarColor(m.status, m.id)} flex items-center justify-center text-white text-sm font-semibold`}>
-                  {memberInitials(m.full_name)}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-semibold text-[#F1F5F9]">{m.full_name}</p>
-                    <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium ${statusBadgeClass(m.status as MemberStatusType)}`}>
-                      {statusLabel(m.status as MemberStatusType)}
-                    </span>
+                <button
+                  key={m.id}
+                  onClick={() => handleSelect(m)}
+                  className="w-full premium-card p-4 flex items-center gap-3 active:opacity-80 transition-all text-left"
+                >
+                  <div className={`h-10 w-10 rounded-full ${statusAvatarColor(m.status, m.id)} flex items-center justify-center text-white text-sm font-semibold`}>
+                    {memberInitials(m.full_name)}
                   </div>
-                  <p className="text-xs text-[#94A3B8]">{m.phone}</p>
-                </div>
-                {(m.balance_due ?? 0) > 0 && (
-                  <div className="flex items-center gap-1 text-xs text-[#EF4444]">
-                    <AlertCircle size={12} />
-                    Dues
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-semibold text-[#F1F5F9]">{m.full_name}</p>
+                      <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium ${statusBadgeClass(m.status as MemberStatusType)}`}>
+                        {statusLabel(m.status as MemberStatusType)}
+                      </span>
+                    </div>
+                    <p className="text-xs text-[#94A3B8]">{m.phone}</p>
                   </div>
-                )}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Selected Member Card */}
-        {selected && !success && (
-          <div className="bg-[#13131F] border border-[#1E1E30] rounded-2xl p-4 space-y-3">
-            <div className="flex items-center gap-3">
-              <div className={`h-12 w-12 rounded-full ${statusAvatarColor(selected.status, selected.id)} flex items-center justify-center text-white font-semibold`}>
-                {memberInitials(selected.full_name)}
-              </div>
-              <div>
-                <p className="text-base font-bold text-[#F1F5F9]">{selected.full_name}</p>
-                <div className="flex items-center gap-2">
-                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${statusBadgeClass(selected.status as MemberStatusType)}`}>
-                    {statusLabel(selected.status as MemberStatusType)}
-                  </span>
-                  {selected.plan_name && (
-                    <span className="text-xs text-[#94A3B8]">{selected.plan_name}</span>
+                  {(m.balance_due ?? 0) > 0 && (
+                    <div className="flex items-center gap-1 text-xs text-[#EF4444]">
+                      <AlertCircle size={12} />
+                      Dues
+                    </div>
                   )}
+                </button>
+              ))}
+            </div>
+          )}
+  
+          {/* Selected Member Card */}
+          {selected && !success && (
+            <div className="premium-card p-4 space-y-3">
+              <div className="flex items-center gap-3">
+                <div className={`h-12 w-12 rounded-full ${statusAvatarColor(selected.status, selected.id)} flex items-center justify-center text-white font-semibold`}>
+                  {memberInitials(selected.full_name)}
+                </div>
+                <div>
+                  <p className="text-base font-bold text-[#F1F5F9]">{selected.full_name}</p>
+                  <div className="flex items-center gap-2">
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${statusBadgeClass(selected.status as MemberStatusType)}`}>
+                      {statusLabel(selected.status as MemberStatusType)}
+                    </span>
+                    {selected.plan_name && (
+                      <span className="text-xs text-[#94A3B8]">{selected.plan_name}</span>
+                    )}
+                  </div>
                 </div>
               </div>
+  
+              {/* Already checked in today */}
+              {alreadyCheckedIn && (
+                <div className="bg-[#22C55E]/10 border border-[#22C55E]/20 rounded-xl p-2.5 flex items-center gap-2">
+                  <Check size={14} className="text-[#22C55E]" />
+                  <p className="text-xs text-[#22C55E] font-medium">Already checked in today</p>
+                </div>
+              )}
+  
+              {selected.end_date && (
+                <p className="text-xs text-[#94A3B8]">
+                  Expires: {formatDate(selected.end_date)}
+                  {(selected.days_until_expiry ?? 99) <= 5 && (selected.days_until_expiry ?? 99) >= 0 && (
+                    <span className="text-[#F59E0B] ml-1">· Expiring soon!</span>
+                  )}
+                </p>
+              )}
+  
+              {(selected.balance_due ?? 0) > 0 && (
+                <div className="bg-[#EF4444]/10 border border-[#EF4444]/20 rounded-xl p-2.5 flex items-center gap-2">
+                  <AlertCircle size={14} className="text-[#EF4444]" />
+                  <p className="text-xs text-[#EF4444]">Has outstanding dues</p>
+                </div>
+              )}
             </div>
-
-            {/* Already checked in today */}
-            {alreadyCheckedIn && (
-              <div className="bg-[#22C55E]/10 border border-[#22C55E]/20 rounded-xl p-2.5 flex items-center gap-2">
-                <Check size={14} className="text-[#22C55E]" />
-                <p className="text-xs text-[#22C55E] font-medium">Already checked in today</p>
-              </div>
-            )}
-
-            {selected.end_date && (
-              <p className="text-xs text-[#94A3B8]">
-                Expires: {formatDate(selected.end_date)}
-                {(selected.days_until_expiry ?? 99) <= 5 && (selected.days_until_expiry ?? 99) >= 0 && (
-                  <span className="text-[#F59E0B] ml-1">· Expiring soon!</span>
-                )}
-              </p>
-            )}
-
-            {(selected.balance_due ?? 0) > 0 && (
-              <div className="bg-[#EF4444]/10 border border-[#EF4444]/20 rounded-xl p-2.5 flex items-center gap-2">
-                <AlertCircle size={14} className="text-[#EF4444]" />
-                <p className="text-xs text-[#EF4444]">Has outstanding dues</p>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Check In Button */}
-        {selected && !success && (
-          <button
-            onClick={handleCheckIn}
-            disabled={isPending}
-            className="w-full h-14 rounded-2xl bg-[#22C55E] text-white text-base font-bold flex items-center justify-center gap-2 active:scale-95 transition-transform duration-100 disabled:opacity-60 shadow-lg shadow-[#22C55E]/20"
-          >
-            <ScanLine size={20} />
-            {isPending ? "Checking in..." : `Check In ${selected.full_name.split(" ")[0]}`}
-          </button>
-        )}
+          )}
+  
+          {/* Check In Button */}
+          {selected && !success && (
+            <button
+              onClick={handleCheckIn}
+              disabled={isPending}
+              className="w-full h-14 rounded-2xl bg-[#22C55E] text-white text-base font-bold flex items-center justify-center gap-2 active:scale-95 transition-all duration-200 disabled:opacity-60 shadow-lg shadow-[#22C55E]/20 primary-button"
+            >
+              <ScanLine size={20} />
+              {isPending ? "Checking in..." : `Check In ${selected.full_name.split(" ")[0]}`}
+            </button>
+          )}
 
         {/* Empty state */}
         {!query && !selected && !success && (

@@ -120,7 +120,7 @@ export default function MembersClient({ gymId, members }: Props) {
             <Link
               key={m.id}
               href={`/members/${m.id}`}
-              className="block bg-[#13131F] border border-[#1E1E30] rounded-2xl p-4 active:scale-[0.98] transition-transform"
+              className="block premium-card p-4 active:scale-[0.98] transition-all"
             >
               <div className="flex items-center gap-3">
                 <MemberAvatar name={m.full_name} memberId={m.id} size="md" status={m.status} />
@@ -156,9 +156,9 @@ export default function MembersClient({ gymId, members }: Props) {
       {/* FAB */}
       <button
         onClick={() => setShowAdd(true)}
-        className="md:hidden fixed bottom-20 right-4 z-20 h-14 w-14 rounded-full bg-[#6366F1] flex items-center justify-center shadow-lg shadow-[#6366F1]/30 active:scale-95 transition-transform duration-100"
+        className="md:hidden fixed bottom-20 right-4 z-20 h-14 w-14 rounded-full bg-[#6366F1] flex items-center justify-center text-white active:scale-95 transition-all duration-200 primary-button"
       >
-        <Plus size={24} className="text-white" />
+        <Plus size={24} />
       </button>
 
       {/* Add Member Sheet */}
@@ -207,7 +207,7 @@ export default function MembersClient({ gymId, members }: Props) {
           <button
             type="submit"
             disabled={isPending}
-            className="w-full h-12 rounded-xl bg-[#6366F1] text-white font-semibold active:scale-95 transition-transform disabled:opacity-60"
+            className="w-full h-12 rounded-xl bg-[#6366F1] text-white font-semibold active:scale-95 transition-all duration-200 disabled:opacity-60 primary-button"
           >
             {isPending ? "Adding..." : "Add Member"}
           </button>

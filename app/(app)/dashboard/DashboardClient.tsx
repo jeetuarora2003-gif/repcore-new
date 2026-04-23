@@ -98,7 +98,7 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringMe
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ delay: idx * 0.08, duration: 0.4, ease: "easeOut" }}
               whileHover={{ y: -2, scale: 1.01 }}
-              className={`${bg} ${shadow} border border-white/10 rounded-2xl p-5 flex flex-col`}
+              className={`${bg} ${shadow} border border-white/10 rounded-2xl p-5 flex flex-col transition-all duration-200 hover:border-white/15 hover:shadow-black/20`}
             >
               <div className={`h-10 w-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center mb-4`}>
                 <Icon size={20} className={color} />
@@ -119,7 +119,7 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringMe
               <motion.div key={label} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
                 <Link
                   href={href}
-                  className="flex items-center gap-3 h-14 px-5 rounded-2xl bg-white/5 border border-white/10 text-white text-sm font-semibold whitespace-nowrap transition-all hover:bg-white/10 hover:border-[#6366F1]/50 shadow-sm"
+                  className="flex items-center gap-3 h-14 px-5 rounded-2xl bg-white/5 border border-white/10 text-white text-sm font-semibold whitespace-nowrap transition-all hover:bg-white/10 hover:border-[#6366F1]/50 shadow-sm primary-button"
                 >
                   <Icon size={18} className="text-[#6366F1]" />
                   {label}

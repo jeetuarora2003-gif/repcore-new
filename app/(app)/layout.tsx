@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import AppShell from "@/components/AppShell";
+import AppLayoutClient from "./AppLayoutClient";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -15,5 +15,5 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   if (!gym) redirect("/register");
 
-  return <AppShell gym={gym}>{children}</AppShell>;
+  return <AppLayoutClient gym={gym}>{children}</AppLayoutClient>;
 }

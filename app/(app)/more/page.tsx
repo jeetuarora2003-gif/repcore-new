@@ -18,7 +18,7 @@ export default function MorePage() {
           <Link
             key={href}
             href={href}
-            className="flex items-center gap-4 bg-[#13131F] border border-[#1E1E30] rounded-2xl p-4 active:scale-[0.98] transition-transform hover:border-[#6366F1]/30"
+            className="flex items-center gap-4 premium-card p-4 active:scale-[0.98] transition-all"
           >
             <div className="h-10 w-10 rounded-xl bg-[#1C1C2E] flex items-center justify-center shrink-0">
               <Icon size={18} className="text-[#6366F1]" />

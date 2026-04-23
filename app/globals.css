@@ -58,6 +58,16 @@
   input::placeholder, textarea::placeholder {
     color: #94A3B8;
   }
+  h1, h2 {
+    @apply font-bold tracking-tight text-white;
+  }
+  h1 { @apply text-xl md:text-2xl; }
+  h2 { @apply text-lg md:text-xl; }
+}
+
+::selection {
+  background-color: rgba(99, 102, 241, 0.3);
+  color: #ffffff;
 }
 
 @layer utilities {
@@ -105,7 +115,22 @@
 .animate-fade-in-up { animation: fadeInUp 0.25s ease-out; }
 .animate-success-flash { animation: successFlash 2s ease-in-out forwards; }
 
+.premium-card {
+  @apply bg-[#13131F] border border-[#1E1E30] rounded-2xl transition-all duration-200;
+}
+.premium-card:hover {
+  @apply border-white/15 shadow-lg shadow-black/20;
+}
+
+.primary-button {
+  @apply transition-shadow duration-200 shadow-[0_4px_14px_rgba(99,102,241,0.25)];
+}
+.primary-button:hover {
+  @apply shadow-[0_4px_20px_rgba(99,102,241,0.4)];
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: #0D0D14; }
-::-webkit-scrollbar-thumb { background: #1E1E30; border-radius: 2px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #1E1E30; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #6366F1/20; }
