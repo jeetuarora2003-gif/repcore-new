@@ -216,6 +216,7 @@ export interface Database {
           email: string;
           joining_date: string;
           is_frozen: boolean;
+          photo_url: string | null;
           notes: string;
           subscription_id: string | null;
           start_date: string | null;

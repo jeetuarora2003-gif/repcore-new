@@ -62,6 +62,7 @@ SELECT
   m.email,
   m.joining_date,
   m.is_frozen,
+  m.photo_url,
   m.notes,
   s.id as subscription_id,
   s.start_date,
