@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import { Dumbbell, Eye, EyeOff, ChevronRight } from "lucide-react";
+import { cleanPhone } from "@/lib/helpers";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -21,6 +22,10 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
 
   function onChange(field: string, value: string) {
+    if (field === "phone") {
+      setForm(p => ({ ...p, [field]: cleanPhone(value) }));
+      return;
+    }
     setForm(p => ({ ...p, [field]: value }));
   }
 

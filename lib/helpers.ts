@@ -102,3 +102,7 @@ export function getHourGreeting(): string {
   if (h < 17) return "Good afternoon";
   return "Good evening";
 }
+
+export function cleanPhone(value: string): string {
+  return value.replace(/\D/g, "").slice(0, 10);
+}

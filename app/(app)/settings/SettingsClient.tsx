@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { LogOut, Save, Eye, EyeOff, Building2, MessageCircle, FileText, Download } from "lucide-react";
-import { memberInitials } from "@/lib/helpers";
+import { memberInitials, cleanPhone } from "@/lib/helpers";
 import type { Gym } from "@/lib/supabase/types";
 import { updateGymSettings } from "@/app/actions/gym";
 import { createClient } from "@/lib/supabase/client";
@@ -28,6 +28,10 @@ export default function SettingsClient({ gym }: Props) {
   });
 
   function handleChange(field: string, value: string) {
+    if (field === "phone") {
+      setForm(p => ({ ...p, [field]: cleanPhone(value) }));
+      return;
+    }
     setForm(p => ({ ...p, [field]: value }));
   }
 

@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Plus, Search, Phone, Users } from "lucide-react";
-import { formatINR, formatDate, statusLabel, statusBadgeClass } from "@/lib/helpers";
+import { formatINR, formatDate, statusLabel, statusBadgeClass, cleanPhone } from "@/lib/helpers";
 import type { MemberStatus } from "@/lib/supabase/types";
 import type { MemberStatusType } from "@/lib/helpers";
 import MemberAvatar from "@/components/MemberAvatar";
@@ -175,7 +175,10 @@ export default function MembersClient({ gymId, members }: Props) {
                 type={type}
                 required={required}
                 value={form[field as keyof typeof form]}
-                onChange={e => setForm(p => ({ ...p, [field]: e.target.value }))}
+                onChange={e => {
+                  const val = e.target.value;
+                  setForm(p => ({ ...p, [field]: field === "phone" ? cleanPhone(val) : val }));
+                }}
                 placeholder={placeholder}
                 className="w-full h-12 rounded-xl bg-[#1C1C2E] border border-[#1E1E30] px-4 text-[#F1F5F9] placeholder-[#94A3B8] focus:outline-none focus:border-[#6366F1] transition-colors text-sm"
               />
