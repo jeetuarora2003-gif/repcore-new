@@ -39,14 +39,14 @@ export default function DashboardClient({ gym, stats, recentCheckins, expiringSo
       </div>
 
       {/* KPI Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 animate-fade-up [animation-delay:0.1s]">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         {[
           { label: "Total Members", value: stats.total, sub: "registered", icon: Users, color: "text-[#10B981]", bg: "bg-[#10B981]/10", stripe: "bg-[#10B981]" },
           { label: "Active Now", value: stats.active, sub: "currently active", icon: UserCheck, color: "text-[#10B981]", bg: "bg-[#10B981]/10", stripe: "bg-[#10B981]" },
           { label: "Expiring Soon", value: stats.expiring, sub: "need renewal", icon: UserMinus, color: "text-[#F59E0B]", bg: "bg-[#F59E0B]/10", stripe: "bg-[#F59E0B]" },
           { label: "Pending Dues", value: formatINR(stats.dues), sub: "outstanding", icon: AlertCircle, color: "text-[#EF4444]", bg: "bg-[#EF4444]/10", stripe: "bg-[#EF4444]", valueColor: "text-[#F59E0B]" },
-        ].map((stat) => (
-          <div key={stat.label} className="card p-5 group relative overflow-hidden hover:translate-y-[-2px] hover:shadow-lg hover:shadow-black/20">
+        ].map((stat, i) => (
+          <div key={stat.label} className="card p-5 group relative overflow-hidden hover:translate-y-[-2px] hover:shadow-lg hover:shadow-black/20 animate-fade-up" style={{ animationDelay: `${100 + i * 100}ms` }}>
             {/* Top accent stripe */}
             <div className={`absolute top-0 left-0 right-0 h-[2px] ${stat.stripe} opacity-60`} />
             <div className="flex items-center justify-between">
