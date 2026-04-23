@@ -11,8 +11,7 @@ export async function updateReminderModeAction(gymId: string, mode: 'manual' | '
 
   const { error } = await supabase
     .from("gyms")
-    // @ts-expect-error
-    .update({ whatsapp_reminder_mode: mode })
+    .update({ whatsapp_reminder_mode: mode } as any)
     .eq("id", gymId)
     .eq("owner_id", user.id);
 
@@ -30,12 +29,11 @@ export async function updateWhatsappConfigAction(gymId: string, data: { phone: s
 
   const { error } = await supabase
     .from("gyms")
-    // @ts-expect-error
     .update({ 
       whatsapp_phone_number: data.phone,
       whatsapp_api_key: encryptedKey,
       whatsapp_reminder_mode: data.mode
-    })
+    } as any)
     .eq("id", gymId)
     .eq("owner_id", user.id);
 
