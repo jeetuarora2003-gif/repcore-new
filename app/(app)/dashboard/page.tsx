@@ -17,7 +17,7 @@ export default async function DashboardPage() {
   const [
     { data: members },
     { data: recentCheckins },
-    { data: expiringMembers },
+    { data: expiringSoon },
   ] = await Promise.all([
     supabase.from("v_member_status").select("*").eq("gym_id", gym.id),
     supabase
@@ -39,8 +39,8 @@ export default async function DashboardPage() {
   const stats = {
     total: members?.length ?? 0,
     active: members?.filter(m => m.status === "active" || m.status === "expiring_soon").length ?? 0,
-    expiringThisWeek: members?.filter(m => (m.days_until_expiry ?? 99) <= 7 && (m.days_until_expiry ?? 99) >= 0).length ?? 0,
-    totalDues: members?.reduce((sum, m) => sum + (m.balance_due ?? 0), 0) ?? 0,
+    expiring: members?.filter(m => (m.days_until_expiry ?? 99) <= 7 && (m.days_until_expiry ?? 99) >= 0).length ?? 0,
+    dues: members?.reduce((sum, m) => sum + (m.balance_due ?? 0), 0) ?? 0,
   };
 
   return (
@@ -48,7 +48,7 @@ export default async function DashboardPage() {
       gym={gym}
       stats={stats}
       recentCheckins={recentCheckins ?? []}
-      expiringMembers={expiringMembers ?? []}
+      expiringSoon={expiringSoon ?? []}
     />
   );
 }
