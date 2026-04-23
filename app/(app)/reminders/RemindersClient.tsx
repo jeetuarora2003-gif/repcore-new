@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Bell, MessageCircle, Check } from "lucide-react";
+import { Bell, MessageCircle, Check, Calendar, Phone } from "lucide-react";
 import { formatDate } from "@/lib/helpers";
 import type { Gym, MemberStatus, Reminder } from "@/lib/supabase/types";
 import MemberAvatar from "@/components/MemberAvatar";
@@ -66,30 +66,27 @@ export default function RemindersClient({ gym, fiveDays, threeDays, oneDay, hist
   const members = getMembers();
 
   return (
-    <div className="pb-24 min-h-screen">
-      {/* Header */}
-      <div className="sticky top-0 z-20 bg-[#0D0D14]/95 backdrop-blur-md border-b border-[#1E1E30] px-4 py-3">
-        <h1 className="text-lg font-bold text-[#F1F5F9]">Reminders</h1>
+    <div className="pb-24 min-h-screen bg-[#080810] animate-fade-up">
+      {/* Tab Header */}
+      <div className="sticky top-[48px] z-20 bg-[#080810]/95 backdrop-blur-md border-b border-white/5 px-4 py-4 md:px-8">
+        <div className="bg-surface rounded-xl p-1 inline-flex gap-1">
+          {TABS.map(({ key, label }) => (
+            <button
+              key={key}
+              onClick={() => setTab(key)}
+              className={`px-6 py-2 text-xs font-medium rounded-lg transition-all duration-200 ${
+                tab === key
+                  ? "bg-surface-3 text-[#F8FAFC] shadow-sm"
+                  : "text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-white/3"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex border-b border-[#1E1E30] px-4">
-        {TABS.map(({ key, label }) => (
-          <button
-            key={key}
-            onClick={() => setTab(key)}
-            className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 -mb-px ${
-              tab === key
-                ? "border-[#6366F1] text-[#6366F1]"
-                : "border-transparent text-[#94A3B8] hover:text-[#F1F5F9]"
-            }`}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-
-      <div className="px-4 py-4 space-y-2">
+      <div className="px-4 py-6 md:px-8 space-y-3">
         {tab !== "history" ? (
           members.length === 0 ? (
             <EmptyState
@@ -104,26 +101,35 @@ export default function RemindersClient({ gym, fiveDays, threeDays, oneDay, hist
               return (
                 <div
                   key={m.id}
-                  className="premium-card p-4 flex items-center gap-3"
+                  className="card p-4 flex items-center gap-4 hover:border-[#F59E0B]/20 hover:bg-[#F59E0B]/5 transition-all"
                 >
-                  <MemberAvatar name={m.full_name} memberId={m.id} size="md" />
+                  <MemberAvatar name={m.full_name} memberId={m.id} size="md" rounded="xl" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-[#F1F5F9] truncate">{m.full_name}</p>
-                    <p className="text-xs text-[#94A3B8]">Expires: {formatDate(m.end_date)}</p>
-                    <p className="text-xs text-[#94A3B8]">{m.plan_name ?? "No plan"}</p>
+                    <p className="text-[15px] font-semibold text-[#F8FAFC] tracking-tight truncate mb-1">{m.full_name}</p>
+                    <div className="flex flex-wrap gap-x-5 gap-y-1">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] font-semibold text-[#475569] uppercase tracking-wider">Expires</span>
+                        <span className="text-xs font-bold text-[#F59E0B] font-mono">{formatDate(m.end_date)}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] font-semibold text-[#475569] uppercase tracking-wider">Plan</span>
+                        <span className="text-xs text-[#94A3B8]">{m.plan_name ?? "No plan"}</span>
+                      </div>
+                    </div>
                   </div>
                   {isSent ? (
-                    <div className="flex items-center gap-1.5 h-10 px-3 rounded-xl bg-[#22C55E]/10 text-[#22C55E] text-xs font-medium">
-                      <Check size={14} />
+                    <div className="flex items-center gap-1.5 h-9 px-4 rounded-xl bg-[#10B981]/10 text-[#10B981] text-[11px] font-bold uppercase tracking-wider border border-[#10B981]/20">
+                      <Check size={14} strokeWidth={2.5} />
                       Sent
                     </div>
                   ) : (
                     <button
                       onClick={() => handleWhatsApp(m)}
                       disabled={isPending}
-                      className="h-10 w-10 rounded-xl bg-[#22C55E]/15 flex items-center justify-center text-[#22C55E] active:scale-95 transition-all duration-200 disabled:opacity-60 primary-button"
+                      className="h-10 px-4 rounded-xl bg-[#25D366]/10 text-[#25D366] border border-[#25D366]/20 flex items-center gap-2 text-xs font-semibold hover:bg-[#25D366]/20 transition-all active:scale-95"
                     >
-                      <MessageCircle size={18} />
+                      <MessageCircle size={16} />
+                      Send WhatsApp
                     </button>
                   )}
                 </div>
@@ -135,12 +141,14 @@ export default function RemindersClient({ gym, fiveDays, threeDays, oneDay, hist
             <EmptyState icon={Bell} message="No reminders sent yet" />
           ) : (
             history.map(r => (
-              <div key={r.id} className="premium-card p-3 flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-[#F1F5F9]">Stage {r.stage} reminder</p>
-                  <p className="text-xs text-[#94A3B8]">{formatDate(r.sent_at)}</p>
+              <div key={r.id} className="card p-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="h-2 w-2 rounded-full bg-[#10B981]" />
+                  <div>
+                    <p className="text-sm font-medium text-[#F8FAFC]">Stage {r.stage} reminder sent</p>
+                    <p className="text-[11px] font-mono text-[#475569] uppercase mt-0.5">VIA {r.method} • {formatDate(r.sent_at)}</p>
+                  </div>
                 </div>
-                <span className="text-xs bg-[#1C1C2E] text-[#94A3B8] px-2 py-1 rounded-lg">{r.method}</span>
               </div>
             ))
           )

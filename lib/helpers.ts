@@ -1,9 +1,5 @@
 export function formatINR(amount: number): string {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(amount);
+  return "₹" + Math.floor(amount).toLocaleString("en-IN");
 }
 
 export function formatDate(dateStr: string | null | undefined): string {
@@ -23,12 +19,12 @@ export function memberInitials(fullName: string): string {
 }
 
 const AVATAR_COLORS = [
-  "bg-[#6366F1]",
-  "bg-[#22C55E]",
-  "bg-[#F59E0B]",
-  "bg-[#EF4444]",
-  "bg-[#8B5CF6]",
-  "bg-[#14B8A6]",
+  "bg-[#6366F1]/20 text-[#6366F1]", // Indigo
+  "bg-[#10B981]/20 text-[#10B981]", // Emerald
+  "bg-[#F59E0B]/20 text-[#F59E0B]", // Amber
+  "bg-[#EF4444]/20 text-[#EF4444]", // Red
+  "bg-[#8B5CF6]/20 text-[#8B5CF6]", // Purple
+  "bg-[#14B8A6]/20 text-[#14B8A6]", // Teal
 ];
 
 export function avatarColor(id: string): string {
@@ -40,12 +36,12 @@ export function avatarColor(id: string): string {
 }
 
 const STATUS_AVATAR_COLORS: Record<string, string> = {
-  active: "bg-[#6366F1]",
-  expiring_soon: "bg-[#F59E0B]",
-  expired: "bg-[#EF4444]",
-  lapsed: "bg-slate-600",
-  frozen: "bg-blue-600",
-  no_plan: "bg-slate-600",
+  active: "bg-[#10B981]/20 text-[#10B981]",
+  expiring_soon: "bg-[#F59E0B]/20 text-[#F59E0B]",
+  expired: "bg-[#EF4444]/20 text-[#EF4444]",
+  lapsed: "bg-white/5 text-[#475569]",
+  frozen: "bg-blue-500/20 text-blue-400",
+  no_plan: "bg-white/5 text-[#475569]",
 };
 
 export function statusAvatarColor(status: string, id: string): string {
@@ -71,17 +67,17 @@ export type MemberStatusType =
 export function statusBadgeClass(status: MemberStatusType): string {
   switch (status) {
     case "active":
-      return "bg-[#22C55E]/15 text-[#22C55E]";
+      return "bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/20";
     case "expiring_soon":
-      return "bg-[#F59E0B]/15 text-[#F59E0B]";
+      return "bg-[#F59E0B]/10 text-[#F59E0B] border border-[#F59E0B]/20";
     case "expired":
-      return "bg-[#EF4444]/15 text-[#EF4444]";
+      return "bg-[#EF4444]/10 text-[#EF4444] border border-[#EF4444]/20";
     case "lapsed":
-      return "bg-slate-700 text-slate-400";
+      return "bg-white/5 text-[#475569] border border-white/10";
     case "frozen":
-      return "bg-blue-900/30 text-blue-400";
+      return "bg-blue-500/10 text-blue-400 border border-blue-500/20";
     case "no_plan":
-      return "bg-slate-700 text-slate-400";
+      return "bg-white/5 text-[#475569] border border-white/10";
   }
 }
 

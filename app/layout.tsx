@@ -1,37 +1,59 @@
-import type { Metadata } from "next";
-// import { Inter } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "sonner";
 
-/* const inter = Inter({
-  variable: "--font-inter",
+const inter = Inter({
   subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
   weight: ["400", "500", "600", "700"],
-}); */
-const inter = { variable: "font-sans" };
+  preload: true,
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
+  weight: ["400", "500", "600", "700"],
+  preload: true,
+});
 
 export const metadata: Metadata = {
-  title: "RepCore — Gym Management",
-  description: "Modern gym management for growing gyms",
+  title: "RepCore Premium",
+  description: "Advanced Gym Management System",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "RepCore",
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
-    <html lang="en" className={`${inter.variable} h-full`}>
-      <body className="min-h-full bg-[#0D0D14] text-[#F1F5F9] antialiased">
+    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable} dark`}>
+      <body className="font-sans antialiased bg-[#080810] text-[#F8FAFC]">
         {children}
-        <Toaster
-          theme="dark"
+        <Toaster 
+          position="top-center" 
           toastOptions={{
             style: {
-              background: "#1C1C2E",
-              border: "1px solid #1E1E30",
-              color: "#F1F5F9",
-            },
+              background: "#0E0E1A",
+              border: "1px solid rgba(255,255,255,0.06)",
+              color: "#F8FAFC",
+            }
           }}
         />
       </body>

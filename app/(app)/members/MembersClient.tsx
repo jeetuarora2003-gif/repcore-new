@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Plus, Search, Phone, Users } from "lucide-react";
+import { Plus, Search, Phone, Users, ChevronRight } from "lucide-react";
 import { formatINR, formatDate, statusLabel, statusBadgeClass, cleanPhone } from "@/lib/helpers";
 import type { MemberStatus } from "@/lib/supabase/types";
 import type { MemberStatusType } from "@/lib/helpers";
@@ -65,49 +65,40 @@ export default function MembersClient({ gymId, members }: Props) {
   }
 
   return (
-    <div className="pb-24 min-h-screen">
-      {/* Header */}
-      <div className="sticky top-0 z-20 bg-[#0D0D14]/95 backdrop-blur-md border-b border-[#1E1E30] px-4 py-3">
-        <div className="flex items-center justify-between mb-3">
-          <h1 className="text-lg font-bold text-[#F1F5F9]">Members</h1>
-          <button
-            onClick={() => setShowAdd(true)}
-            className="h-9 w-9 rounded-xl bg-[#6366F1] flex items-center justify-center active:scale-95 transition-transform"
-          >
-            <Plus size={18} className="text-white" />
-          </button>
-        </div>
+    <div className="pb-24 min-h-screen bg-[#080810]">
+      {/* Search & Filters Header */}
+      <div className="sticky top-[48px] z-20 bg-[#080810]/95 backdrop-blur-md border-b border-white/5 px-4 py-5 md:px-8 space-y-5">
         {/* Search */}
         <div className="relative">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#94A3B8]" />
+          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#475569]" />
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search by name or phone..."
-            className="w-full h-12 rounded-xl bg-[#1C1C2E] border border-[#1E1E30] pl-9 pr-4 text-[#F1F5F9] placeholder-[#94A3B8] focus:outline-none focus:border-[#6366F1] transition-colors text-sm"
+            className="w-full h-10 rounded-xl bg-surface border border-white/8 pl-11 pr-4 text-sm text-[#F8FAFC] placeholder-[#475569] focus:outline-none focus:border-[#6366F1]/40 focus:ring-4 focus:ring-[#6366F1]/5 transition-all"
           />
+        </div>
+
+        {/* Filter Chips */}
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+          {FILTERS.map(({ key, label }) => (
+            <button
+              key={key}
+              onClick={() => setFilter(key)}
+              className={`h-8 px-4 rounded-lg text-[11px] font-semibold uppercase tracking-wider whitespace-nowrap transition-all border ${
+                filter === key
+                  ? "bg-[#6366F1]/15 text-[#6366F1] border-[#6366F1]/30"
+                  : "bg-surface text-[#94A3B8] border-white/6 hover:text-[#F8FAFC] hover:border-white/12"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex gap-2 px-4 py-3 overflow-x-auto scrollbar-hide">
-        {FILTERS.map(({ key, label }) => (
-          <button
-            key={key}
-            onClick={() => setFilter(key)}
-            className={`h-8 px-3 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
-              filter === key
-                ? "bg-[#6366F1] text-white"
-                : "bg-[#1C1C2E] text-[#94A3B8] border border-[#1E1E30] hover:text-[#F1F5F9]"
-            }`}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-
       {/* Member List */}
-      <div className="px-4 space-y-2">
+      <div className="px-4 py-6 md:px-8 space-y-3">
         {filtered.length === 0 ? (
           <EmptyState
             icon={Users}
@@ -120,33 +111,41 @@ export default function MembersClient({ gymId, members }: Props) {
             <Link
               key={m.id}
               href={`/members/${m.id}`}
-              className="block premium-card p-4 active:scale-[0.98] transition-all"
+              className="card block p-4 hover:translate-y-[-1px] hover:shadow-xl hover:shadow-black/20 transition-all active:scale-[0.995]"
             >
-              <div className="flex items-center gap-3">
-                <MemberAvatar name={m.full_name} memberId={m.id} size="md" status={m.status} />
+              <div className="flex items-center gap-4">
+                <MemberAvatar name={m.full_name} memberId={m.id} size="md" status={m.status} rounded="xl" />
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <p className="text-sm font-semibold text-[#F1F5F9] truncate">{m.full_name}</p>
-                    <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium shrink-0 ${statusBadgeClass(m.status as MemberStatusType)}`}>
+                  <div className="flex items-center gap-3 mb-1.5">
+                    <p className="text-[15px] font-semibold text-[#F8FAFC] tracking-tight truncate">{m.full_name}</p>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium tracking-tight shrink-0 ${statusBadgeClass(m.status as MemberStatusType)}`}>
                       {statusLabel(m.status as MemberStatusType)}
                     </span>
                   </div>
-                  <p className="text-xs text-[#94A3B8] flex items-center gap-1">
-                    <Phone size={10} />
-                    {m.phone}
-                  </p>
-                  <div className="flex items-center gap-3 mt-1.5 text-xs text-[#94A3B8]">
-                    <span>{m.plan_name ?? "No plan"}</span>
-                    {m.end_date && (
-                      <span>· Expires {formatDate(m.end_date)}</span>
-                    )}
+                  
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                    <p className="text-[12px] text-[#475569] flex items-center gap-1.5 font-mono">
+                      <Phone size={12} strokeWidth={1.5} />
+                      {m.phone}
+                    </p>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[10px] font-semibold text-[#475569] uppercase tracking-wider">Plan</span>
+                      <span className="text-[12px] text-[#94A3B8]">{m.plan_name ?? "No plan"}</span>
+                    </div>
                   </div>
                 </div>
-                {(m.balance_due ?? 0) > 0 && (
-                  <span className="text-xs font-semibold text-[#EF4444] shrink-0">
-                    {formatINR(m.balance_due)}
-                  </span>
-                )}
+                
+                <div className="flex items-center gap-4">
+                  {(m.balance_due ?? 0) > 0 && (
+                    <div className="text-right hidden sm:block">
+                      <p className="text-[10px] font-semibold text-[#475569] uppercase tracking-wider mb-0.5">Dues</p>
+                      <p className="text-[13px] font-bold text-[#EF4444] font-mono tabular-nums">
+                        {formatINR(m.balance_due!)}
+                      </p>
+                    </div>
+                  )}
+                  <ChevronRight size={16} className="text-[#475569]" />
+                </div>
               </div>
             </Link>
           ))
@@ -156,60 +155,52 @@ export default function MembersClient({ gymId, members }: Props) {
       {/* FAB */}
       <button
         onClick={() => setShowAdd(true)}
-        className="md:hidden fixed bottom-20 right-4 z-20 h-14 w-14 rounded-full bg-[#6366F1] flex items-center justify-center text-white active:scale-95 transition-all duration-200 primary-button"
+        className="fixed bottom-20 right-6 md:bottom-8 md:right-8 z-30 h-12 w-12 rounded-2xl bg-[#6366F1] flex items-center justify-center text-white shadow-lg shadow-[#6366F1]/30 hover:shadow-[#6366F1]/50 hover:scale-105 active:scale-95 transition-all duration-200"
       >
-        <Plus size={24} />
+        <Plus size={24} strokeWidth={2.5} />
       </button>
 
       {/* Add Member Sheet */}
-      <BottomSheet open={showAdd} onClose={() => setShowAdd(false)} title="Add Member">
-        <form onSubmit={handleAddSubmit} className="space-y-4 pt-2">
-          {[
-            { field: "full_name", label: "Full Name", placeholder: "John Smith", type: "text", required: true },
-            { field: "phone", label: "Phone", placeholder: "+91 98765 43210", type: "tel", required: true },
-            { field: "email", label: "Email", placeholder: "john@example.com", type: "email", required: false },
-          ].map(({ field, label, placeholder, type, required }) => (
-            <div key={field}>
-              <label className="text-sm font-medium text-[#94A3B8] block mb-1.5">{label}</label>
-              <input
-                type={type}
-                required={required}
-                value={form[field as keyof typeof form]}
-                onChange={e => {
-                  const val = e.target.value;
-                  setForm(p => ({ ...p, [field]: field === "phone" ? cleanPhone(val) : val }));
-                }}
-                placeholder={placeholder}
-                className="w-full h-12 rounded-xl bg-[#1C1C2E] border border-[#1E1E30] px-4 text-[#F1F5F9] placeholder-[#94A3B8] focus:outline-none focus:border-[#6366F1] transition-colors text-sm"
-              />
-            </div>
-          ))}
+      <BottomSheet open={showAdd} onClose={() => setShowAdd(false)} title="Add New Member">
+        <form onSubmit={handleAddSubmit} className="space-y-5 pt-4 pb-10">
+          <div className="grid gap-5">
+            {[
+              { field: "full_name", label: "Full Name", placeholder: "John Smith", type: "text", required: true },
+              { field: "phone", label: "Phone Number", placeholder: "98765 43210", type: "tel", required: true },
+              { field: "email", label: "Email Address", placeholder: "john@example.com", type: "email", required: false },
+            ].map(({ field, label, placeholder, type, required }) => (
+              <div key={field}>
+                <label className="text-xs font-medium text-[#94A3B8] block mb-1.5">{label}</label>
+                <input
+                  type={type}
+                  required={required}
+                  value={form[field as keyof typeof form]}
+                  onChange={e => {
+                    const val = e.target.value;
+                    setForm(p => ({ ...p, [field]: field === "phone" ? cleanPhone(val) : val }));
+                  }}
+                  placeholder={placeholder}
+                  className="w-full h-11 rounded-xl bg-[#080810] border border-white/8 px-4 text-sm text-[#F8FAFC] placeholder-[#475569] focus:outline-none focus:border-[#6366F1]/40 focus:ring-4 focus:ring-[#6366F1]/5 transition-all"
+                />
+              </div>
+            ))}
+          </div>
           <div>
-            <label className="text-sm font-medium text-[#94A3B8] block mb-1.5">Joining Date</label>
+            <label className="text-xs font-medium text-[#94A3B8] block mb-1.5">Joining Date</label>
             <input
               type="date"
               required
               value={form.joining_date}
               onChange={e => setForm(p => ({ ...p, joining_date: e.target.value }))}
-              className="w-full h-12 rounded-xl bg-[#1C1C2E] border border-[#1E1E30] px-4 text-[#F1F5F9] focus:outline-none focus:border-[#6366F1] transition-colors text-sm"
-            />
-          </div>
-          <div>
-            <label className="text-sm font-medium text-[#94A3B8] block mb-1.5">Notes</label>
-            <textarea
-              value={form.notes}
-              onChange={e => setForm(p => ({ ...p, notes: e.target.value }))}
-              placeholder="Optional notes..."
-              rows={2}
-              className="w-full rounded-xl bg-[#1C1C2E] border border-[#1E1E30] px-4 py-3 text-[#F1F5F9] placeholder-[#94A3B8] focus:outline-none focus:border-[#6366F1] transition-colors text-sm resize-none"
+              className="w-full h-11 rounded-xl bg-[#080810] border border-white/8 px-4 text-sm text-[#F8FAFC] focus:outline-none focus:border-[#6366F1]/40 focus:ring-4 focus:ring-[#6366F1]/5 transition-all"
             />
           </div>
           <button
             type="submit"
             disabled={isPending}
-            className="w-full h-12 rounded-xl bg-[#6366F1] text-white font-semibold active:scale-95 transition-all duration-200 disabled:opacity-60 primary-button"
+            className="w-full h-12 rounded-xl bg-[#6366F1] text-white text-sm font-semibold shadow-lg shadow-[#6366F1]/20 active:scale-[0.98] transition-all disabled:opacity-50 mt-4"
           >
-            {isPending ? "Adding..." : "Add Member"}
+            {isPending ? "Creating member..." : "Add Member"}
           </button>
         </form>
       </BottomSheet>

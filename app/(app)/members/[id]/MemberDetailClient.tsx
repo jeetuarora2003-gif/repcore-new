@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   ChevronLeft, Phone, ScanLine, CreditCard, Bell, Snowflake,
-  Plus, MessageCircle, Check, AlertCircle, ChevronDown, ChevronUp
+  Plus, MessageCircle, Check, AlertCircle, ChevronDown, ChevronUp,
+  Mail, Calendar, FileText, Zap
 } from "lucide-react";
 import { formatINR, formatDate, statusBadgeClass, statusLabel, memberInitials } from "@/lib/helpers";
 import type { Gym, Invoice, Payment, Attendance, Plan, Reminder, MemberStatus, Subscription } from "@/lib/supabase/types";
@@ -47,7 +48,6 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
   const [showPayment, setShowPayment] = useState(false);
   const [showPlan, setShowPlan] = useState(false);
   const [showConfirmCheckin, setShowConfirmCheckin] = useState(false);
-  const [showSubHistory, setShowSubHistory] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const [payForm, setPayForm] = useState({
@@ -120,18 +120,6 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
     });
   }
 
-  function handleFreeze() {
-    startTransition(async () => {
-      try {
-        await toggleFreeze(member.id);
-        toast.success(member.is_frozen ? "Member unfrozen" : "Member frozen");
-        router.refresh();
-      } catch (err) {
-        toast.error((err as Error).message);
-      }
-    });
-  }
-
   function handleRemind() {
     if (!member.subscription_id) {
       toast.error("No active subscription to remind about");
@@ -160,7 +148,7 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
     return d === new Date().toDateString();
   });
 
-  // Build attendance day grid for current month
+  // Build attendance day grid
   const now = new Date();
   const currentMonth = now.getMonth();
   const currentYear = now.getFullYear();
@@ -176,373 +164,291 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
   );
 
   return (
-    <div className="pb-24 min-h-screen">
-      {/* Header */}
-      <div className="sticky top-0 z-20 bg-[#0D0D14]/95 backdrop-blur-md border-b border-[#1E1E30] px-4 py-3">
-        <div className="flex items-center gap-3">
-          <Link href="/members" className="h-9 w-9 rounded-xl bg-[#1C1C2E] flex items-center justify-center">
-            <ChevronLeft size={20} className="text-[#F1F5F9]" />
-          </Link>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-base font-bold text-[#F1F5F9] truncate">{member.full_name}</h1>
-          </div>
-        </div>
-      </div>
-
-      {/* Profile Card */}
-      <div className="px-4 pt-5 pb-4">
-        <div className="bg-[#13131F] border border-[#1E1E30] rounded-2xl p-5">
-          <div className="flex items-start gap-4">
-            <MemberAvatar name={member.full_name} memberId={member.id} size="lg" status={member.status} />
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="text-lg font-bold text-[#F1F5F9]">{member.full_name}</h2>
-                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${statusBadgeClass(member.status as MemberStatusType)}`}>
+    <div className="pb-24 min-h-screen bg-[#080810] animate-fade-up">
+      {/* Header Profile Section */}
+      <div className="bg-gradient-to-b from-surface to-[#080810] pt-6 pb-10 px-4 md:px-8 border-b border-white/5">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
+            <MemberAvatar name={member.full_name} memberId={member.id} size="xl" status={member.status} rounded="2xl" />
+            
+            <div className="flex-1 text-center md:text-left space-y-4">
+              <div className="flex flex-col md:flex-row items-center gap-3">
+                <h1 className="text-2xl font-bold tracking-tight text-[#F8FAFC]">{member.full_name}</h1>
+                <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium tracking-tight ${statusBadgeClass(member.status as MemberStatusType)}`}>
                   {statusLabel(member.status as MemberStatusType)}
                 </span>
               </div>
-              <a
-                href={`tel:${member.phone}`}
-                className="flex items-center gap-1.5 text-sm text-[#94A3B8] hover:text-[#6366F1] mt-1"
-              >
-                <Phone size={12} />
-                {member.phone}
-              </a>
-              {member.email && (
-                <p className="text-xs text-[#94A3B8] mt-0.5">{member.email}</p>
-              )}
-            </div>
-          </div>
+              
+              <div className="flex flex-wrap justify-center md:justify-start gap-6">
+                <a href={`tel:${member.phone}`} className="flex items-center gap-2 text-sm text-[#94A3B8] hover:text-[#6366F1] transition-colors font-mono">
+                  <Phone size={14} strokeWidth={1.5} />
+                  {member.phone}
+                </a>
+                {member.email && (
+                  <div className="flex items-center gap-2 text-sm text-[#94A3B8]">
+                    <Mail size={14} strokeWidth={1.5} />
+                    {member.email}
+                  </div>
+                )}
+                <div className="flex items-center gap-2 text-sm text-[#94A3B8] font-mono">
+                  <Calendar size={14} strokeWidth={1.5} />
+                  Joined {formatDate(member.joining_date)}
+                </div>
+              </div>
 
-          {/* Already checked in today notice */}
-          {checkedInToday && (
-            <div className="mt-3 bg-[#22C55E]/10 border border-[#22C55E]/20 rounded-xl p-2.5 flex items-center gap-2">
-              <Check size={14} className="text-[#22C55E]" />
-              <p className="text-xs text-[#22C55E] font-medium">Already checked in today</p>
+              {/* Action Buttons */}
+              <div className="flex flex-wrap justify-center md:justify-start gap-2 pt-2">
+                <button
+                  onClick={handleCheckIn}
+                  disabled={checkedInToday || isPending}
+                  className={`h-9 px-4 rounded-xl flex items-center gap-2 text-xs font-semibold transition-all ${
+                    checkedInToday 
+                      ? "bg-white/5 text-[#475569] border border-white/5 cursor-not-allowed" 
+                      : "bg-[#10B981] text-white shadow-lg shadow-[#10B981]/20 hover:brightness-110 active:scale-95"
+                  }`}
+                >
+                  <ScanLine size={14} />
+                  {checkedInToday ? "Checked In" : "Quick Check-in"}
+                </button>
+                <button
+                  onClick={() => setShowPlan(true)}
+                  className="h-9 px-4 rounded-xl bg-surface border border-white/8 text-[#F8FAFC] text-xs font-semibold hover:border-white/12 hover:bg-surface-2 transition-all active:scale-95"
+                >
+                  Change Plan
+                </button>
+                <button
+                  onClick={() => setShowPayment(true)}
+                  className="h-9 px-4 rounded-xl bg-[#6366F1]/10 text-[#6366F1] border border-[#6366F1]/20 text-xs font-semibold hover:bg-[#6366F1]/15 transition-all active:scale-95"
+                >
+                  Record Payment
+                </button>
+                <button
+                  onClick={handleRemind}
+                  className="h-9 w-9 flex items-center justify-center rounded-xl bg-surface border border-white/8 text-[#94A3B8] hover:text-[#F8FAFC] transition-all"
+                >
+                  <Bell size={14} />
+                </button>
+              </div>
             </div>
-          )}
-
-          {/* Quick Actions */}
-          <div className="grid grid-cols-4 gap-2 mt-4">
-            {[
-              { label: "Check In", icon: ScanLine, color: "text-[#22C55E]", bg: "bg-[#22C55E]/10", action: handleCheckIn },
-              { label: "Add Plan", icon: Plus, color: "text-[#6366F1]", bg: "bg-[#6366F1]/10", action: () => setShowPlan(true) },
-              { label: "Payment", icon: CreditCard, color: "text-[#F59E0B]", bg: "bg-[#F59E0B]/10", action: () => setShowPayment(true) },
-              { label: "Remind", icon: Bell, color: "text-[#94A3B8]", bg: "bg-[#1C1C2E]", action: handleRemind },
-            ].map(({ label, icon: Icon, color, bg, action }) => (
-              <button
-                key={label}
-                onClick={action}
-                disabled={isPending}
-                className={`flex flex-col items-center gap-1.5 ${bg} rounded-2xl p-3 active:scale-95 transition-transform duration-100`}
-              >
-                <Icon size={18} className={color} />
-                <span className="text-[10px] text-[#94A3B8] font-medium">{label}</span>
-              </button>
-            ))}
           </div>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex border-b border-[#1E1E30] mx-4 mb-4">
-        {(["overview", "billing", "attendance"] as TabType[]).map(t => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`flex-1 py-2.5 text-sm font-medium capitalize transition-colors border-b-2 -mb-px ${
-              tab === t
-                ? "border-[#6366F1] text-[#6366F1]"
-                : "border-transparent text-[#94A3B8] hover:text-[#F1F5F9]"
-            }`}
-          >
-            {t}
-          </button>
-        ))}
-      </div>
+      <div className="max-w-4xl mx-auto px-4 md:px-8 mt-8">
+        {/* Tab Bar */}
+        <div className="bg-surface border border-white/6 rounded-2xl p-1 flex gap-1 mb-8">
+          {(["overview", "billing", "attendance"] as TabType[]).map(t => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`flex-1 py-2 text-xs font-medium capitalize rounded-xl transition-all duration-200 ${
+                tab === t
+                  ? "bg-surface-3 text-[#F8FAFC] shadow-sm"
+                  : "text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-white/3"
+              }`}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
 
-      {/* Tab Content */}
-      <div className="px-4 space-y-3">
-        {tab === "overview" && (
-          <>
-            {/* Info */}
-            <div className="bg-[#13131F] border border-[#1E1E30] rounded-2xl p-4 space-y-3">
-              <p className="text-xs font-semibold text-[#94A3B8] uppercase tracking-widest">Member Info</p>
-              {[
-                { label: "Joining Date", value: formatDate(member.joining_date) },
-                { label: "Email", value: member.email || "—" },
-              ].map(({ label, value }) => (
-                <div key={label} className="flex justify-between text-sm">
-                  <span className="text-[#94A3B8]">{label}</span>
-                  <span className="text-[#F1F5F9] font-medium">{value}</span>
+        {/* Tab Content */}
+        <div className="space-y-8">
+          {tab === "overview" && (
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Subscription Status */}
+              <div className="card p-5 space-y-6">
+                <div className="flex items-center gap-3">
+                  <div className="h-7 w-7 rounded-lg bg-[#6366F1]/10 flex items-center justify-center text-[#6366F1] border border-[#6366F1]/20">
+                    <Zap size={14} strokeWidth={2.5} />
+                  </div>
+                  <h3 className="text-sm font-semibold text-[#F8FAFC]">Active Subscription</h3>
                 </div>
-              ))}
-              {member.notes && (
-                <p className="text-xs text-[#94A3B8] border-t border-[#1E1E30] pt-2">{member.notes}</p>
-              )}
+
+                {member.subscription_id ? (
+                  <div className="space-y-5">
+                    <div className="flex justify-between items-end">
+                      <div>
+                        <p className="text-lg font-bold text-[#F8FAFC] tracking-tight">{member.plan_name}</p>
+                        <p className="text-xs text-[#94A3B8] mt-0.5">Started {formatDate(member.start_date)}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className={`text-sm font-bold font-mono ${daysRemaining > 7 ? "text-[#10B981]" : daysRemaining > 3 ? "text-[#F59E0B]" : "text-[#EF4444]"}`}>
+                          {daysRemaining} Days Left
+                        </p>
+                        <p className="text-[10px] text-[#475569] uppercase tracking-wider font-semibold">Ends {formatDate(member.end_date)}</p>
+                      </div>
+                    </div>
+                    <div className="h-1.5 bg-surface-3 rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full transition-all duration-500 ${
+                          daysRemaining > 7 ? "bg-[#6366F1]" : daysRemaining > 3 ? "bg-[#F59E0B]" : "bg-[#EF4444]"
+                        }`} 
+                        style={{ width: `${progress}%` }} 
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="py-4 text-center">
+                    <p className="text-sm text-[#94A3B8] mb-4">No active plan found</p>
+                    <button onClick={() => setShowPlan(true)} className="px-5 h-9 rounded-xl bg-[#6366F1] text-white text-xs font-semibold hover:brightness-110 transition-all">
+                      Assign Plan
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Notes / Meta */}
+              <div className="card p-5 space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-7 w-7 rounded-lg bg-[#94A3B8]/10 flex items-center justify-center text-[#94A3B8] border border-white/10">
+                    <FileText size={14} />
+                  </div>
+                  <h3 className="text-sm font-semibold text-[#F8FAFC]">Administrative Notes</h3>
+                </div>
+                <div className="bg-bg/50 rounded-xl p-4 border border-white/4 min-h-[100px]">
+                  <p className="text-sm text-[#94A3B8] leading-relaxed">
+                    {member.notes || "No additional notes for this member."}
+                  </p>
+                </div>
+              </div>
             </div>
+          )}
 
-            {/* Current Plan */}
-            {member.subscription_id ? (
-              <div className="bg-[#13131F] border border-[#1E1E30] rounded-2xl p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <p className="text-xs font-semibold text-[#94A3B8] uppercase tracking-widest">Current Plan</p>
-                  <span className="text-xs font-semibold text-[#6366F1]">{member.plan_name}</span>
+          {tab === "billing" && (
+            <div className="space-y-8">
+              {/* Billing Summary */}
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { label: "Invoiced", value: formatINR(member.total_invoiced ?? 0), color: "text-[#F8FAFC]" },
+                  { label: "Paid", value: formatINR(member.total_paid ?? 0), color: "text-[#10B981]" },
+                  { label: "Due", value: formatINR(member.balance_due ?? 0), color: (member.balance_due ?? 0) > 0 ? "text-[#EF4444]" : "text-[#10B981]" },
+                ].map((item) => (
+                  <div key={item.label} className="card p-4 text-center">
+                    <p className="text-[10px] font-semibold text-[#475569] uppercase tracking-widest mb-1">{item.label}</p>
+                    <p className={`text-lg font-bold font-mono tracking-tighter ${item.color}`}>{item.value}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Ledger */}
+              <div className="grid md:grid-cols-2 gap-8">
+                <div className="space-y-4">
+                  <p className="text-[10px] font-semibold text-[#475569] tracking-[0.2em] uppercase px-1">Payment History</p>
+                  <div className="space-y-px">
+                    {payments.length === 0 ? (
+                      <p className="text-xs text-[#475569] py-4 text-center italic">No payments yet</p>
+                    ) : (
+                      payments.map(p => (
+                        <div key={p.id} className="flex items-center justify-between py-3.5 border-b border-white/5">
+                          <div>
+                            <p className="text-sm font-medium text-[#F8FAFC]">{METHOD_LABELS[p.payment_method as PaymentMethod]}</p>
+                            <p className="text-[11px] font-mono text-[#475569] mt-0.5 uppercase">PAID {formatDate(p.paid_at)}</p>
+                          </div>
+                          <span className="text-sm font-bold font-mono text-[#10B981]">{formatINR(p.amount)}</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
                 </div>
-                <div className="flex justify-between text-sm mb-2">
-                  <span className="text-[#94A3B8]">
-                    {daysRemaining > 0 ? `${daysRemaining} days remaining` : "Expired"}
-                  </span>
-                  <span className="text-[#F1F5F9] font-medium">{formatDate(member.end_date)}</span>
-                </div>
-                <div className="h-2 bg-[#1C1C2E] rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-[#6366F1] rounded-full transition-all"
-                    style={{ width: `${progress}%` }}
-                  />
+
+                <div className="space-y-4">
+                  <p className="text-[10px] font-semibold text-[#475569] tracking-[0.2em] uppercase px-1">Recent Invoices</p>
+                  <div className="space-y-px">
+                    {invoices.length === 0 ? (
+                      <p className="text-xs text-[#475569] py-4 text-center italic">No invoices found</p>
+                    ) : (
+                      invoices.map(inv => (
+                        <div key={inv.id} className="flex items-center justify-between py-3.5 border-b border-white/5">
+                          <div>
+                            <p className="text-sm font-medium text-[#F8FAFC]">#{inv.invoice_number}</p>
+                            <p className="text-[11px] font-mono text-[#475569] mt-0.5 uppercase">ISSUED {formatDate(inv.created_at)}</p>
+                          </div>
+                          <span className="text-sm font-bold font-mono text-[#F8FAFC]">{formatINR(inv.amount)}</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
                 </div>
               </div>
-            ) : (
-              <div className="bg-[#13131F] border border-[#1E1E30] rounded-2xl p-4 text-center">
-                <p className="text-sm text-[#94A3B8] mb-3">No active plan</p>
-                <button
-                  onClick={() => setShowPlan(true)}
-                  className="h-12 px-4 rounded-xl bg-[#6366F1] text-white text-sm font-semibold active:scale-95 transition-transform duration-100"
-                >
-                  Add Plan
-                </button>
-              </div>
-            )}
+            </div>
+          )}
 
-            {/* Subscription History */}
-            {subscriptions.length > 1 && (
-              <div className="bg-[#13131F] border border-[#1E1E30] rounded-2xl p-4">
-                <button
-                  onClick={() => setShowSubHistory(!showSubHistory)}
-                  className="w-full flex items-center justify-between"
-                >
-                  <p className="text-xs font-semibold text-[#94A3B8] uppercase tracking-widest">Subscription History</p>
-                  {showSubHistory ? <ChevronUp size={16} className="text-[#94A3B8]" /> : <ChevronDown size={16} className="text-[#94A3B8]" />}
-                </button>
-                {showSubHistory && (
-                  <div className="mt-3 space-y-2">
-                    {subscriptions.map(s => {
-                      const plan = plans.find(p => p.id === s.plan_id);
+          {tab === "attendance" && (
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="md:col-span-2 space-y-4">
+                <p className="text-[10px] font-semibold text-[#475569] tracking-[0.2em] uppercase px-1">Monthly Attendance</p>
+                <div className="card p-6">
+                  <div className="grid grid-cols-7 gap-2">
+                    {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(d => (
+                      <div key={d} className="h-8 flex items-center justify-center text-[10px] font-semibold text-[#475569] uppercase tracking-tighter">{d}</div>
+                    ))}
+                    {Array.from({ length: firstDayOffset }).map((_, i) => <div key={`empty-${i}`} />)}
+                    {Array.from({ length: daysInMonth }).map((_, i) => {
+                      const day = i + 1;
+                      const attended = attendedDays.has(day);
+                      const isToday = day === now.getDate();
                       return (
-                        <div key={s.id} className="bg-[#1C1C2E] rounded-xl p-3 flex justify-between text-sm">
-                          <span className="text-[#F1F5F9] font-medium">{plan?.name ?? "Plan"}</span>
-                          <span className="text-[#94A3B8]">{formatDate(s.start_date)} — {formatDate(s.end_date)}</span>
+                        <div key={day} className={`aspect-square rounded-lg flex items-center justify-center text-xs font-bold font-mono transition-all border ${
+                          attended 
+                            ? "bg-[#6366F1] border-[#6366F1] text-white shadow-lg shadow-[#6366F1]/20 scale-105 z-10" 
+                            : isToday 
+                              ? "border-[#6366F1] text-[#6366F1]" 
+                              : "bg-surface border-white/5 text-[#475569] hover:border-white/10"
+                        }`}>
+                          {day}
                         </div>
                       );
                     })}
                   </div>
-                )}
-              </div>
-            )}
-
-            {/* Freeze Toggle */}
-            <div className="bg-[#13131F] border border-[#1E1E30] rounded-2xl p-4 flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-[#F1F5F9]">Freeze Membership</p>
-                <p className="text-xs text-[#94A3B8]">Pause billing and access</p>
-              </div>
-              <button
-                onClick={handleFreeze}
-                disabled={isPending}
-                className={`h-12 px-4 rounded-xl text-sm font-semibold flex items-center gap-2 active:scale-95 transition-transform duration-100 ${
-                  member.is_frozen
-                    ? "bg-blue-900/30 text-blue-400"
-                    : "bg-[#1C1C2E] text-[#94A3B8]"
-                }`}
-              >
-                <Snowflake size={14} />
-                {member.is_frozen ? "Unfreeze" : "Freeze"}
-              </button>
-            </div>
-          </>
-        )}
-
-        {tab === "billing" && (
-          <>
-            {/* Summary */}
-            <div className="grid grid-cols-3 gap-2">
-              {[
-                { label: "Invoiced", value: formatINR(member.total_invoiced ?? 0), color: "text-[#F1F5F9]" },
-                { label: "Paid", value: formatINR(member.total_paid ?? 0), color: "text-[#22C55E]" },
-                { label: "Due", value: formatINR(member.balance_due ?? 0), color: (member.balance_due ?? 0) > 0 ? "text-[#EF4444]" : "text-[#22C55E]" },
-              ].map(({ label, value, color }) => (
-                <div key={label} className="bg-[#13131F] border border-[#1E1E30] rounded-2xl p-3 text-center">
-                  <p className="text-xs text-[#94A3B8] mb-1">{label}</p>
-                  <p className={`text-2xl font-bold ${color}`}>{value}</p>
                 </div>
-              ))}
-            </div>
+              </div>
 
-            <button
-              onClick={() => setShowPayment(true)}
-              className="w-full h-12 rounded-xl bg-[#6366F1] text-white font-semibold active:scale-95 transition-transform duration-100"
-            >
-              Record Payment
-            </button>
-
-            {/* Invoices */}
-            {invoices.length > 0 && (
-              <div>
-                <p className="text-xs font-semibold text-[#94A3B8] uppercase tracking-widest mb-2">Invoices</p>
-                <div className="space-y-2">
-                  {invoices.map(inv => (
-                    <div key={inv.id} className="bg-[#13131F] border border-[#1E1E30] rounded-2xl p-3 flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-[#F1F5F9]">{inv.invoice_number}</p>
-                        <p className="text-xs text-[#94A3B8]">{formatDate(inv.created_at)}</p>
+              <div className="space-y-4">
+                <p className="text-[10px] font-semibold text-[#475569] tracking-[0.2em] uppercase px-1">Recent History</p>
+                <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2 scrollbar-hide">
+                  {attendance.length === 0 ? (
+                    <div className="card p-8 text-center text-xs text-[#475569]">No check-ins yet</div>
+                  ) : (
+                    attendance.map(a => (
+                      <div key={a.id} className="card p-3 flex justify-between items-center group hover:bg-white/3 transition-all">
+                        <span className="text-xs font-semibold text-[#F8FAFC] font-mono">{formatDate(a.checked_in_at)}</span>
+                        <span className="text-[11px] text-[#475569] font-mono">{new Date(a.checked_in_at).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}</span>
                       </div>
-                      <span className="text-sm font-semibold text-[#F1F5F9]">{formatINR(inv.amount)}</span>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
-              </div>
-            )}
-
-            {/* Payments */}
-            {payments.length > 0 && (
-              <div>
-                <p className="text-xs font-semibold text-[#94A3B8] uppercase tracking-widest mb-2">Payments</p>
-                <div className="space-y-2">
-                  {payments.map(p => (
-                    <div key={p.id} className="bg-[#13131F] border border-[#1E1E30] rounded-2xl p-3 flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-[#F1F5F9]">{p.receipt_number}</p>
-                        <p className="text-xs text-[#94A3B8]">{p.payment_method} · {formatDate(p.paid_at)}</p>
-                      </div>
-                      <span className="text-sm font-semibold text-[#22C55E]">{formatINR(p.amount)}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </>
-        )}
-
-        {tab === "attendance" && (
-          <>
-            {/* Day Grid */}
-            <div className="bg-[#13131F] border border-[#1E1E30] rounded-2xl p-4">
-              <p className="text-xs font-semibold text-[#94A3B8] uppercase tracking-widest mb-3">
-                {now.toLocaleDateString("en-IN", { month: "long", year: "numeric" })}
-              </p>
-              <div className="grid grid-cols-7 gap-1.5">
-                {["S","M","T","W","T","F","S"].map((d, i) => (
-                  <div key={i} className="h-7 flex items-center justify-center text-[10px] text-[#94A3B8] font-medium">{d}</div>
-                ))}
-                {Array.from({ length: firstDayOffset }).map((_, i) => (
-                  <div key={`empty-${i}`} className="h-7" />
-                ))}
-                {Array.from({ length: daysInMonth }).map((_, i) => {
-                  const day = i + 1;
-                  const attended = attendedDays.has(day);
-                  const isToday = day === now.getDate();
-                  return (
-                    <div
-                      key={day}
-                      className={`h-7 rounded-lg flex items-center justify-center text-xs font-medium ${
-                        attended
-                          ? "bg-[#6366F1] text-white"
-                          : isToday
-                          ? "bg-[#1C1C2E] text-[#F1F5F9] border border-[#6366F1]/50"
-                          : "bg-[#1C1C2E] text-[#94A3B8]"
-                      }`}
-                    >
-                      {day}
-                    </div>
-                  );
-                })}
               </div>
             </div>
-
-            <div>
-              <p className="text-xs font-semibold text-[#94A3B8] uppercase tracking-widest mb-2">
-                Check-in History ({attendance.length})
-              </p>
-              {attendance.length === 0 ? (
-                <div className="bg-[#13131F] border border-[#1E1E30] rounded-2xl p-6 text-center">
-                  <p className="text-sm text-[#94A3B8]">No check-ins yet</p>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {attendance.map(a => (
-                    <div key={a.id} className="bg-[#13131F] border border-[#1E1E30] rounded-2xl p-3 flex justify-between">
-                      <span className="text-sm text-[#F1F5F9]">{formatDate(a.checked_in_at)}</span>
-                      <span className="text-xs text-[#94A3B8]">
-                        {new Date(a.checked_in_at).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </>
-        )}
+          )}
+        </div>
       </div>
 
-      {/* Confirmation Dialog for expired/lapsed check-in */}
-      {showConfirmCheckin && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowConfirmCheckin(false)} />
-          <div className="relative bg-[#13131F] border border-[#1E1E30] rounded-2xl p-6 max-w-sm w-full animate-fade-in-up">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="h-10 w-10 rounded-xl bg-[#EF4444]/15 flex items-center justify-center">
-                <AlertCircle size={20} className="text-[#EF4444]" />
-              </div>
-              <div>
-                <h3 className="text-base font-semibold text-[#F1F5F9]">Expired Subscription</h3>
-                <p className="text-sm text-[#94A3B8]">This member&apos;s subscription has expired. Check in anyway?</p>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setShowConfirmCheckin(false)}
-                className="flex-1 h-12 rounded-xl bg-[#1C1C2E] text-[#94A3B8] font-semibold active:scale-95 transition-transform duration-100"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={doCheckIn}
-                disabled={isPending}
-                className="flex-1 h-12 rounded-xl bg-[#22C55E] text-white font-semibold active:scale-95 transition-transform duration-100 disabled:opacity-60"
-              >
-                Check In
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Payment Sheet */}
-      <BottomSheet open={showPayment} onClose={() => setShowPayment(false)} title="Record Payment">
-        <form onSubmit={handlePayment} className="space-y-4 pt-2">
+      {/* Action Sheets with updated UI */}
+      <BottomSheet open={showPayment} onClose={() => setShowPayment(false)} title="Record New Payment">
+        <form onSubmit={handlePayment} className="space-y-6 pt-4 pb-8">
           <div>
-            <label className="text-sm font-medium text-[#94A3B8] block mb-1.5">Amount (₹)</label>
-            <input
-              type="number"
-              required
-              min="1"
-              value={payForm.amount}
-              onChange={e => setPayForm(p => ({ ...p, amount: e.target.value }))}
-              className="w-full h-12 rounded-xl bg-[#1C1C2E] border border-[#1E1E30] px-4 text-[#F1F5F9] focus:outline-none focus:border-[#6366F1] text-sm"
+            <label className="text-xs font-medium text-[#94A3B8] block mb-1.5">Payment Amount (₹)</label>
+            <input 
+              type="number" 
+              required 
+              value={payForm.amount} 
+              onChange={e => setPayForm(p => ({ ...p, amount: e.target.value }))} 
+              className="w-full h-11 rounded-xl bg-[#080810] border border-white/8 px-4 text-sm text-[#F8FAFC] font-mono focus:border-[#6366F1]/40 focus:ring-4 focus:ring-[#6366F1]/5 outline-none transition-all" 
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-[#94A3B8] block mb-2">Payment Method</label>
-            <div className="grid grid-cols-4 gap-2">
+            <label className="text-xs font-medium text-[#94A3B8] block mb-3">Payment Method</label>
+            <div className="grid grid-cols-2 gap-2">
               {PAYMENT_METHODS.map(m => (
-                <button
-                  key={m}
-                  type="button"
-                  onClick={() => setPayForm(p => ({ ...p, method: m }))}
-                  className={`h-12 rounded-xl text-sm font-medium transition-colors ${
-                    payForm.method === m
-                      ? "bg-[#6366F1] text-white"
-                      : "bg-[#1C1C2E] text-[#94A3B8] border border-[#1E1E30]"
+                <button 
+                  key={m} 
+                  type="button" 
+                  onClick={() => setPayForm(p => ({ ...p, method: m }))} 
+                  className={`h-11 rounded-xl text-xs font-medium transition-all border ${
+                    payForm.method === m 
+                      ? "bg-[#6366F1]/10 border-[#6366F1]/40 text-[#6366F1] shadow-sm shadow-[#6366F1]/10" 
+                      : "bg-surface border-white/6 text-[#94A3B8] hover:border-white/12"
                   }`}
                 >
                   {METHOD_LABELS[m]}
@@ -550,83 +456,32 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
               ))}
             </div>
           </div>
-          {invoices.length > 0 && (
-            <div>
-              <label className="text-sm font-medium text-[#94A3B8] block mb-1.5">Link Invoice (optional)</label>
-              <select
-                value={payForm.invoice_id}
-                onChange={e => setPayForm(p => ({ ...p, invoice_id: e.target.value }))}
-                className="w-full h-12 rounded-xl bg-[#1C1C2E] border border-[#1E1E30] px-4 text-[#F1F5F9] focus:outline-none focus:border-[#6366F1] text-sm"
-              >
-                <option value="">No invoice</option>
-                {invoices.map(inv => (
-                  <option key={inv.id} value={inv.id}>{inv.invoice_number} — {formatINR(inv.amount)}</option>
-                ))}
-              </select>
-            </div>
-          )}
-          <div>
-            <label className="text-sm font-medium text-[#94A3B8] block mb-1.5">Notes</label>
-            <input
-              type="text"
-              value={payForm.notes}
-              onChange={e => setPayForm(p => ({ ...p, notes: e.target.value }))}
-              placeholder="Optional"
-              className="w-full h-12 rounded-xl bg-[#1C1C2E] border border-[#1E1E30] px-4 text-[#F1F5F9] placeholder-[#94A3B8] focus:outline-none focus:border-[#6366F1] text-sm"
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={isPending}
-            className="w-full h-12 rounded-xl bg-[#6366F1] text-white font-semibold active:scale-95 transition-transform duration-100 disabled:opacity-60"
-          >
-            {isPending ? "Recording..." : "Record Payment"}
-          </button>
+          <button type="submit" disabled={isPending} className="w-full h-12 rounded-xl bg-[#6366F1] text-white text-sm font-semibold active:scale-[0.98] transition-all disabled:opacity-50 mt-4 shadow-lg shadow-[#6366F1]/20">Record Transaction</button>
         </form>
       </BottomSheet>
 
-      {/* Add Plan Sheet */}
-      <BottomSheet open={showPlan} onClose={() => setShowPlan(false)} title="Add Plan">
-        <form onSubmit={handleAddPlan} className="space-y-4 pt-2">
-          {plans.length === 0 ? (
-            <div className="text-center py-6">
-              <p className="text-sm text-[#94A3B8] mb-3">No active plans available.</p>
-              <Link href="/plans" className="text-[#6366F1] text-sm font-medium">Create a plan</Link>
-            </div>
-          ) : (
-            <>
-              <div>
-                <label className="text-sm font-medium text-[#94A3B8] block mb-1.5">Select Plan</label>
-                <select
-                  required
-                  value={planForm.plan_id}
-                  onChange={e => setPlanForm(p => ({ ...p, plan_id: e.target.value }))}
-                  className="w-full h-12 rounded-xl bg-[#1C1C2E] border border-[#1E1E30] px-4 text-[#F1F5F9] focus:outline-none focus:border-[#6366F1] text-sm"
-                >
-                  {plans.map(pl => (
-                    <option key={pl.id} value={pl.id}>{pl.name} — {pl.duration_days} days — {formatINR(pl.price)}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-[#94A3B8] block mb-1.5">Start Date</label>
-                <input
-                  type="date"
-                  required
-                  value={planForm.start_date}
-                  onChange={e => setPlanForm(p => ({ ...p, start_date: e.target.value }))}
-                  className="w-full h-12 rounded-xl bg-[#1C1C2E] border border-[#1E1E30] px-4 text-[#F1F5F9] focus:outline-none focus:border-[#6366F1] text-sm"
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={isPending}
-                className="w-full h-12 rounded-xl bg-[#6366F1] text-white font-semibold active:scale-95 transition-transform duration-100 disabled:opacity-60"
-              >
-                {isPending ? "Adding..." : "Add Plan"}
-              </button>
-            </>
-          )}
+      <BottomSheet open={showPlan} onClose={() => setShowPlan(false)} title="Assign New Plan">
+        <form onSubmit={handleAddPlan} className="space-y-6 pt-4 pb-8">
+          <div>
+            <label className="text-xs font-medium text-[#94A3B8] block mb-1.5">Select Membership Plan</label>
+            <select 
+              value={planForm.plan_id} 
+              onChange={e => setPlanForm(p => ({ ...p, plan_id: e.target.value }))} 
+              className="w-full h-11 rounded-xl bg-[#080810] border border-white/8 px-4 text-sm text-[#F8FAFC] focus:border-[#6366F1]/40 focus:ring-4 focus:ring-[#6366F1]/5 outline-none"
+            >
+              {plans.map(pl => <option key={pl.id} value={pl.id}>{pl.name} — {pl.duration_days} days — {formatINR(pl.price)}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="text-xs font-medium text-[#94A3B8] block mb-1.5">Effective Start Date</label>
+            <input 
+              type="date" 
+              value={planForm.start_date} 
+              onChange={e => setPlanForm(p => ({ ...p, start_date: e.target.value }))} 
+              className="w-full h-11 rounded-xl bg-[#080810] border border-white/8 px-4 text-sm text-[#F8FAFC] focus:border-[#6366F1]/40 focus:ring-4 focus:ring-[#6366F1]/5 outline-none" 
+            />
+          </div>
+          <button type="submit" disabled={isPending} className="w-full h-12 rounded-xl bg-[#6366F1] text-white text-sm font-semibold active:scale-[0.98] transition-all mt-4 shadow-lg shadow-[#6366F1]/20">Assign Membership</button>
         </form>
       </BottomSheet>
     </div>

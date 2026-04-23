@@ -1,37 +1,43 @@
 "use client";
 
+import React, { useEffect, useState } from "react";
 import { Dumbbell } from "lucide-react";
 
 export default function LoadingScreen() {
-  return (
-    <div className="fixed inset-0 z-[9999] bg-[#0D0D14] flex flex-col items-center justify-center overflow-hidden">
-      {/* Center Logo */}
-      <div className="flex flex-col items-center gap-6">
-        <div className="flex items-center gap-3">
-          <div className="h-12 w-12 rounded-2xl bg-[#6366F1] flex items-center justify-center shadow-lg shadow-[#6366F1]/20">
-            <Dumbbell size={24} className="text-white" />
-          </div>
-          <span className="text-4xl font-extrabold tracking-tighter">
-            <span className="text-[#6366F1]">Rep</span>
-            <span className="text-white">Core</span>
-          </span>
-        </div>
+  const [isVisible, setIsVisible] = useState(true);
 
-        {/* 3 Animated Dots (using Tailwind's pulse) */}
-        <div className="flex gap-2">
-          {[0, 1, 2].map((i) => (
-            <div
-              key={i}
-              className="w-1.5 h-1.5 rounded-full bg-[#6366F1] animate-pulse"
-              style={{ animationDelay: `${i * 150}ms` }}
-            />
-          ))}
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsVisible(false);
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!isVisible) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] bg-[#080810] flex flex-col items-center justify-center animate-fade-in transition-opacity duration-400">
+      <div className="flex flex-col items-center gap-4">
+        {/* Logo Section */}
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-2xl bg-[#6366F1] flex items-center justify-center shadow-lg shadow-[#6366F1]/30">
+            <Dumbbell size={20} className="text-white" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-2xl font-bold tracking-tight">
+              <span className="text-[#6366F1]">Rep</span>
+              <span className="text-[#F8FAFC]">Core</span>
+            </span>
+            <span className="text-[10px] text-[#475569] font-bold tracking-[0.25em] uppercase -mt-1 ml-0.5">
+              Gym Management
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* Google-style Bottom Loading Bar (using a simple CSS animation) */}
-      <div className="fixed bottom-0 left-0 right-0 h-0.5 bg-white/5 overflow-hidden">
-        <div className="h-full w-full bg-gradient-to-r from-[#6366F1] via-[#818CF8] to-[#6366F1] animate-progress-bar" />
+      {/* Loading Bar at Bottom */}
+      <div className="fixed bottom-0 left-0 right-0 h-[2px] bg-white/3 overflow-hidden">
+        <div className="h-full w-full bg-gradient-to-r from-[#6366F1] via-indigo-400 to-[#6366F1] animate-progress-bar" />
       </div>
 
       <style jsx>{`
@@ -40,7 +46,14 @@ export default function LoadingScreen() {
           100% { transform: translateX(100%); }
         }
         .animate-progress-bar {
-          animation: progressBar 1.5s infinite ease-in-out;
+          animation: progressBar 1.2s ease-in-out infinite;
+        }
+        .animate-fade-in {
+          animation: fadeIn 0.4s ease-out;
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
         }
       `}</style>
     </div>

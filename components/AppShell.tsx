@@ -1,147 +1,155 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  LayoutDashboard,
-  Users,
-  ScanLine,
-  Bell,
-  MoreHorizontal,
-  Dumbbell,
-  BarChart2,
-  ClipboardList,
-  Settings,
+import { 
+  Home, Users, Bell, 
+  Settings, LayoutGrid, Dumbbell,
+  MoreHorizontal, ScanLine
 } from "lucide-react";
 import type { Gym } from "@/lib/supabase/types";
 import { memberInitials } from "@/lib/helpers";
+
+const NAV_ITEMS = [
+  { label: "Home", href: "/dashboard", icon: Home },
+  { label: "Members", href: "/members", icon: Users },
+  { label: "Reminders", href: "/reminders", icon: Bell },
+  { label: "Reports", href: "/reports", icon: LayoutGrid },
+];
 
 interface Props {
   gym: Gym;
   children: React.ReactNode;
 }
 
-const TAB_ITEMS = [
-  { href: "/dashboard", icon: LayoutDashboard, label: "Home" },
-  { href: "/members", icon: Users, label: "Members" },
-  { href: "/checkin", icon: ScanLine, label: "Check-in", accent: true },
-  { href: "/reminders", icon: Bell, label: "Reminders" },
-  { href: "/more", icon: MoreHorizontal, label: "More" },
-];
-
-const SIDEBAR_ITEMS = [
-  { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-  { href: "/members", icon: Users, label: "Members" },
-  { href: "/checkin", icon: ScanLine, label: "Check-in" },
-  { href: "/reminders", icon: Bell, label: "Reminders" },
-  { href: "/plans", icon: ClipboardList, label: "Plans" },
-  { href: "/reports", icon: BarChart2, label: "Reports" },
-  { href: "/settings", icon: Settings, label: "Settings" },
-];
-
 export default function AppShell({ gym, children }: Props) {
   const pathname = usePathname();
 
+  const getPageTitle = () => {
+    const item = NAV_ITEMS.find(i => i.href === pathname) || { label: "Dashboard" };
+    if (pathname === "/settings") return "Settings";
+    if (pathname.includes("/members/")) return "Member Profile";
+    return item.label;
+  };
+
   return (
-    <div className="min-h-screen bg-[#0D0D14] flex">
-      {/* Desktop Sidebar */}
-      <aside className="hidden md:flex flex-col w-64 shrink-0 bg-gradient-to-b from-[#0D0D14] to-[#111120] border-r border-white/5 fixed left-0 top-0 h-screen z-30">
-        {/* Logo */}
-        <div className="flex items-center gap-3 px-6 py-7 border-b border-white/5">
-          <div className="relative">
-            <div className="h-2 w-2 rounded-full bg-[#6366F1]" />
-            <div className="absolute inset-0 h-2 w-2 rounded-full bg-[#6366F1] blur-md" />
+    <div className="flex min-h-screen bg-[#080810]">
+      {/* Sidebar - Desktop */}
+      <aside className="hidden md:flex w-56 flex-col fixed inset-y-0 left-0 bg-gradient-to-b from-[#0A0A18] to-[#080810] border-r border-white/5 z-30">
+        {/* Top Section */}
+        <div className="p-4 pb-3">
+          <Link href="/dashboard" className="flex items-center gap-2.5 group">
+            <div className="h-7 w-7 rounded-lg bg-[#6366F1] flex items-center justify-center shadow-lg shadow-[#6366F1]/20 transition-transform group-hover:scale-105">
+              <Dumbbell size={14} className="text-white" />
+            </div>
+            <span className="text-sm font-semibold text-white tracking-tight">RepCore</span>
+          </Link>
+          
+          <div className="mt-6">
+            <p className="text-[10px] font-semibold text-[#475569] uppercase tracking-[0.12em] mb-2">
+              Managing
+            </p>
+            <p className="text-sm font-medium text-[#F8FAFC] truncate">
+              {gym.name}
+            </p>
           </div>
-          <span className="text-xl font-bold tracking-tight">
-            <span className="text-[#6366F1]">Rep</span>
-            <span className="text-white">Core</span>
-          </span>
+          <hr className="border-white/5 my-4" />
         </div>
 
-        {/* Gym info */}
-        <div className="px-6 py-5">
-          <p className="text-[10px] uppercase tracking-wider font-bold text-[#94A3B8] mb-1">Managing</p>
-          <p className="text-sm font-semibold text-white truncate">{gym.name}</p>
-        </div>
-
-        {/* Nav */}
-        <nav className="flex-1 py-4 px-4 space-y-1 overflow-y-auto">
-          {SIDEBAR_ITEMS.map(({ href, icon: Icon, label }) => {
-            const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
+        {/* Navigation */}
+        <nav className="flex-1 px-2 space-y-0.5">
+          {NAV_ITEMS.map((item) => {
+            const active = pathname === item.href;
             return (
-              <div key={href}>
-                <Link
-                  href={href}
-                  className={`relative flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all group ${
-                    active
-                      ? "text-white bg-gradient-to-r from-[#6366F1]/20 to-transparent border-l-2 border-[#6366F1]"
-                      : "text-[#94A3B8] hover:text-white hover:bg-white/5"
-                  }`}
-                >
-                  <Icon size={18} className={`${active ? "text-[#6366F1]" : "group-hover:text-white"}`} />
-                  {label}
-                </Link>
-              </div>
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`relative flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm transition-all duration-150 group ${
+                  active 
+                    ? "bg-[#6366F1]/10 text-[#6366F1] font-medium" 
+                    : "text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-white/4"
+                }`}
+              >
+                {active && (
+                  <div className="absolute left-0 w-0.5 h-4 bg-[#6366F1] rounded-full" />
+                )}
+                <item.icon size={15} strokeWidth={1.5} className={active ? "text-[#6366F1]" : "text-[#94A3B8] group-hover:text-[#F8FAFC]"} />
+                {item.label}
+              </Link>
             );
           })}
         </nav>
 
-        {/* User Card */}
-        <div className="px-4 py-6 border-t border-white/5">
-          <div className="bg-white/5 rounded-2xl p-4 flex items-center gap-3 border border-white/5">
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-[#6366F1] to-[#4F46E5] flex items-center justify-center text-white text-sm font-bold shadow-lg shadow-[#6366F1]/20">
+        {/* Bottom Section */}
+        <div className="mt-auto p-3">
+          <Link
+            href="/settings"
+            className={`flex items-center gap-2.5 p-2.5 rounded-xl bg-white/3 border border-white/6 hover:border-white/12 transition-all ${
+              pathname === "/settings" ? "border-[#6366F1]/30" : ""
+            }`}
+          >
+            <div className="h-7 w-7 rounded-lg bg-[#6366F1]/20 flex items-center justify-center text-[#6366F1] font-bold text-[10px]">
               {memberInitials(gym.name)}
             </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-white truncate">{gym.name}</p>
-              <Link href="/settings" className="text-[11px] font-medium text-[#94A3B8] hover:text-[#6366F1] transition-colors">
-                View Settings
-              </Link>
+            <div className="flex-1 min-w-0">
+              <p className="text-[11px] font-medium text-[#F8FAFC] truncate">{gym.name}</p>
             </div>
-          </div>
+            <Settings size={14} className="text-[#94A3B8]" />
+          </Link>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 md:ml-64 min-w-0 overflow-y-auto min-h-screen">
-        <div className="max-w-none pb-20 md:pb-8">
+      {/* Main Area */}
+      <div className="flex-1 md:ml-56 flex flex-col min-w-0">
+        {/* Top Bar */}
+        <header className="sticky top-0 z-40 h-[48px] bg-[#080810]/80 backdrop-blur-xl border-b border-white/5 flex items-center justify-between px-4 md:px-8">
+          <h2 className="text-sm font-semibold text-[#F8FAFC] tracking-tight">
+            {getPageTitle()}
+          </h2>
+          <div className="h-8 w-8 rounded-full bg-[#6366F1] flex items-center justify-center text-white text-[11px] font-semibold border border-white/10 shadow-lg shadow-[#6366F1]/20">
+            {memberInitials(gym.name)}
+          </div>
+        </header>
+
+        {/* Page Content */}
+        <main className="flex-1 pb-16 md:pb-8">
           {children}
-        </div>
-      </main>
+        </main>
+      </div>
 
       {/* Mobile Bottom Tab Bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-[#111120]/95 backdrop-blur-xl border-t border-white/8 h-16 flex items-center px-4">
-        {TAB_ITEMS.map(({ href, icon: Icon, label, accent }) => {
-          const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
-          const moreActive = href === "/more" && ["/plans", "/reports", "/settings"].some(p => pathname.startsWith(p));
-
-          return (
-            <div key={href} className="flex-1">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 h-14 bg-[#080810]/90 backdrop-blur-2xl border-t border-white/5 flex items-center justify-around px-2 z-40 pb-safe">
+        {[
+          { label: "Home", href: "/dashboard", icon: Home },
+          { label: "Members", href: "/members", icon: Users },
+          { label: "Check-in", href: "/members", icon: ScanLine, special: true },
+          { label: "Reminders", href: "/reminders", icon: Bell },
+          { label: "More", href: "/settings", icon: MoreHorizontal },
+        ].map((item) => {
+          const active = pathname === item.href;
+          if (item.special) {
+            return (
               <Link
-                href={href === "/more" ? "/plans" : href}
-                className={`flex flex-col items-center justify-center gap-1 h-full transition-all ${
-                  accent
-                    ? "relative"
-                    : active || moreActive
-                    ? "text-[#6366F1] font-medium"
-                    : "text-[#94A3B8]"
-                }`}
+                key={item.href}
+                href={item.href}
+                className="flex flex-col items-center justify-center -mt-6 h-12 w-12 bg-[#6366F1] rounded-xl text-white shadow-lg shadow-[#6366F1]/30 active:scale-90 transition-all"
               >
-                {accent ? (
-                  <div className={`h-11 w-11 rounded-2xl flex items-center justify-center transition-all ${active ? "bg-[#6366F1] shadow-lg shadow-[#6366F1]/30" : "bg-[#6366F1]/80"}`}>
-                    <Icon size={22} className="text-white" />
-                  </div>
-                ) : (
-                  <>
-                    {(active || moreActive) && (
-                      <div className="w-1 h-1 rounded-full bg-[#6366F1] mb-1" />
-                    )}
-                    <Icon size={20} className={active || moreActive ? "scale-110" : ""} />
-                    <span className="text-[10px]">{label}</span>
-                  </>
-                )}
+                <item.icon size={22} strokeWidth={2} />
               </Link>
-            </div>
+            );
+          }
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`flex flex-col items-center gap-1 min-w-[60px] transition-all active:scale-95 ${
+                active ? "text-[#6366F1]" : "text-[#475569]"
+              }`}
+            >
+              <item.icon size={20} strokeWidth={active ? 2 : 1.5} />
+              <span className="text-[10px] font-medium">{item.label}</span>
+            </Link>
           );
         })}
       </nav>

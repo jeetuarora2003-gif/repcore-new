@@ -28,32 +28,34 @@ export default function BottomSheet({ open, onClose, title, children }: Props) {
     <div className="fixed inset-0 z-50 flex flex-col justify-end">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-[#080810]/80 backdrop-blur-md transition-opacity animate-in fade-in duration-300"
         onClick={onClose}
       />
       {/* Sheet */}
       <div
         ref={ref}
-        className="relative bg-[#13131F] border border-[#1E1E30] rounded-t-3xl animate-slide-up max-h-[92vh] flex flex-col"
+        className="relative bg-surface border-t border-x border-white/10 rounded-t-[2rem] shadow-[0_-10px_40px_rgba(0,0,0,0.5)] animate-in slide-in-from-bottom duration-300 max-h-[92vh] flex flex-col"
       >
         {/* Drag handle */}
-        <div className="pt-3 pb-1 flex justify-center shrink-0">
-          <div className="h-1 w-8 bg-[#1E1E30] rounded-full" />
+        <div className="pt-4 pb-2 flex justify-center shrink-0">
+          <div className="h-1.5 w-12 bg-white/5 rounded-full" />
         </div>
+        
         {/* Header */}
         {title && (
-          <div className="flex items-center justify-between px-5 py-3 shrink-0">
-            <h2 className="text-lg font-semibold text-[#F1F5F9]">{title}</h2>
+          <div className="flex items-center justify-between px-6 py-4 shrink-0">
+            <h2 className="text-lg font-bold tracking-tight text-[#F8FAFC]">{title}</h2>
             <button
               onClick={onClose}
-              className="h-8 w-8 rounded-full bg-[#1C1C2E] flex items-center justify-center text-[#94A3B8] hover:text-[#F1F5F9] transition-colors"
+              className="h-8 w-8 rounded-full bg-white/5 flex items-center justify-center text-[#475569] hover:text-[#F8FAFC] hover:bg-white/10 transition-all active:scale-90"
             >
               <X size={16} />
             </button>
           </div>
         )}
+        
         {/* Content */}
-        <div className="overflow-y-auto flex-1 px-5 pb-8">
+        <div className="overflow-y-auto flex-1 px-6 pb-10 scrollbar-hide">
           {children}
         </div>
       </div>

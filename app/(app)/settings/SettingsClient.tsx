@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { LogOut, Save, Eye, EyeOff, Building2, MessageCircle, FileText, Download } from "lucide-react";
+import { LogOut, Save, Eye, EyeOff, Building2, MessageCircle, FileText, Download, ShieldCheck, Zap } from "lucide-react";
 import { memberInitials, cleanPhone } from "@/lib/helpers";
 import type { Gym } from "@/lib/supabase/types";
 import { updateGymSettings } from "@/app/actions/gym";
@@ -40,7 +40,7 @@ export default function SettingsClient({ gym }: Props) {
     startTransition(async () => {
       try {
         await updateGymSettings(gym.id, form);
-        toast.success("Settings saved!");
+        toast.success("Settings updated successfully");
         router.refresh();
       } catch (err) {
         toast.error((err as Error).message);
@@ -56,152 +56,144 @@ export default function SettingsClient({ gym }: Props) {
   }
 
   return (
-    <div className="pb-24 min-h-screen">
-      {/* Header */}
-      <div className="sticky top-0 z-20 bg-[#0D0D14]/95 backdrop-blur-md border-b border-[#1E1E30] px-4 py-3">
-        <h1 className="text-lg font-bold text-[#F1F5F9]">Settings</h1>
-      </div>
-
-      <form onSubmit={handleSave} className="px-4 py-4 space-y-5">
+    <div className="pb-24 min-h-screen bg-[#080810] animate-fade-up">
+      <form onSubmit={handleSave} className="px-4 py-8 md:px-8 max-w-2xl space-y-8 mx-auto">
         {/* Gym Profile */}
-        <div className="bg-[#13131F] border border-[#1E1E30] rounded-2xl p-4 space-y-4">
-          <div className="flex items-center gap-3 pb-2 border-b border-[#1E1E30]">
-            <div className="h-8 w-8 rounded-xl bg-[#6366F1]/10 flex items-center justify-center">
-              <Building2 size={16} className="text-[#6366F1]" />
+        <div className="card p-6 space-y-6">
+          <div className="flex items-center justify-between pb-4 border-b border-white/5">
+            <div className="flex items-center gap-3">
+              <div className="h-7 w-7 rounded-lg bg-[#6366F1]/10 flex items-center justify-center text-[#6366F1] border border-[#6366F1]/20">
+                <Building2 size={14} />
+              </div>
+              <h3 className="text-sm font-semibold text-[#F8FAFC]">Business Profile</h3>
             </div>
-            <p className="text-sm font-semibold text-[#F1F5F9]">Gym Profile</p>
-          </div>
-
-          {/* Logo circle */}
-          <div className="flex justify-center">
-            <div className="h-20 w-20 rounded-full bg-[#6366F1] flex items-center justify-center text-white text-2xl font-bold">
+            <div className="h-8 w-8 rounded-lg bg-surface-3 flex items-center justify-center text-[#6366F1] text-[10px] font-bold border border-white/5">
               {memberInitials(form.name || "G")}
             </div>
           </div>
 
-          {[
-            { field: "name", label: "Gym Name", placeholder: "Your gym name", type: "text" },
-            { field: "address", label: "Address", placeholder: "Full address", type: "text" },
-            { field: "phone", label: "Phone", placeholder: "+91 98765 43210", type: "tel" },
-          ].map(({ field, label, placeholder, type }) => (
-            <div key={field}>
-              <label className="text-sm font-medium text-[#94A3B8] block mb-1.5">{label}</label>
-              <input
-                type={type}
-                value={form[field as keyof typeof form]}
-                onChange={e => handleChange(field, e.target.value)}
-                placeholder={placeholder}
-                className="w-full h-12 rounded-xl bg-[#1C1C2E] border border-[#1E1E30] px-4 text-[#F1F5F9] placeholder-[#94A3B8] focus:outline-none focus:border-[#6366F1] text-sm"
-              />
-            </div>
-          ))}
+          <div className="grid gap-5">
+            {[
+              { field: "name", label: "Gym Name", placeholder: "Your gym name", type: "text" },
+              { field: "address", label: "Business Address", placeholder: "Street, City, State", type: "text" },
+              { field: "phone", label: "Official Contact Number", placeholder: "98765 43210", type: "tel" },
+            ].map(({ field, label, placeholder, type }) => (
+              <div key={field} className="space-y-1.5">
+                <label className="text-xs font-medium text-[#94A3B8]">{label}</label>
+                <input
+                  type={type}
+                  value={form[field as keyof typeof form]}
+                  onChange={e => handleChange(field, e.target.value)}
+                  placeholder={placeholder}
+                  className="w-full h-10 rounded-xl bg-[#080810] border border-white/8 px-4 text-sm text-[#F8FAFC] placeholder-[#475569] focus:outline-none focus:border-[#6366F1]/40 focus:ring-4 focus:ring-[#6366F1]/5 transition-all"
+                />
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Prefixes */}
-        <div className="bg-[#13131F] border border-[#1E1E30] rounded-2xl p-4 space-y-4">
-          <div className="flex items-center gap-3 pb-2 border-b border-[#1E1E30]">
-            <div className="h-8 w-8 rounded-xl bg-[#F59E0B]/10 flex items-center justify-center">
-              <FileText size={16} className="text-[#F59E0B]" />
+        {/* System Config */}
+        <div className="card p-6 space-y-6">
+          <div className="flex items-center gap-3 pb-4 border-b border-white/5">
+            <div className="h-7 w-7 rounded-lg bg-[#F59E0B]/10 flex items-center justify-center text-[#F59E0B] border border-[#F59E0B]/20">
+              <FileText size={14} />
             </div>
-            <p className="text-sm font-semibold text-[#F1F5F9]">Document Prefixes</p>
+            <h3 className="text-sm font-semibold text-[#F8FAFC]">System Configuration</h3>
           </div>
 
-          {[
-            { field: "receipt_prefix", label: "Receipt Prefix" },
-            { field: "invoice_prefix", label: "Invoice Prefix" },
-          ].map(({ field, label }) => (
-            <div key={field}>
-              <label className="text-sm font-medium text-[#94A3B8] block mb-1.5">{label}</label>
-              <input
-                type="text"
-                value={form[field as keyof typeof form]}
-                onChange={e => handleChange(field, e.target.value)}
-                className="w-full h-12 rounded-xl bg-[#1C1C2E] border border-[#1E1E30] px-4 text-[#F1F5F9] focus:outline-none focus:border-[#6366F1] text-sm"
-              />
-              <p className="text-xs text-[#94A3B8] mt-1">
-                Preview: {form[field as keyof typeof form]}-{new Date().getFullYear()}-0001
-              </p>
-            </div>
-          ))}
+          <div className="grid sm:grid-cols-2 gap-6">
+            {[
+              { field: "receipt_prefix", label: "Receipt Series Prefix" },
+              { field: "invoice_prefix", label: "Invoice Series Prefix" },
+            ].map(({ field, label }) => (
+              <div key={field} className="space-y-1.5">
+                <label className="text-xs font-medium text-[#94A3B8]">{label}</label>
+                <input
+                  type="text"
+                  value={form[field as keyof typeof form]}
+                  onChange={e => handleChange(field, e.target.value)}
+                  className="w-full h-10 rounded-xl bg-[#080810] border border-white/8 px-4 text-sm text-[#F8FAFC] font-mono focus:outline-none focus:border-[#6366F1]/40 transition-all uppercase"
+                />
+                <p className="text-[10px] text-[#475569] font-mono tracking-wider pl-1">
+                  PREVIEW: {form[field as keyof typeof form] || "REP"}-{new Date().getFullYear()}-0001
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* WhatsApp */}
-        <div className="bg-[#13131F] border border-[#1E1E30] rounded-2xl p-4 space-y-4">
-          <div className="flex items-center gap-3 pb-2 border-b border-[#1E1E30]">
-            <div className="h-8 w-8 rounded-xl bg-[#22C55E]/10 flex items-center justify-center">
-              <MessageCircle size={16} className="text-[#22C55E]" />
+        {/* Integration */}
+        <div className="card p-6 space-y-6">
+          <div className="flex items-center gap-3 pb-4 border-b border-white/5">
+            <div className="h-7 w-7 rounded-lg bg-[#10B981]/10 flex items-center justify-center text-[#10B981] border border-[#10B981]/20">
+              <Zap size={14} strokeWidth={2.5} />
             </div>
-            <p className="text-sm font-semibold text-[#F1F5F9]">WhatsApp Integration</p>
+            <h3 className="text-sm font-semibold text-[#F8FAFC]">WhatsApp Integration</h3>
           </div>
 
-          <div>
-            <label className="text-sm font-medium text-[#94A3B8] block mb-1.5">API Key</label>
-            <div className="relative">
-              <input
-                type={showApiKey ? "text" : "password"}
-                value={form.whatsapp_api_key}
-                onChange={e => handleChange("whatsapp_api_key", e.target.value)}
-                placeholder="Your WhatsApp API key"
-                className="w-full h-12 rounded-xl bg-[#1C1C2E] border border-[#1E1E30] px-4 pr-12 text-[#F1F5F9] placeholder-[#94A3B8] focus:outline-none focus:border-[#6366F1] text-sm"
-              />
-              <button
-                type="button"
-                onClick={() => setShowApiKey(!showApiKey)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#94A3B8] hover:text-[#F1F5F9]"
-              >
-                {showApiKey ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
+          <div className="space-y-5">
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-[#94A3B8]">WhatsApp API Key</label>
+              <div className="relative">
+                <input
+                  type={showApiKey ? "text" : "password"}
+                  value={form.whatsapp_api_key}
+                  onChange={e => handleChange("whatsapp_api_key", e.target.value)}
+                  placeholder="sk-..."
+                  className="w-full h-10 rounded-xl bg-[#080810] border border-white/8 px-4 pr-12 text-sm text-[#F8FAFC] font-mono placeholder-[#475569] focus:outline-none focus:border-[#6366F1]/40 focus:ring-4 focus:ring-[#6366F1]/5 transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowApiKey(!showApiKey)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#475569] hover:text-[#F8FAFC] transition-colors"
+                >
+                  {showApiKey ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+
+            <div className="bg-surface-2 rounded-xl p-4 flex justify-between items-center border border-white/5 group hover:border-[#10B981]/20 transition-all">
+              <div className="flex items-center gap-3">
+                <ShieldCheck size={16} className="text-[#10B981]" />
+                <span className="text-xs font-medium text-[#94A3B8]">Messaging Balance</span>
+              </div>
+              <span className="text-sm font-bold font-mono text-[#F8FAFC] tabular-nums">{gym.whatsapp_credits} units</span>
             </div>
           </div>
+        </div>
 
-          <div className="bg-[#1C1C2E] rounded-xl p-3 flex justify-between items-center">
-            <span className="text-sm text-[#94A3B8]">Credits Balance</span>
-            <span className="text-sm font-bold text-[#F1F5F9]">{gym.whatsapp_credits}</span>
-          </div>
-
+        {/* Footer Actions */}
+        <div className="space-y-4 pt-6">
           <button
-            type="button"
-            disabled={!form.whatsapp_api_key}
-            className="w-full h-12 rounded-xl bg-[#22C55E]/10 border border-[#22C55E]/30 text-[#22C55E] font-semibold flex items-center justify-center gap-2 active:scale-95 transition-transform duration-100 disabled:opacity-40 disabled:cursor-not-allowed"
-            onClick={() => {
-              const msg = encodeURIComponent("Test message from RepCore! Your WhatsApp integration is working.");
-              window.open(`https://wa.me/91${gym.phone.replace(/\D/g, "")}?text=${msg}`, "_blank");
-            }}
+            type="submit"
+            disabled={isPending}
+            className="w-full h-11 rounded-xl bg-[#6366F1] text-white text-sm font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-lg shadow-[#6366F1]/20 disabled:opacity-50"
           >
-            <MessageCircle size={16} />
-            Test Message
+            <Save size={16} />
+            {isPending ? "Saving changes..." : "Save Settings"}
           </button>
+
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              disabled
+              className="h-10 rounded-xl bg-surface border border-white/6 text-[#475569] text-xs font-medium flex items-center justify-center gap-2 cursor-not-allowed"
+            >
+              <Download size={14} />
+              Export Records
+            </button>
+
+            <button
+              type="button"
+              onClick={handleSignOut}
+              className="h-10 rounded-xl border border-[#EF4444]/30 text-[#EF4444] text-xs font-semibold flex items-center justify-center gap-2 active:scale-95 transition-all hover:bg-[#EF4444]/5"
+            >
+              <LogOut size={14} />
+              Sign Out Account
+            </button>
+          </div>
         </div>
-
-        {/* Save */}
-        <button
-          type="submit"
-          disabled={isPending}
-          className="w-full h-12 rounded-xl bg-[#6366F1] text-white font-semibold flex items-center justify-center gap-2 active:scale-95 transition-transform disabled:opacity-60"
-        >
-          <Save size={16} />
-          {isPending ? "Saving..." : "Save Settings"}
-        </button>
       </form>
-
-      {/* Account Section */}
-      <div className="px-4 pb-8 space-y-3">
-        <button
-          disabled
-          className="w-full h-12 rounded-xl bg-[#1C1C2E] border border-[#1E1E30] text-[#94A3B8]/50 font-semibold flex items-center justify-center gap-2 cursor-not-allowed"
-        >
-          <Download size={16} />
-          Export Data (Coming Soon)
-        </button>
-
-        <button
-          onClick={handleSignOut}
-          className="w-full h-12 rounded-xl border border-[#EF4444]/50 text-[#EF4444] font-semibold flex items-center justify-center gap-2 active:scale-95 transition-transform duration-100 hover:bg-[#EF4444]/10"
-        >
-          <LogOut size={16} />
-          Sign Out
-        </button>
-      </div>
     </div>
   );
 }
