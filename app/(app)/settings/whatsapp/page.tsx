@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import WhatsappSettingsClient from "./WhatsappSettingsClient";
+import WhatsappSettingsClient from "@/app/(app)/settings/whatsapp/WhatsappSettingsClient";
 
 export default async function WhatsappSettingsPage() {
   const supabase = await createClient();
