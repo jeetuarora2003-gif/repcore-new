@@ -260,7 +260,7 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
                       </div>
                       <div className="text-right">
                         <p className={`text-sm font-bold font-mono ${daysRemaining > 7 ? "text-status-success-text" : daysRemaining > 3 ? "text-status-warning-text" : "text-status-danger-text"}`}>
-                          {daysRemaining} Days Left
+                          {daysRemaining > 0 ? `${daysRemaining} Days Left` : daysRemaining === 0 ? "Expires Today" : "Expired"}
                         </p>
                         <p className="text-[10px] text-text-muted uppercase tracking-widest font-bold">Ends {formatDate(member.end_date)}</p>
                       </div>
