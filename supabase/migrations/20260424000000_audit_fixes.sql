@@ -252,6 +252,11 @@ LEFT JOIN plans p ON p.id = s.plan_id
 LEFT JOIN member_invoices inv ON inv.member_id = m.id
 LEFT JOIN member_payments pay ON pay.member_id = m.id;
 
+-- Ensure roles can access the new view
+GRANT SELECT ON v_member_status TO authenticated;
+GRANT SELECT ON v_member_status TO anon;
+GRANT SELECT ON v_member_status TO service_role;
+
 CREATE OR REPLACE FUNCTION get_dashboard_stats(p_gym_id uuid)
 RETURNS jsonb AS $$
 DECLARE
