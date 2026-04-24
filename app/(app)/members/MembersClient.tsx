@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { Plus, Search, Phone, Users, ChevronRight, Filter, Loader2 } from "lucide-react";
+import { Plus, Search, Phone, Users, ChevronRight, Filter, Loader2, Download } from "lucide-react";
 import { formatINR, statusLabel, statusBadgeClass } from "@/lib/helpers";
+import { toast } from "sonner";
 import type { MemberStatus } from "@/lib/supabase/types";
 import type { MemberStatusType } from "@/lib/helpers";
 import MemberAvatar from "@/components/MemberAvatar";
@@ -50,12 +51,65 @@ export default function MembersClient({ gymId, members: initialMembers, plans }:
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(initialMembers.length === PAGE_SIZE);
   const [isLoading, setIsLoading] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   // Debounce search
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search), 300);
     return () => clearTimeout(timer);
   }, [search]);
+
+  // Export function
+  async function handleExport() {
+    if (isExporting) return;
+    setIsExporting(true);
+    
+    try {
+      // Fetch all members for this gym
+      const { data, error } = await supabase
+        .from("v_member_status")
+        .select("full_name, phone, email, joining_date, plan_name, status, balance_due, start_date, end_date")
+        .eq("gym_id", gymId)
+        .order("full_name");
+
+      if (error) throw error;
+      if (!data || data.length === 0) {
+        toast.error("No members to export");
+        return;
+      }
+
+      // Convert to CSV
+      const headers = ["Name", "Phone", "Email", "Joining Date", "Plan", "Status", "Balance Due", "Start Date", "End Date"];
+      const csvRows = data.map(m => [
+        `"${m.full_name}"`,
+        `"${m.phone}"`,
+        `"${m.email ?? ""}"`,
+        m.joining_date,
+        `"${m.plan_name ?? ""}"`,
+        m.status,
+        m.balance_due,
+        m.start_date,
+        m.end_date
+      ].join(","));
+      
+      const csvContent = [headers.join(","), ...csvRows].join("\n");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `members_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.success(`Exported ${data.length} members`);
+    } catch (error) {
+      toast.error("Export failed: " + (error as Error).message);
+    } finally {
+      setIsExporting(false);
+    }
+  }
 
   // Fetch function
   const fetchMembers = useCallback(async (reset: boolean = false) => {
@@ -120,13 +174,23 @@ export default function MembersClient({ gymId, members: initialMembers, plans }:
               className="w-full h-12 rounded-xl bg-white border border-border pl-12 pr-4 text-sm text-text-primary font-semibold placeholder-text-muted focus:border-accent focus:ring-4 focus:ring-accent/5 outline-none transition-all shadow-sm"
             />
           </div>
-          <button
-            onClick={() => setShowAdd(true)}
-            className="h-12 px-6 rounded-full bg-accent text-white flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest shadow-lg shadow-accent/20 active:scale-95 transition-all"
-          >
-            <Plus size={18} strokeWidth={3} />
-            Add Member
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleExport}
+              disabled={isExporting}
+              className="h-12 w-12 rounded-full bg-white border border-border text-text-muted flex items-center justify-center hover:bg-hover hover:border-border-strong hover:text-accent transition-all active:scale-95 disabled:opacity-50"
+              title="Export to CSV"
+            >
+              {isExporting ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
+            </button>
+            <button
+              onClick={() => setShowAdd(true)}
+              className="h-12 px-6 rounded-full bg-accent text-white flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest shadow-lg shadow-accent/20 active:scale-95 transition-all"
+            >
+              <Plus size={18} strokeWidth={3} />
+              Add Member
+            </button>
+          </div>
         </div>
 
         <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide pb-1">
