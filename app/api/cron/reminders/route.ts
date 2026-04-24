@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getFriendlyErrorMessage } from "@/lib/errors";
 import { sendAutoRemindersForAllGyms } from "@/lib/actions/whatsapp-auto";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
 
@@ -19,6 +20,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
     }
 
+    // 1. Clean up old attendance records (older than 6 months) to save space
+    const supabase = createAdminClient();
+    await supabase.rpc("clean_old_attendance");
+
+    // 2. Process auto-reminders
     const results = await sendAutoRemindersForAllGyms();
     const summary = results.reduce(
       (acc, result) => {
