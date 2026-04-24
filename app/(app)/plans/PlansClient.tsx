@@ -32,6 +32,11 @@ export default function PlansClient({ gymId, plans }: Props) {
   const [form, setForm] = useState({ name: "", duration_days: 30, price: "" });
   const [localPlans, setLocalPlans] = useState(plans);
 
+  // Sync state when server data changes (e.g. after router.refresh())
+  useEffect(() => {
+    setLocalPlans(plans);
+  }, [plans]);
+
   function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     startTransition(async () => {
