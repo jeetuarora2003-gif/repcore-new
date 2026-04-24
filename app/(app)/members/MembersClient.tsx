@@ -12,10 +12,12 @@ import EmptyState from "@/components/EmptyState";
 import AddMemberWizard from "@/components/AddMemberWizard";
 import { createClient } from "@/lib/supabase/client";
 
-type FilterType = "all" | "active" | "expiring_soon" | "expired" | "lapsed" | "has_dues";
+type FilterType = "all" | "active" | "expiring_soon" | "expired" | "lapsed" | "has_dues" | "new_this_month" | "new_this_year";
 
 const FILTERS: { key: FilterType; label: string }[] = [
   { key: "all", label: "All Members" },
+  { key: "new_this_month", label: "New This Month" },
+  { key: "new_this_year", label: "New This Year" },
   { key: "active", label: "Active" },
   { key: "expiring_soon", label: "Expiring" },
   { key: "expired", label: "Expired" },
@@ -65,28 +67,66 @@ export default function MembersClient({ gymId, members: initialMembers, plans }:
     setIsExporting(true);
     
     try {
-      // Fetch all members for this gym
-      const { data, error } = await supabase
-        .from("v_member_status")
-        .select("full_name, phone, email, joining_date, plan_name, status, balance_due, start_date, end_date")
-        .eq("gym_id", gymId)
-        .order("full_name");
+      const allData: any[] = [];
+      let from = 0;
+      const CHUNK = 1000;
+      let hasMoreData = true;
 
-      if (error) throw error;
-      if (!data || data.length === 0) {
-        toast.error("No members to export");
+      while (hasMoreData) {
+        let query = supabase
+          .from("v_member_status")
+          .select("full_name, phone, email, joining_date, plan_name, status, balance_due, start_date, end_date")
+          .eq("gym_id", gymId)
+          .order("full_name")
+          .range(from, from + CHUNK - 1);
+
+        // Apply current filter to export as well
+        if (filter !== "all") {
+          if (filter === "has_dues") {
+            query = query.gt("balance_due", 0);
+          } else if (filter === "new_this_month") {
+            const startOfMonth = new Date();
+            startOfMonth.setDate(1);
+            query = query.gte("joining_date", startOfMonth.toISOString().split('T')[0]);
+          } else if (filter === "new_this_year") {
+            const startOfYear = new Date();
+            startOfYear.setMonth(0, 1);
+            query = query.gte("joining_date", startOfYear.toISOString().split('T')[0]);
+          } else {
+            query = query.eq("status", filter);
+          }
+        }
+
+        const { data, error } = await query;
+
+        if (error) throw error;
+        if (!data || data.length === 0) {
+          hasMoreData = false;
+        } else {
+          allData.push(...data);
+          if (data.length < CHUNK) {
+            hasMoreData = false;
+          } else {
+            from += CHUNK;
+          }
+        }
+      }
+
+      if (allData.length === 0) {
+        toast.error("No members found for this filter");
         return;
       }
 
       // Convert to CSV
       const headers = ["Name", "Phone", "Email", "Joining Date", "Plan", "Status", "Balance Due", "Start Date", "End Date"];
-      const csvRows = data.map(m => [
+      const csvRows = allData.map(m => [
         `"${m.full_name}"`,
-        `"${m.phone}"`,
+        // Fix for Excel: Wrap in ="" to force string type and prevent scientific notation
+        `="${m.phone}"`,
         `"${m.email ?? ""}"`,
         m.joining_date,
         `"${m.plan_name ?? ""}"`,
-        m.status,
+        `"${m.status}"`,
         m.balance_due,
         m.start_date,
         m.end_date
@@ -97,13 +137,13 @@ export default function MembersClient({ gymId, members: initialMembers, plans }:
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.setAttribute("href", url);
-      link.setAttribute("download", `members_${new Date().toISOString().split('T')[0]}.csv`);
+      link.setAttribute("download", `members_${filter}_${new Date().toISOString().split('T')[0]}.csv`);
       link.style.visibility = 'hidden';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       
-      toast.success(`Exported ${data.length} members`);
+      toast.success(`Exported ${allData.length} members (${filter})`);
     } catch (error) {
       toast.error("Export failed: " + (error as Error).message);
     } finally {
@@ -129,6 +169,14 @@ export default function MembersClient({ gymId, members: initialMembers, plans }:
     if (filter !== "all") {
       if (filter === "has_dues") {
         query = query.gt("balance_due", 0);
+      } else if (filter === "new_this_month") {
+        const startOfMonth = new Date();
+        startOfMonth.setDate(1);
+        query = query.gte("joining_date", startOfMonth.toISOString().split('T')[0]);
+      } else if (filter === "new_this_year") {
+        const startOfYear = new Date();
+        startOfYear.setMonth(0, 1);
+        query = query.gte("joining_date", startOfYear.toISOString().split('T')[0]);
       } else {
         query = query.eq("status", filter);
       }
