@@ -32,6 +32,7 @@ interface Plan {
 interface AddMemberWizardProps {
   isOpen: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
   gymId: string;
   plans: Plan[];
 }
@@ -82,7 +83,7 @@ function StepIndicator({ step }: StepIndicatorProps) {
   );
 }
 
-export default function AddMemberWizard({ isOpen, onClose, gymId, plans }: AddMemberWizardProps) {
+export default function AddMemberWizard({ isOpen, onClose, onSuccess, gymId, plans }: AddMemberWizardProps) {
   const [step, setStep] = useState(1);
   const [isPending, startTransition] = useTransition();
 
@@ -195,6 +196,9 @@ export default function AddMemberWizard({ isOpen, onClose, gymId, plans }: AddMe
           paymentMethod: paymentMethod as "cash" | "upi" | "card" | "bank_transfer",
           amountPaid,
         });
+
+        // Trigger success callback to refresh parent list
+        onSuccess?.();
 
         setSuccessData({
           name: fullName,

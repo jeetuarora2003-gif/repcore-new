@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Plus, Search, Phone, Users, ChevronRight, Filter, Loader2, Download } from "lucide-react";
 import { formatINR, statusLabel, statusBadgeClass } from "@/lib/helpers";
@@ -43,6 +44,7 @@ interface Props {
 const PAGE_SIZE = 50;
 
 export default function MembersClient({ gymId, members: initialMembers, plans }: Props) {
+  const router = useRouter();
   const supabase = createClient();
   const [members, setMembers] = useState<MemberListItem[]>(initialMembers);
   const [search, setSearch] = useState("");
@@ -196,9 +198,8 @@ export default function MembersClient({ gymId, members: initialMembers, plans }:
     setIsLoading(false);
   }, [debouncedSearch, filter, gymId, page, supabase]);
 
-  // Reset page when search or filter changes
+  // Reset page when search or filter changes or initial data changes (from server refresh)
   useEffect(() => {
-    // If it's the very first render and no filters are applied, use initialMembers
     if (debouncedSearch === "" && filter === "all" && page === 0) {
       setMembers(initialMembers);
       setHasMore(initialMembers.length === PAGE_SIZE);
@@ -206,7 +207,14 @@ export default function MembersClient({ gymId, members: initialMembers, plans }:
     }
     setPage(0);
     fetchMembers(true);
-  }, [debouncedSearch, filter]);
+  }, [debouncedSearch, filter, initialMembers]);
+
+  const handleEnrollmentSuccess = useCallback(() => {
+    setPage(0);
+    fetchMembers(true);
+    // Also trigger router.refresh to sync other potential server data
+    router.refresh();
+  }, [fetchMembers, router]);
 
   return (
     <div className="space-y-6 animate-fade-up">
@@ -328,6 +336,7 @@ export default function MembersClient({ gymId, members: initialMembers, plans }:
       <AddMemberWizard 
         isOpen={showAdd} 
         onClose={() => setShowAdd(false)} 
+        onSuccess={handleEnrollmentSuccess}
         gymId={gymId} 
         plans={plans} 
       />
