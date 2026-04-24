@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
 
     // 1. Clean up old attendance records (older than 6 months) to save space
     const supabase = createAdminClient();
-    await supabase.rpc("clean_old_attendance");
+    await supabase.rpc("clean_old_attendance" as any);
 
     // 2. Process auto-reminders
     const results = await sendAutoRemindersForAllGyms();
