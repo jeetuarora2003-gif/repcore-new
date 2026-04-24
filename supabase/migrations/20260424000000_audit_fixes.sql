@@ -13,6 +13,11 @@
 -- ============================================================
 -- Authoritative RPCs for billing and dashboard
 -- ============================================================
+DROP FUNCTION IF EXISTS create_membership_sale(uuid, text, text, text, text, text, text, uuid, date, date, numeric, numeric, text);
+DROP FUNCTION IF EXISTS add_subscription_with_invoice(uuid, uuid, uuid, date, date, numeric);
+DROP FUNCTION IF EXISTS record_payment_with_receipt(uuid, uuid, uuid, numeric, text, text);
+DROP FUNCTION IF EXISTS get_dashboard_stats(uuid);
+
 CREATE OR REPLACE FUNCTION create_membership_sale(
   p_gym_id uuid,
   p_full_name text,
