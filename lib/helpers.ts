@@ -50,14 +50,17 @@ export function startOfDayUtcIso(value: string | Date, timeZone = IST_TIME_ZONE)
   return `${key}T00:00:00+05:30`;
 }
 
-export function formatINR(amount: number): string {
-  const hasPaise = Math.round((Math.abs(amount) % 1) * 100) > 0;
+export function formatINR(amount: number | string | null | undefined): string {
+  const val = typeof amount === "number" ? amount : parseFloat(String(amount || 0));
+  if (isNaN(val)) return "₹0";
+  
+  const hasPaise = Math.round((Math.abs(val) % 1) * 100) > 0;
   return new Intl.NumberFormat("en-IN", {
     style: "currency",
     currency: "INR",
     minimumFractionDigits: hasPaise ? 2 : 0,
     maximumFractionDigits: 2,
-  }).format(amount);
+  }).format(val);
 }
 
 export function formatDate(dateStr: string | null | undefined): string {
@@ -71,7 +74,8 @@ export function formatDate(dateStr: string | null | undefined): string {
   }).format(toDate(dateStr));
 }
 
-export function memberInitials(fullName: string): string {
+export function memberInitials(fullName: string | null | undefined): string {
+  if (!fullName || !fullName.trim()) return "?";
   const parts = fullName.trim().split(/\s+/);
   if (parts.length === 1) return parts[0][0]?.toUpperCase() ?? "?";
   return ((parts[0][0] ?? "") + (parts[parts.length - 1][0] ?? "")).toUpperCase();
