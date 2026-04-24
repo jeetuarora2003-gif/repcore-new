@@ -27,7 +27,7 @@ export default async function DashboardPage() {
     .rpc("get_dashboard_stats", { p_gym_id: gym.id })
     .then((res) => {
       if (res.error) console.error("Dashboard stats error:", res.error);
-      return res.data ?? { total: 0, active: 0, expiring: 0, dues: 0, new_this_month: 0 };
+      return (res.data as any) ?? { total: 0, active: 0, expiring: 0, dues: 0, new_this_month: 0, today_revenue: 0 };
     })
     .then((stats) => ({
       total: stats.total ?? 0,
