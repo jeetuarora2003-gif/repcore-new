@@ -102,57 +102,62 @@ export async function createMembershipSaleAction(data: {
   paymentMethod: "cash" | "upi" | "card" | "bank_transfer";
   amountPaid: number;
 }) {
-  const parsed = membershipSaleSchema.parse(data);
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  try {
+    const parsed = membershipSaleSchema.parse(data);
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-  if (!user) throw new Error("Not authenticated");
+    if (!user) return { success: false, error: "Session expired. Please log in again." };
 
-  const { data: gym } = await supabase
-    .from("gyms")
-    .select("id")
-    .eq("id", parsed.gym_id)
-    .eq("owner_id", user.id)
-    .maybeSingle();
+    const { data: gym } = await supabase
+      .from("gyms")
+      .select("id")
+      .eq("id", parsed.gym_id)
+      .eq("owner_id", user.id)
+      .maybeSingle();
 
-  if (!gym) throw new Error("Unauthorized");
+    if (!gym) return { success: false, error: "Gym setup incomplete. Please complete onboarding first." };
 
-  const { data: plan } = await supabase
-    .from("plans")
-    .select("id, duration_days, price")
-    .eq("id", parsed.planId)
-    .maybeSingle();
+    const { data: plan } = await supabase
+      .from("plans")
+      .select("id, duration_days, price")
+      .eq("id", parsed.planId)
+      .maybeSingle();
 
-  if (!plan) throw new Error("Plan not found");
+    if (!plan) return { success: false, error: "Selected plan not found. Please create plans in Settings first." };
 
-  const start = new Date(`${parsed.startDate}T00:00:00+05:30`);
-  const end = new Date(start);
-  end.setDate(end.getDate() + plan.duration_days);
-  const endDateStr = toDateKey(end);
+    const start = new Date(`${parsed.startDate}T00:00:00+05:30`);
+    const end = new Date(start);
+    end.setDate(end.getDate() + plan.duration_days);
+    const endDateStr = toDateKey(end);
 
-  const { data: result, error } = await supabase.rpc("create_membership_sale", {
-    p_gym_id: parsed.gym_id,
-    p_full_name: parsed.full_name,
-    p_phone: parsed.phone,
-    p_email: parsed.email,
-    p_photo_url: parsed.photoUrl,
-    p_notes: parsed.notes,
-    p_device_id: parsed.deviceEnrollmentId,
-    p_plan_id: parsed.planId,
-    p_start_date: parsed.startDate,
-    p_end_date: endDateStr,
-    p_plan_fee: plan.price,
-    p_amount_paid: parsed.amountPaid,
-    p_payment_method: parsed.paymentMethod,
-  });
+    const { data: result, error } = await supabase.rpc("create_membership_sale", {
+      p_gym_id: parsed.gym_id,
+      p_full_name: parsed.full_name,
+      p_phone: parsed.phone,
+      p_email: parsed.email,
+      p_photo_url: parsed.photoUrl,
+      p_notes: parsed.notes,
+      p_device_id: parsed.deviceEnrollmentId,
+      p_plan_id: parsed.planId,
+      p_start_date: parsed.startDate,
+      p_end_date: endDateStr,
+      p_plan_fee: plan.price,
+      p_amount_paid: parsed.amountPaid,
+      p_payment_method: parsed.paymentMethod,
+    });
 
-  if (error) throw new Error(getFriendlyErrorMessage(error));
+    if (error) return { success: false, error: getFriendlyErrorMessage(error) };
 
-  revalidatePath("/members");
-  revalidatePath("/dashboard");
-  revalidatePath("/reports");
+    revalidatePath("/members");
+    revalidatePath("/dashboard");
+    revalidatePath("/reports");
 
-  return result as MembershipSaleResult;
+    return { success: true, data: result as MembershipSaleResult };
+  } catch (error) {
+    console.error("Enrollment Error:", error);
+    return { success: false, error: (error as Error).message || "An unexpected error occurred during enrollment." };
+  }
 }

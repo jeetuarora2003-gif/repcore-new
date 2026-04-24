@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+export const dynamic = 'force-dynamic';
 import { startOfDayUtcIso } from "@/lib/helpers";
 import { createClient } from "@/lib/supabase/server";
 import type { DashboardStats } from "@/lib/supabase/types";

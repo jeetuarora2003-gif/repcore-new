@@ -180,32 +180,33 @@ export default function AddMemberWizard({ isOpen, onClose, gymId, plans }: AddMe
     if (isPending) return;
 
     startTransition(async () => {
-      try {
-        await createMembershipSaleAction({
-          gym_id: gymId,
-          full_name: fullName,
-          phone,
-          deviceEnrollmentId: deviceId,
-          photoUrl,
-          planId: selectedPlanId,
-          startDate: startDate || defaultDate,
-          paymentMethod: paymentMethod as "cash" | "upi" | "card" | "bank_transfer",
-          amountPaid,
-        });
+      const result = await createMembershipSaleAction({
+        gym_id: gymId,
+        full_name: fullName,
+        phone,
+        deviceEnrollmentId: deviceId,
+        photoUrl,
+        planId: selectedPlanId,
+        startDate: startDate || defaultDate,
+        paymentMethod: paymentMethod as "cash" | "upi" | "card" | "bank_transfer",
+        amountPaid,
+      });
 
-        setSuccessData({
-          name: fullName,
-          planName: selectedPlan?.name || "",
-          expiry: expiresOn,
-        });
-        setStep(4);
-
-        window.setTimeout(() => {
-          if (isOpen) onClose();
-        }, 8000);
-      } catch (error) {
-        toast.error((error as Error).message);
+      if (!result.success) {
+        toast.error(result.error);
+        return;
       }
+
+      setSuccessData({
+        name: fullName,
+        planName: selectedPlan?.name || "",
+        expiry: expiresOn,
+      });
+      setStep(4);
+
+      window.setTimeout(() => {
+        if (isOpen) onClose();
+      }, 8000);
     });
   }
 
