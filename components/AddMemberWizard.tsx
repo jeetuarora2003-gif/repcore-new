@@ -137,6 +137,8 @@ export default function AddMemberWizard({ isOpen, onClose, gymId, plans }: AddMe
     return () => window.clearTimeout(timer);
   }, [isOpen, resetWizard]);
 
+  const [lastStepChange, setLastStepChange] = useState(0);
+
   function handleNextToPlan() {
     if (!fullName || phone.length !== 10) {
       toast.error("Please enter a valid name and 10-digit phone number");
@@ -144,6 +146,7 @@ export default function AddMemberWizard({ isOpen, onClose, gymId, plans }: AddMe
     }
 
     setStep(2);
+    setLastStepChange(Date.now());
   }
 
   function handleNextToPayment() {
@@ -153,10 +156,27 @@ export default function AddMemberWizard({ isOpen, onClose, gymId, plans }: AddMe
     }
 
     setStep(3);
+    setLastStepChange(Date.now());
   }
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
+    
+    if (step === 1) {
+      handleNextToPlan();
+      return;
+    }
+    
+    if (step === 2) {
+      handleNextToPayment();
+      return;
+    }
+
+    // Prevent accidental double-click submission from step 2 to step 3
+    if (Date.now() - lastStepChange < 500) {
+      return;
+    }
+
     if (isPending) return;
 
     startTransition(async () => {
