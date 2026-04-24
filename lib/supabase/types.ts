@@ -281,8 +281,6 @@ export interface Database {
           p_payment_method: "cash" | "upi" | "card" | "bank_transfer";
         };
         Returns: {
-          success: boolean;
-          error?: string;
           member_id: string;
           subscription_id: string;
           invoice_id: string;

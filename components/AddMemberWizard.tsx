@@ -180,33 +180,32 @@ export default function AddMemberWizard({ isOpen, onClose, gymId, plans }: AddMe
     if (isPending) return;
 
     startTransition(async () => {
-      const result = await createMembershipSaleAction({
-        gym_id: gymId,
-        full_name: fullName,
-        phone,
-        deviceEnrollmentId: deviceId,
-        photoUrl,
-        planId: selectedPlanId,
-        startDate: startDate || defaultDate,
-        paymentMethod: paymentMethod as "cash" | "upi" | "card" | "bank_transfer",
-        amountPaid,
-      });
+      try {
+        await createMembershipSaleAction({
+          gym_id: gymId,
+          full_name: fullName,
+          phone,
+          deviceEnrollmentId: deviceId,
+          photoUrl,
+          planId: selectedPlanId,
+          startDate: startDate || defaultDate,
+          paymentMethod: paymentMethod as "cash" | "upi" | "card" | "bank_transfer",
+          amountPaid,
+        });
 
-      if (!result.success) {
-        toast.error(result.error);
-        return;
+        setSuccessData({
+          name: fullName,
+          planName: selectedPlan?.name || "",
+          expiry: expiresOn,
+        });
+        setStep(4);
+
+        window.setTimeout(() => {
+          if (isOpen) onClose();
+        }, 8000);
+      } catch (error) {
+        toast.error((error as Error).message);
       }
-
-      setSuccessData({
-        name: fullName,
-        planName: selectedPlan?.name || "",
-        expiry: expiresOn,
-      });
-      setStep(4);
-
-      window.setTimeout(() => {
-        if (isOpen) onClose();
-      }, 8000);
     });
   }
 
@@ -219,7 +218,7 @@ export default function AddMemberWizard({ isOpen, onClose, gymId, plans }: AddMe
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-[500px] p-0 rounded-[2rem] border-none shadow-2xl bg-white animate-fade-up">
+      <DialogContent className="max-w-[500px] p-0 overflow-hidden rounded-[2rem] border-none shadow-2xl bg-white animate-fade-up">
         <DialogHeader className="hidden">
           <DialogTitle>Membership Orchestration</DialogTitle>
         </DialogHeader>
@@ -244,32 +243,7 @@ export default function AddMemberWizard({ isOpen, onClose, gymId, plans }: AddMe
 
                           const reader = new FileReader();
                           reader.onloadend = () => {
-                            const img = new Image();
-                            img.onload = () => {
-                              const canvas = document.createElement('canvas');
-                              const MAX_WIDTH = 400;
-                              const MAX_HEIGHT = 400;
-                              let width = img.width;
-                              let height = img.height;
-
-                              if (width > height) {
-                                if (width > MAX_WIDTH) {
-                                  height *= MAX_WIDTH / width;
-                                  width = MAX_WIDTH;
-                                }
-                              } else {
-                                if (height > MAX_HEIGHT) {
-                                  width *= MAX_HEIGHT / height;
-                                  height = MAX_HEIGHT;
-                                }
-                              }
-                              canvas.width = width;
-                              canvas.height = height;
-                              const ctx = canvas.getContext('2d');
-                              ctx?.drawImage(img, 0, 0, width, height);
-                              setPhotoUrl(canvas.toDataURL('image/jpeg', 0.6));
-                            };
-                            img.src = String(reader.result ?? "");
+                            setPhotoUrl(String(reader.result ?? ""));
                           };
                           reader.readAsDataURL(file);
                         }}
