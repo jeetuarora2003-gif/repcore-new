@@ -159,6 +159,8 @@ export default function AddMemberWizard({ isOpen, onClose, gymId, plans }: AddMe
     setLastStepChange(Date.now());
   }
 
+  const [submitting, setSubmitting] = useState(false);
+
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     
@@ -177,8 +179,9 @@ export default function AddMemberWizard({ isOpen, onClose, gymId, plans }: AddMe
       return;
     }
 
-    if (isPending) return;
+    if (isPending || submitting) return;
 
+    setSubmitting(true);
     startTransition(async () => {
       try {
         await createMembershipSaleAction({
@@ -205,6 +208,8 @@ export default function AddMemberWizard({ isOpen, onClose, gymId, plans }: AddMe
         }, 8000);
       } catch (error) {
         toast.error((error as Error).message);
+      } finally {
+        setSubmitting(false);
       }
     });
   }
@@ -549,20 +554,20 @@ export default function AddMemberWizard({ isOpen, onClose, gymId, plans }: AddMe
                 <button
                   type="button"
                   onClick={step === 2 ? handleNextToPayment : handleNextToPlan}
-                  disabled={isPending}
+                  disabled={isPending || submitting}
                   className="flex-1 h-12 bg-accent hover:bg-accent-hover text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 uppercase tracking-[0.1em] text-[11px] shadow-lg shadow-accent/20 disabled:opacity-50"
                 >
-                  {isPending ? "Processing..." : step === 1 ? "Next: Select Tier" : "Next: Billing"}
+                  {isPending || submitting ? "Processing..." : step === 1 ? "Next: Select Tier" : "Next: Billing"}
                   <ChevronRight size={16} strokeWidth={3} />
                 </button>
               ) : (
                 <button
                   type="submit"
                   form={FORM_ID}
-                  disabled={isPending}
+                  disabled={isPending || submitting}
                   className="flex-1 h-12 bg-accent hover:bg-accent-hover text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 uppercase tracking-[0.1em] text-[11px] shadow-lg shadow-accent/20 disabled:opacity-50"
                 >
-                  {isPending ? "Processing..." : "Finish Enrollment"}
+                  {isPending || submitting ? "Processing..." : "Finish Enrollment"}
                   <ChevronRight size={16} strokeWidth={3} />
                 </button>
               )}
