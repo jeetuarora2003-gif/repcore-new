@@ -218,7 +218,7 @@ export default function AddMemberWizard({ isOpen, onClose, gymId, plans }: AddMe
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-[500px] p-0 overflow-hidden rounded-[2rem] border-none shadow-2xl bg-white animate-fade-up">
+      <DialogContent className="max-w-[500px] p-0 rounded-[2rem] border-none shadow-2xl bg-white animate-fade-up">
         <DialogHeader className="hidden">
           <DialogTitle>Membership Orchestration</DialogTitle>
         </DialogHeader>
