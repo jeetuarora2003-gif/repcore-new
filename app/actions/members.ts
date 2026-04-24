@@ -151,6 +151,10 @@ export async function createMembershipSaleAction(data: {
 
     if (error) return { success: false, error: getFriendlyErrorMessage(error) };
 
+    if (!result || result.success === false) {
+      return { success: false, error: result?.error || "Database refused to create the enrollment." };
+    }
+
     revalidatePath("/members");
     revalidatePath("/dashboard");
     revalidatePath("/reports");
