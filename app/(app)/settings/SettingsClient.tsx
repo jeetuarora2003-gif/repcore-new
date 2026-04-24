@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { LogOut, Save, Eye, EyeOff, Building2, MessageCircle, FileText, Download, Zap, ChevronRight } from "lucide-react";
+import { LogOut, Save, Eye, EyeOff, Building2, MessageCircle, FileText, Download, Zap, ChevronRight, Loader2 } from "lucide-react";
 import { memberInitials, cleanPhone } from "@/lib/helpers";
 import type { Gym } from "@/lib/supabase/types";
 import { updateGymSettings } from "@/app/actions/gym";
@@ -57,36 +57,44 @@ export default function SettingsClient({ gym }: Props) {
   }
 
   return (
-    <div className="pb-24 min-h-screen bg-[#09090B] animate-fade-up">
+    <div className="pb-24 min-h-screen bg-page animate-fade-up">
       <form onSubmit={handleSave} className="px-4 py-8 md:px-8 max-w-2xl space-y-8 mx-auto">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold text-text-primary tracking-tight">Settings</h1>
+          <p className="text-sm text-text-muted font-medium">Manage your gym profile and system configurations.</p>
+        </div>
+
         {/* Gym Profile */}
-        <div className="card p-6 space-y-6">
-          <div className="flex items-center justify-between pb-4 border-b border-white/5">
-            <div className="flex items-center gap-3">
-              <div className="h-7 w-7 rounded-lg bg-[#10B981]/10 flex items-center justify-center text-[#10B981] border border-[#10B981]/20">
-                <Building2 size={14} />
+        <div className="bg-white border border-border rounded-2xl p-6 md:p-8 shadow-sm space-y-8">
+          <div className="flex items-center justify-between pb-6 border-b border-border">
+            <div className="flex items-center gap-4">
+              <div className="h-10 w-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
+                <Building2 size={20} />
               </div>
-              <h3 className="text-sm font-semibold text-[#E4E4E7]">Business Profile</h3>
+              <div>
+                <h3 className="text-base font-bold text-text-primary">Business Profile</h3>
+                <p className="text-xs text-text-muted font-medium">Public information about your gym</p>
+              </div>
             </div>
-            <div className="h-8 w-8 rounded-lg bg-surface-3 flex items-center justify-center text-[#10B981] text-[10px] font-bold border border-white/5">
+            <div className="h-12 w-12 rounded-full bg-page border-2 border-border flex items-center justify-center text-accent text-sm font-bold shadow-inner">
               {memberInitials(form.name || "G")}
             </div>
           </div>
 
-          <div className="grid gap-5">
+          <div className="grid gap-6">
             {[
               { field: "name", label: "Gym Name", placeholder: "Your gym name", type: "text" },
               { field: "address", label: "Business Address", placeholder: "Street, City, State", type: "text" },
               { field: "phone", label: "Official Contact Number", placeholder: "98765 43210", type: "tel" },
             ].map(({ field, label, placeholder, type }) => (
-              <div key={field} className="space-y-1.5">
-                <label className="text-xs font-medium text-[#A1A1AA]">{label}</label>
+              <div key={field} className="space-y-2">
+                <label className="text-xs font-bold text-text-muted uppercase tracking-widest pl-1">{label}</label>
                 <input
                   type={type}
                   value={form[field as keyof typeof form]}
                   onChange={e => handleChange(field, e.target.value)}
                   placeholder={placeholder}
-                  className="w-full h-10 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#E4E4E7] placeholder-[#71717A] focus:outline-none focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 transition-all"
+                  className="w-full h-12 rounded-xl bg-white border border-border px-4 text-sm text-text-primary font-semibold placeholder-text-muted focus:border-accent focus:ring-4 focus:ring-accent/5 outline-none transition-all shadow-sm"
                 />
               </div>
             ))}
@@ -94,29 +102,32 @@ export default function SettingsClient({ gym }: Props) {
         </div>
 
         {/* System Config */}
-        <div className="card p-6 space-y-6">
-          <div className="flex items-center gap-3 pb-4 border-b border-white/5">
-            <div className="h-7 w-7 rounded-lg bg-[#F59E0B]/10 flex items-center justify-center text-[#F59E0B] border border-[#F59E0B]/20">
-              <FileText size={14} />
+        <div className="bg-white border border-border rounded-2xl p-6 md:p-8 shadow-sm space-y-8">
+          <div className="flex items-center gap-4 pb-6 border-b border-border">
+            <div className="h-10 w-10 rounded-xl bg-status-expired-bg flex items-center justify-center text-status-expired-text">
+              <FileText size={20} />
             </div>
-            <h3 className="text-sm font-semibold text-[#E4E4E7]">System Configuration</h3>
+            <div>
+              <h3 className="text-base font-bold text-text-primary">System Configuration</h3>
+              <p className="text-xs text-text-muted font-medium">Customize prefixes for your invoices and receipts</p>
+            </div>
           </div>
 
           <div className="grid sm:grid-cols-2 gap-6">
             {[
-              { field: "receipt_prefix", label: "Receipt Series Prefix" },
-              { field: "invoice_prefix", label: "Invoice Series Prefix" },
+              { field: "receipt_prefix", label: "Receipt Prefix" },
+              { field: "invoice_prefix", label: "Invoice Prefix" },
             ].map(({ field, label }) => (
-              <div key={field} className="space-y-1.5">
-                <label className="text-xs font-medium text-[#A1A1AA]">{label}</label>
+              <div key={field} className="space-y-2">
+                <label className="text-xs font-bold text-text-muted uppercase tracking-widest pl-1">{label}</label>
                 <input
                   type="text"
                   value={form[field as keyof typeof form]}
                   onChange={e => handleChange(field, e.target.value)}
-                  className="w-full h-10 rounded-xl bg-[#09090B] border border-white/8 px-4 text-sm text-[#E4E4E7] font-mono focus:outline-none focus:border-[#10B981]/40 transition-all uppercase"
+                  className="w-full h-12 rounded-xl bg-white border border-border px-4 text-sm text-text-primary font-mono focus:border-accent focus:ring-4 focus:ring-accent/5 outline-none transition-all uppercase shadow-sm"
                 />
-                <p className="text-[10px] text-[#71717A] font-mono tracking-wider pl-1">
-                  PREVIEW: {form[field as keyof typeof form] || "REP"}-{new Date().getFullYear()}-0001
+                <p className="text-[10px] text-text-muted font-bold tracking-wider pl-1 uppercase opacity-60">
+                  Preview: {form[field as keyof typeof form] || "REP"}-{new Date().getFullYear()}-0001
                 </p>
               </div>
             ))}
@@ -124,81 +135,79 @@ export default function SettingsClient({ gym }: Props) {
         </div>
 
         {/* Integration */}
-        <div className="card p-6 space-y-6">
-          <div className="flex items-center gap-3 pb-4 border-b border-white/5">
-            <div className="h-7 w-7 rounded-lg bg-[#10B981]/10 flex items-center justify-center text-[#10B981] border border-[#10B981]/20">
-              <Zap size={14} strokeWidth={2.5} />
+        <div className="bg-white border border-border rounded-2xl p-6 md:p-8 shadow-sm space-y-8">
+          <div className="flex items-center gap-4 pb-6 border-b border-border">
+            <div className="h-10 w-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
+              <Zap size={20} />
             </div>
-            <h3 className="text-sm font-semibold text-[#E4E4E7]">WhatsApp Integration</h3>
+            <div>
+              <h3 className="text-base font-bold text-text-primary">WhatsApp Integration</h3>
+              <p className="text-xs text-text-muted font-medium">Connect your WhatsApp Cloud API</p>
+            </div>
           </div>
 
-          <div className="space-y-5">
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-[#A1A1AA]">WhatsApp API Key</label>
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-text-muted uppercase tracking-widest pl-1">WhatsApp API Key</label>
               <div className="relative">
                 <input
                   type={showApiKey ? "text" : "password"}
                   value={form.whatsapp_api_key}
                   onChange={e => handleChange("whatsapp_api_key", e.target.value)}
                   placeholder="sk-..."
-                  className="w-full h-10 rounded-xl bg-[#09090B] border border-white/8 px-4 pr-12 text-sm text-[#E4E4E7] font-mono placeholder-[#71717A] focus:outline-none focus:border-[#10B981]/40 focus:ring-4 focus:ring-[#10B981]/5 transition-all"
+                  className="w-full h-12 rounded-xl bg-white border border-border px-4 pr-12 text-sm text-text-primary font-mono placeholder-text-muted focus:border-accent focus:ring-4 focus:ring-accent/5 outline-none transition-all shadow-sm"
                 />
                 <button
                   type="button"
                   onClick={() => setShowApiKey(!showApiKey)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#71717A] hover:text-[#E4E4E7] transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors"
                 >
-                  {showApiKey ? <EyeOff size={16} /> : <Eye size={16} />}
+                  {showApiKey ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
             </div>
 
             <Link 
               href="/settings/whatsapp"
-              className="flex items-center justify-between p-4 bg-[#10B981]/5 border border-[#10B981]/20 rounded-xl hover:bg-[#10B981]/10 transition-all group"
+              className="flex items-center justify-between p-5 bg-accent/5 border border-accent/20 rounded-2xl hover:bg-accent/10 transition-all group"
             >
-              <div className="flex items-center gap-3">
-                <MessageCircle size={18} className="text-[#10B981]" />
+              <div className="flex items-center gap-4">
+                <div className="h-10 w-10 rounded-full bg-accent flex items-center justify-center text-white shadow-lg shadow-accent/20">
+                  <MessageCircle size={20} />
+                </div>
                 <div className="text-left">
-                  <p className="text-xs font-semibold text-[#E4E4E7]">WhatsApp Automation</p>
-                  <p className="text-[10px] text-[#71717A]">Configure Auto-reminders via API</p>
+                  <p className="text-sm font-bold text-text-primary">WhatsApp Automation</p>
+                  <p className="text-xs text-text-muted font-medium">Configure Auto-reminders via API</p>
                 </div>
               </div>
-              <ChevronRight size={16} className="text-[#71717A] group-hover:text-[#10B981] transition-transform group-hover:translate-x-1" />
+              <ChevronRight size={18} className="text-text-muted group-hover:text-accent transition-transform group-hover:translate-x-1" />
             </Link>
           </div>
         </div>
 
         {/* Footer Actions */}
-        <div className="space-y-4 pt-6">
+        <div className="space-y-4 pt-4">
           <button
             type="submit"
             disabled={isPending}
-            className="w-full h-11 rounded-xl btn-primary text-sm flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full h-14 rounded-full bg-accent text-white text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl shadow-accent/20 active:scale-95 transition-all disabled:opacity-50"
           >
-            <Save size={16} />
-            {isPending ? "Saving changes..." : "Save Settings"}
+            {isPending ? (
+              <Loader2 size={20} className="animate-spin" />
+            ) : (
+              <Save size={20} />
+            )}
+            {isPending ? "Updating Settings..." : "Save Changes"}
           </button>
 
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              disabled
-              className="h-10 rounded-xl bg-surface border border-white/6 text-[#71717A] text-xs font-medium flex items-center justify-center gap-2 cursor-not-allowed"
-            >
-              <Download size={14} />
-              Export Records
-            </button>
-
-            <button
-              type="button"
-              onClick={handleSignOut}
-              className="h-10 rounded-xl border border-[#EF4444]/30 text-[#EF4444] text-xs font-semibold flex items-center justify-center gap-2 active:scale-95 transition-all hover:bg-[#EF4444]/5"
-            >
-              <LogOut size={14} />
-              Sign Out Account
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={handleSignOut}
+            className="w-full h-14 rounded-full bg-white border border-status-expired-border text-status-expired-text text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-3 active:scale-95 transition-all hover:bg-status-expired-bg"
+          >
+            <LogOut size={20} />
+            Sign Out Account
+          </button>
         </div>
       </form>
     </div>
