@@ -175,7 +175,9 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- ============================================================
 DROP VIEW IF EXISTS v_member_status CASCADE;
 
-CREATE OR REPLACE VIEW v_member_status AS
+CREATE OR REPLACE VIEW v_member_status 
+WITH (security_invoker = true)
+AS
 WITH ist_today AS (
   SELECT timezone('Asia/Kolkata', now())::date AS today
 ),
