@@ -26,6 +26,7 @@ type StatsType = {
   expiring: number;
   dues: number;
   newThisMonth: number;
+  todayRevenue: number;
 };
 
 type RecentCheckinType = Pick<Attendance, "id" | "checked_in_at"> & {
@@ -213,7 +214,7 @@ function Summary({ statsPromise, recentCheckinsPromise }: { statsPromise: Promis
         <div className="p-5 space-y-1">
           <p className="text-[11px] font-bold text-text-muted uppercase tracking-widest">Revenue Collected</p>
           <div className="flex items-end gap-2">
-            <span className="text-3xl font-bold font-mono text-text-primary">{formatINR(0)}</span>
+            <span className="text-3xl font-bold font-mono text-text-primary">{formatINR(stats.todayRevenue)}</span>
             <span className="text-[10px] text-status-success-text font-bold mb-1.5 uppercase tracking-wide">Today</span>
           </div>
         </div>

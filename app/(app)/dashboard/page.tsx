@@ -35,6 +35,7 @@ export default async function DashboardPage() {
       expiring: stats.expiring ?? 0,
       dues: stats.dues ?? 0,
       newThisMonth: stats.new_this_month ?? 0,
+      todayRevenue: stats.today_revenue ?? 0,
     })));
 
   const recentCheckinsPromise = Promise.resolve(supabase
