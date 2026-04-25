@@ -31,7 +31,7 @@ interface Props {
 const TABS: { key: TabType; label: string; icon: LucideIcon }[] = [
   { key: "5", label: "5 Days", icon: Clock },
   { key: "3", label: "3 Days", icon: Clock },
-  { key: "1", label: "1 Day", icon: Clock },
+  { key: "1", label: "Last Day", icon: Clock },
   { key: "history", label: "History", icon: History },
 ];
 
@@ -112,7 +112,11 @@ export default function RemindersClient({ gym, fiveDays, threeDays, oneDay, hist
             <div className="py-12">
               <EmptyState
                 icon={Bell}
-                message={`No members expiring in exactly ${getDays()} day${getDays() === 1 ? "" : "s"}`}
+                message={
+                  tab === "1" 
+                    ? "No members due for last day reminders" 
+                    : `No members due for ${tab}-day reminders`
+                }
               />
             </div>
           ) : (
