@@ -46,8 +46,8 @@ const STAGE_TO_FIELD: Record<ReminderStage, ReminderField> = {
 
 function getReminderStage(member: ReminderCandidate): ReminderStage | null {
   if (member.days_until_expiry === null) return null;
-  if (member.days_until_expiry <= 5 && member.days_until_expiry > 3 && !member.reminder_5_sent_at) return 5;
-  if (member.days_until_expiry <= 3 && member.days_until_expiry > 0 && !member.reminder_3_sent_at) return 3;
+  if (member.days_until_expiry === 5 && !member.reminder_5_sent_at) return 5;
+  if (member.days_until_expiry === 3 && !member.reminder_3_sent_at) return 3;
   if (member.days_until_expiry === 0 && !member.reminder_1_sent_at) return 1;
   return null;
 }
@@ -75,8 +75,7 @@ async function processAutoRemindersForGym(
       "id, gym_id, full_name, phone, end_date, plan_name, subscription_id, days_until_expiry, reminder_5_sent_at, reminder_3_sent_at, reminder_1_sent_at"
     )
     .eq("gym_id", gym.id)
-    .lte("days_until_expiry", 5)
-    .gte("days_until_expiry", 0)
+    .in("days_until_expiry", [5, 3, 0])
     .not("subscription_id", "is", null);
 
   if (error) {
