@@ -34,7 +34,7 @@ type RecentCheckinType = Pick<Attendance, "id" | "checked_in_at"> & {
 };
 
 interface Props {
-  gym: Gym;
+  gym: Pick<Gym, "id" | "name">;
   statsPromise: Promise<StatsType>;
   recentCheckinsPromise: Promise<RecentCheckinType[]>;
   expiringSoonPromise: Promise<MemberStatus[]>;
