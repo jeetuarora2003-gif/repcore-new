@@ -37,7 +37,7 @@ interface Props {
   gym: Pick<Gym, "id" | "name">;
   statsPromise: Promise<StatsType>;
   recentCheckinsPromise: Promise<RecentCheckinType[]>;
-  expiringSoonPromise: Promise<MemberStatus[]>;
+  expiringSoonPromise: Promise<Pick<MemberStatus, "id" | "full_name" | "photo_url" | "days_until_expiry">[]>;
 }
 
 export default function DashboardClient({ gym, statsPromise, recentCheckinsPromise, expiringSoonPromise }: Props) {
@@ -230,7 +230,7 @@ function Summary({ statsPromise, recentCheckinsPromise }: { statsPromise: Promis
   );
 }
 
-function ExpiringList({ expiringSoonPromise }: { expiringSoonPromise: Promise<MemberStatus[]> }) {
+function ExpiringList({ expiringSoonPromise }: { expiringSoonPromise: Promise<Pick<MemberStatus, "id" | "full_name" | "photo_url" | "days_until_expiry">[]> }) {
   const expiringSoon = use(expiringSoonPromise);
 
   return (
