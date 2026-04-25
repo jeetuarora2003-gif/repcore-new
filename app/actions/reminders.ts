@@ -42,6 +42,15 @@ export async function sendReminder(
 
   if (!gym) return { success: false, error: "Unauthorized" };
 
+  const { data: member } = await supabase
+    .from("members")
+    .select("id")
+    .eq("id", parsed.memberId)
+    .eq("gym_id", parsed.gymId)
+    .maybeSingle();
+
+  if (!member) return { success: false, error: "Member not found" };
+
   const { error } = await supabase.from("reminders").insert({
     gym_id: parsed.gymId,
     member_id: parsed.memberId,
@@ -62,6 +71,7 @@ export async function sendReminder(
     .from("subscriptions")
     .update(stampPayload)
     .eq("id", parsed.subscriptionId)
+    .eq("gym_id", parsed.gymId)
     .then(({ error: updateError }) => updateError);
 
   if (stampError) {

@@ -15,11 +15,16 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type TabType = "5" | "3" | "1" | "history";
 
+type ReminderMember = Pick<
+  MemberStatus,
+  "id" | "gym_id" | "full_name" | "phone" | "end_date" | "plan_name" | "subscription_id" | "days_until_expiry" | "reminder_5_sent_at" | "reminder_3_sent_at" | "reminder_1_sent_at" | "photo_url"
+>;
+
 interface Props {
   gym: Gym;
-  fiveDays: MemberStatus[];
-  threeDays: MemberStatus[];
-  oneDay: MemberStatus[];
+  fiveDays: ReminderMember[];
+  threeDays: ReminderMember[];
+  oneDay: ReminderMember[];
   history: Reminder[];
 }
 
@@ -30,7 +35,7 @@ const TABS: { key: TabType; label: string; icon: LucideIcon }[] = [
   { key: "history", label: "History", icon: History },
 ];
 
-function getReminderStamp(member: MemberStatus, days: number) {
+function getReminderStamp(member: ReminderMember, days: number) {
   if (days === 5) return member.reminder_5_sent_at;
   if (days === 3) return member.reminder_3_sent_at;
   return member.reminder_1_sent_at;
@@ -42,7 +47,7 @@ export default function RemindersClient({ gym, fiveDays, threeDays, oneDay, hist
   const [sentIds, setSentIds] = useState<Set<string>>(new Set());
   const [isPending, startTransition] = useTransition();
 
-  function getMembers(): MemberStatus[] {
+  function getMembers(): ReminderMember[] {
     if (tab === "5") return fiveDays;
     if (tab === "3") return threeDays;
     if (tab === "1") return oneDay;
@@ -55,7 +60,7 @@ export default function RemindersClient({ gym, fiveDays, threeDays, oneDay, hist
     return 1;
   }
 
-  function handleWhatsApp(member: MemberStatus) {
+  function handleWhatsApp(member: ReminderMember) {
     if (!member.subscription_id) return;
 
     const message = `Hi ${member.full_name}! Your ${member.plan_name ?? "membership"} at ${gym.name} expires on ${formatDate(member.end_date)}. Renew now to continue your fitness journey! Call or WhatsApp us: ${gym.phone}`;

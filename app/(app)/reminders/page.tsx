@@ -20,9 +20,9 @@ export default async function RemindersPage() {
     { data: oneDay },
     { data: reminders },
   ] = await Promise.all([
-    supabase.from("v_member_status").select("*").eq("gym_id", gym.id).eq("days_until_expiry", 5),
-    supabase.from("v_member_status").select("*").eq("gym_id", gym.id).eq("days_until_expiry", 3),
-    supabase.from("v_member_status").select("*").eq("gym_id", gym.id).eq("days_until_expiry", 1),
+    supabase.from("v_member_status").select("id, gym_id, full_name, phone, end_date, plan_name, subscription_id, days_until_expiry, reminder_5_sent_at, reminder_3_sent_at, reminder_1_sent_at, photo_url").eq("gym_id", gym.id).lte("days_until_expiry", 5).gt("days_until_expiry", 3).not("subscription_id", "is", null),
+    supabase.from("v_member_status").select("id, gym_id, full_name, phone, end_date, plan_name, subscription_id, days_until_expiry, reminder_5_sent_at, reminder_3_sent_at, reminder_1_sent_at, photo_url").eq("gym_id", gym.id).lte("days_until_expiry", 3).gt("days_until_expiry", 1).not("subscription_id", "is", null),
+    supabase.from("v_member_status").select("id, gym_id, full_name, phone, end_date, plan_name, subscription_id, days_until_expiry, reminder_5_sent_at, reminder_3_sent_at, reminder_1_sent_at, photo_url").eq("gym_id", gym.id).lte("days_until_expiry", 1).gte("days_until_expiry", 0).not("subscription_id", "is", null),
     supabase.from("reminders").select("*").eq("gym_id", gym.id).order("sent_at", { ascending: false }).limit(50),
   ]);
 
