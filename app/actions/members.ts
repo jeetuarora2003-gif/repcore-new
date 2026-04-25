@@ -123,6 +123,7 @@ export async function createMembershipSaleAction(data: {
     .from("plans")
     .select("id, duration_days, price")
     .eq("id", parsed.planId)
+    .eq("gym_id", parsed.gym_id)
     .maybeSingle();
 
   if (!plan) throw new Error("Plan not found");

@@ -17,7 +17,7 @@ export async function getOrCreateGym() {
 
   const { data } = await supabase
     .from("gyms")
-    .select("*")
+    .select("id, name, address, phone, logo_url, whatsapp_reminder_mode, whatsapp_phone_number, whatsapp_credits, receipt_prefix, invoice_prefix, created_at, owner_id")
     .eq("owner_id", user.id)
     .maybeSingle();
 

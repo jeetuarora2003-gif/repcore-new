@@ -12,7 +12,7 @@ type ReminderField = "reminder_5_sent_at" | "reminder_3_sent_at" | "reminder_1_s
 
 type AutoReminderGym = Pick<
   Gym,
-  "id" | "name" | "phone" | "whatsapp_api_key" | "whatsapp_phone_number" | "whatsapp_reminder_mode"
+  "id" | "name" | "phone" | "whatsapp_api_key" | "whatsapp_phone_number" | "whatsapp_reminder_mode" | "whatsapp_credits"
 >;
 
 type AutoReminderResult = {
@@ -45,9 +45,9 @@ const STAGE_TO_FIELD: Record<ReminderStage, ReminderField> = {
 };
 
 function getReminderStage(member: ReminderCandidate): ReminderStage | null {
-  if (member.days_until_expiry === 5) return 5;
-  if (member.days_until_expiry === 3) return 3;
-  if (member.days_until_expiry === 1) return 1;
+  if (member.days_until_expiry <= 5 && member.days_until_expiry > 3 && !member.reminder_5_sent_at) return 5;
+  if (member.days_until_expiry <= 3 && member.days_until_expiry > 1 && !member.reminder_3_sent_at) return 3;
+  if (member.days_until_expiry <= 1 && member.days_until_expiry >= 0 && !member.reminder_1_sent_at) return 1;
   return null;
 }
 
@@ -74,7 +74,8 @@ async function processAutoRemindersForGym(
       "id, gym_id, full_name, phone, end_date, plan_name, subscription_id, days_until_expiry, reminder_5_sent_at, reminder_3_sent_at, reminder_1_sent_at"
     )
     .eq("gym_id", gym.id)
-    .in("days_until_expiry", [5, 3, 1])
+    .lte("days_until_expiry", 5)
+    .gte("days_until_expiry", 0)
     .not("subscription_id", "is", null);
 
   if (error) {
@@ -88,13 +89,15 @@ async function processAutoRemindersForGym(
 
   let sent = 0;
   let failed = 0;
+  let currentCredits = gym.whatsapp_credits ?? 0;
 
   for (const member of members ?? []) {
+    if (currentCredits <= 0) break;
+
     const stage = getReminderStage(member);
     if (!stage || !member.subscription_id) continue;
 
     const sentField = STAGE_TO_FIELD[stage];
-    if (member[sentField]) continue;
 
     const destination = formatIndianWhatsappNumber(member.phone);
     if (!destination) {
@@ -149,9 +152,14 @@ async function processAutoRemindersForGym(
       }
 
       sent += 1;
+      currentCredits -= 1;
     } catch {
       failed += 1;
     }
+  }
+
+  if (sent > 0) {
+    await supabase.from("gyms").update({ whatsapp_credits: currentCredits }).eq("id", gym.id);
   }
 
   return { gymId: gym.id, sent, failed };
@@ -169,7 +177,7 @@ export async function sendAutoRemindersForGym(gymId: string) {
 
   const { data: gym, error } = await supabase
     .from("gyms")
-    .select("id, name, phone, whatsapp_api_key, whatsapp_phone_number, whatsapp_reminder_mode")
+    .select("id, name, phone, whatsapp_api_key, whatsapp_phone_number, whatsapp_reminder_mode, whatsapp_credits")
     .eq("id", gymId)
     .eq("owner_id", user.id)
     .maybeSingle();
@@ -185,7 +193,7 @@ export async function sendAutoRemindersForAllGyms() {
   const supabase = createAdminClient();
   const { data: gyms, error } = await supabase
     .from("gyms")
-    .select("id, name, phone, whatsapp_api_key, whatsapp_phone_number, whatsapp_reminder_mode")
+    .select("id, name, phone, whatsapp_api_key, whatsapp_phone_number, whatsapp_reminder_mode, whatsapp_credits")
     .eq("whatsapp_reminder_mode", "auto");
 
   if (error) {
@@ -193,8 +201,13 @@ export async function sendAutoRemindersForAllGyms() {
   }
 
   const results: AutoReminderResult[] = [];
-  for (const gym of gyms ?? []) {
-    results.push(await processAutoRemindersForGym(supabase, gym));
+  const promises = (gyms ?? []).map((gym) => processAutoRemindersForGym(supabase, gym));
+  const settled = await Promise.allSettled(promises);
+
+  for (const outcome of settled) {
+    if (outcome.status === "fulfilled") {
+      results.push(outcome.value);
+    }
   }
 
   return results;

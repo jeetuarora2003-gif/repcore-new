@@ -30,10 +30,20 @@ export async function addSubscription(
 
   if (!gym) throw new Error("Unauthorized");
 
+  const { data: member } = await supabase
+    .from("members")
+    .select("id")
+    .eq("id", parsed.memberId)
+    .eq("gym_id", parsed.gymId)
+    .maybeSingle();
+
+  if (!member) throw new Error("Member not found");
+
   const { data: plan } = await supabase
     .from("plans")
     .select("id, duration_days, price")
     .eq("id", parsed.planId)
+    .eq("gym_id", parsed.gymId)
     .maybeSingle();
 
   if (!plan) throw new Error("Plan not found");
@@ -87,6 +97,26 @@ export async function recordPayment(data: {
     .maybeSingle();
 
   if (!gym) throw new Error("Unauthorized");
+
+  const { data: member } = await supabase
+    .from("members")
+    .select("id")
+    .eq("id", parsed.member_id)
+    .eq("gym_id", parsed.gym_id)
+    .maybeSingle();
+
+  if (!member) throw new Error("Member not found");
+
+  if (parsed.invoice_id) {
+    const { data: invoice } = await supabase
+      .from("invoices")
+      .select("id")
+      .eq("id", parsed.invoice_id)
+      .eq("gym_id", parsed.gym_id)
+      .maybeSingle();
+
+    if (!invoice) throw new Error("Invoice not found");
+  }
 
   const { data: result, error } = await supabase.rpc("record_payment_with_receipt", {
     p_gym_id: parsed.gym_id,

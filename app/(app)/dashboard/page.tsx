@@ -14,7 +14,7 @@ export default async function DashboardPage() {
 
   const { data: gym } = await supabase
     .from("gyms")
-    .select("*")
+    .select("id, name")
     .eq("owner_id", user.id)
     .maybeSingle();
 
@@ -66,7 +66,7 @@ export default async function DashboardPage() {
 
   const expiringSoonPromise = Promise.resolve(supabase
     .from("v_member_status")
-    .select("*")
+    .select("id, full_name, photo_url, days_until_expiry")
     .eq("gym_id", gym.id)
     .in("status", ["expiring_soon", "active"])
     .lte("days_until_expiry", 7)
