@@ -145,15 +145,15 @@ export default function MembersClient({ gymId, members: initialMembers, plans }:
       ].join(","));
       
       const csvContent = [headers.join(","), ...csvRows].join("\n");
-      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const blob = new Blob([csvContent], { type: "application/octet-stream" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
-      link.setAttribute("href", url);
-      link.setAttribute("download", `members_${filter}_${new Date().toISOString().split('T')[0]}.csv`);
-      link.style.visibility = 'hidden';
+      link.href = url;
+      link.download = `members_${filter}_${new Date().toISOString().split('T')[0]}.csv`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      URL.revokeObjectURL(url);
       
       toast.success(`Exported ${allData.length} members (${filter})`);
     } catch (error) {
