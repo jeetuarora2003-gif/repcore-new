@@ -16,63 +16,40 @@ DROP FUNCTION IF EXISTS clean_old_attendance();
 DROP VIEW IF EXISTS v_member_status CASCADE;
 
 -- ============================================================
--- STEP 2: Create the view FIRST (functions depend on it)
+-- STEP 2: Create the NEW, OPTIMIZED view
 -- ============================================================
 CREATE VIEW v_member_status AS
 WITH ist_today AS (
   SELECT timezone('Asia/Kolkata', now())::date AS today
 ),
 member_subs AS (
-  SELECT DISTINCT ON (member_id)
-    id,
-    member_id,
-    start_date,
-    end_date,
-    plan_id,
-    reminder_5_sent_at,
-    reminder_3_sent_at,
-    reminder_1_sent_at
+  SELECT DISTINCT ON (member_id, gym_id)
+    id, member_id, gym_id, start_date, end_date, plan_id,
+    reminder_5_sent_at, reminder_3_sent_at, reminder_1_sent_at
   FROM subscriptions
-  ORDER BY member_id, end_date DESC, created_at DESC
+  ORDER BY member_id, gym_id, end_date DESC, created_at DESC
 ),
 member_invoices AS (
-  SELECT member_id, COALESCE(sum(amount), 0) AS total_invoiced
+  SELECT member_id, gym_id, COALESCE(sum(amount), 0) AS total_invoiced
   FROM invoices
-  GROUP BY member_id
+  GROUP BY member_id, gym_id
 ),
 member_payments AS (
-  SELECT member_id, COALESCE(sum(amount), 0) AS total_paid
+  SELECT member_id, gym_id, COALESCE(sum(amount), 0) AS total_paid
   FROM payments
-  GROUP BY member_id
+  GROUP BY member_id, gym_id
 )
 SELECT
-  m.id,
-  m.gym_id,
-  m.full_name,
-  m.phone,
-  m.email,
-  m.joining_date,
-  m.is_frozen,
-  m.photo_url,
-  m.notes,
-  s.id AS subscription_id,
-  s.start_date,
-  s.end_date,
-  s.plan_id,
-  s.reminder_5_sent_at,
-  s.reminder_3_sent_at,
-  s.reminder_1_sent_at,
-  p.name AS plan_name,
-  p.duration_days,
-  p.price AS plan_price,
+  m.id, m.gym_id, m.full_name, m.phone, m.email, m.joining_date,
+  m.is_frozen, m.photo_url, m.notes,
+  s.id AS subscription_id, s.start_date, s.end_date, s.plan_id,
+  s.reminder_5_sent_at, s.reminder_3_sent_at, s.reminder_1_sent_at,
+  p.name AS plan_name, p.duration_days, p.price AS plan_price,
   COALESCE(inv.total_invoiced, 0)::numeric AS total_invoiced,
   COALESCE(pay.total_paid, 0)::numeric AS total_paid,
   GREATEST(COALESCE(inv.total_invoiced, 0) - COALESCE(pay.total_paid, 0), 0)::numeric AS balance_due,
   GREATEST(COALESCE(pay.total_paid, 0) - COALESCE(inv.total_invoiced, 0), 0)::numeric AS credit_balance,
-  CASE
-    WHEN s.end_date IS NULL THEN NULL
-    ELSE (s.end_date - ist_today.today)
-  END AS days_until_expiry,
+  CASE WHEN s.end_date IS NULL THEN NULL ELSE (s.end_date - ist_today.today) END AS days_until_expiry,
   CASE
     WHEN s.end_date IS NULL THEN 'no_plan'
     WHEN m.is_frozen THEN 'frozen'
@@ -83,17 +60,15 @@ SELECT
   END AS status
 FROM members m
 CROSS JOIN ist_today
-LEFT JOIN member_subs s ON s.member_id = m.id
+LEFT JOIN member_subs s ON s.member_id = m.id AND s.gym_id = m.gym_id
 LEFT JOIN plans p ON p.id = s.plan_id
-LEFT JOIN member_invoices inv ON inv.member_id = m.id
-LEFT JOIN member_payments pay ON pay.member_id = m.id;
+LEFT JOIN member_invoices inv ON inv.member_id = m.id AND inv.gym_id = m.gym_id
+LEFT JOIN member_payments pay ON pay.member_id = m.id AND pay.gym_id = m.gym_id;
 
 -- ============================================================
 -- STEP 3: Grant permissions on the view
 -- ============================================================
-GRANT SELECT ON v_member_status TO authenticated;
-GRANT SELECT ON v_member_status TO anon;
-GRANT SELECT ON v_member_status TO service_role;
+GRANT SELECT ON v_member_status TO authenticated, anon, service_role;
 
 -- ============================================================
 -- STEP 4: Create membership sale RPC
