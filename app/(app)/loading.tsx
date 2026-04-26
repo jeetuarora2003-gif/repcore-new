@@ -1,16 +1,16 @@
-import { Loader2 } from "lucide-react";
-
 export default function Loading() {
   return (
-    <div className="h-[70vh] flex flex-col items-center justify-center gap-4 animate-fade-in">
-      <div className="relative">
-        <Loader2 className="w-10 h-10 text-accent animate-spin" strokeWidth={3} />
-        <div className="absolute inset-0 blur-xl bg-accent/20 animate-pulse rounded-full" />
+    <div className="w-full space-y-6 animate-pulse p-2">
+      <div className="space-y-2">
+        <div className="h-4 w-24 bg-border rounded-md" />
+        <div className="h-8 w-48 bg-border rounded-md" />
       </div>
-      <div className="space-y-1 text-center">
-        <p className="text-sm font-bold text-text-primary uppercase tracking-widest">Loading RepCore</p>
-        <p className="text-[10px] font-bold text-text-muted uppercase tracking-[0.2em]">Synchronizing Data...</p>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="h-32 bg-white border border-border rounded-xl" />
+        ))}
       </div>
+      <div className="h-64 bg-white border border-border rounded-xl w-full" />
     </div>
   );
 }

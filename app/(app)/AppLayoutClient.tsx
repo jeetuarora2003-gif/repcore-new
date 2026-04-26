@@ -74,8 +74,6 @@ export default function AppLayoutClient({ gym, children }: Props) {
 
   return (
     <>
-      {loading && <LoadingScreen />}
-      
       {/* Pull to refresh indicator */}
       <div 
         className="fixed top-0 left-0 right-0 z-[100] flex justify-center transition-all duration-200 pointer-events-none"
