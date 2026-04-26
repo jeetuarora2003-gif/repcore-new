@@ -157,6 +157,7 @@ export default function AppShell({ gym, children }: Props) {
               <Link
                 key="checkin-special"
                 href={item.href}
+                onTouchStart={() => preload("/api/members", swrFetcher)}
                 className="flex flex-col items-center justify-center -mt-8 h-12 w-12 bg-accent rounded-xl text-white shadow-[0_4px_16px_rgba(26,122,94,0.4)] active:scale-95 transition-all"
               >
                 <item.icon size={22} strokeWidth={2.5} />
@@ -167,6 +168,10 @@ export default function AppShell({ gym, children }: Props) {
             <Link
               key={item.href}
               href={item.href}
+              onTouchStart={() => {
+                if (item.href === "/members") preload("/api/members", swrFetcher);
+                if (item.href === "/reminders") preload("/api/reminders", swrFetcher);
+              }}
               className={`flex flex-col items-center gap-1 min-w-[60px] transition-all active:scale-95 ${
                 active ? "text-accent" : "text-text-muted"
               }`}
