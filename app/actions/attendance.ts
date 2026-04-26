@@ -36,9 +36,8 @@ export async function checkIn(memberId: string, gymId: string) {
 
   if (error) throw new Error(getFriendlyErrorMessage(error));
 
-  revalidatePath("/checkin");
+  // Only revalidate the necessary path, SWR handles the rest on the client
   revalidatePath(`/members/${parsed.memberId}`);
-  revalidatePath("/dashboard");
 
   return record;
 }

@@ -171,10 +171,17 @@ export default function AppShell({ gym, children }: Props) {
               key={item.href}
               href={item.href}
               onTouchStart={() => {
-                if (item.href === "/dashboard") preload("/api/dashboard", swrFetcher);
-                if (item.href === "/members") preload("/api/members", swrFetcher);
-                if (item.href === "/reminders") preload("/api/reminders", swrFetcher);
-                if (item.href === "/plans") preload("/api/plans", swrFetcher);
+                // Only preload if they touch for a split second (prevent flooding while scrolling)
+                const timer = setTimeout(() => {
+                  if (item.href === "/dashboard") preload("/api/dashboard", swrFetcher);
+                  if (item.href === "/members") preload("/api/members", swrFetcher);
+                  if (item.href === "/reminders") preload("/api/reminders", swrFetcher);
+                  if (item.href === "/plans") preload("/api/plans", swrFetcher);
+                }, 80);
+                (window as any)._prefetchTimer = timer;
+              }}
+              onTouchEnd={() => {
+                if ((window as any)._prefetchTimer) clearTimeout((window as any)._prefetchTimer);
               }}
               className={`flex flex-col items-center justify-center gap-1 min-w-[60px] h-full transition-all active:scale-90 ${
                 active ? "text-accent" : "text-text-muted"
