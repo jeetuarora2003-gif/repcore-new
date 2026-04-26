@@ -1,38 +1,43 @@
-import { getCachedUser, getCachedGym } from "@/lib/supabase/cached-queries";
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
+"use client";
+
+import { useGym } from "@/components/providers/GymProvider";
 import MembersClient from "./MembersClient";
+import useSWR from "swr";
+import type { Plan } from "@/lib/supabase/types";
+import { createClient } from "@/lib/supabase/client";
 
-export default async function MembersPage() {
-  const user = await getCachedUser();
-  if (!user) redirect("/login");
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-  const gym = await getCachedGym(user.id);
-  if (!gym) redirect("/register");
+export default function MembersPage() {
+  const { gym } = useGym();
+  const supabase = createClient();
 
-  const supabase = await createClient();
+  // Fetch members using SWR for instant "Zero-Lag" loading
+  const { data: members, error: membersError } = useSWR(
+    `/api/members`,
+    fetcher,
+    { revalidateOnFocus: false }
+  );
 
-  // Parallel fetching reduces loading time by 50%
-  const [membersRes, plansRes] = await Promise.all([
-    supabase
-      .from("v_member_status")
-      .select("id, full_name, phone, photo_url, plan_name, balance_due, status")
-      .eq("gym_id", gym.id)
-      .order("full_name")
-      .limit(50),
-    supabase
-      .from("plans")
-      .select("*")
-      .eq("gym_id", gym.id)
-      .eq("is_active", true)
-      .order("price", { ascending: true })
-  ]);
+  // We still fetch plans for the "Add Member" modal
+  const { data: plans } = useSWR(
+    gym.id ? `plans-${gym.id}` : null,
+    async () => {
+      const { data } = await supabase
+        .from("plans")
+        .select("*")
+        .eq("gym_id", gym.id)
+        .eq("is_active", true)
+        .order("price", { ascending: true });
+      return data ?? [];
+    }
+  );
 
   return (
     <MembersClient 
       gymId={gym.id} 
-      members={membersRes.data ?? []} 
-      plans={plansRes.data ?? []} 
+      members={members ?? []} 
+      plans={plans ?? []} 
     />
   );
 }

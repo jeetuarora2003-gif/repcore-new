@@ -1,10 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import LoadingScreen from "@/components/LoadingScreen";
 import AppShell from "@/components/AppShell";
+import { GymProvider } from "@/components/providers/GymProvider";
 import type { Gym } from "@/lib/supabase/types";
-
 import { useRouter } from "next/navigation";
 
 interface Props {
@@ -13,15 +12,9 @@ interface Props {
 }
 
 export default function AppLayoutClient({ gym, children }: Props) {
-  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [pullDistance, setPullDistance] = useState(0);
   const router = useRouter();
-
-  useEffect(() => {
-    // Artificial delay removed for instant navigation
-    setLoading(false);
-  }, []);
 
   // Simple Pull-to-refresh logic
   useEffect(() => {
@@ -41,9 +34,6 @@ export default function AppLayoutClient({ gym, children }: Props) {
       
       if (distance > 0 && window.scrollY === 0) {
         setPullDistance(Math.min(distance * 0.4, threshold));
-        if (distance > threshold) {
-          // Prevent default only when we are pulling enough
-        }
       }
     };
 
@@ -87,7 +77,9 @@ export default function AppLayoutClient({ gym, children }: Props) {
         </div>
       </div>
 
-      <AppShell gym={gym}>{children}</AppShell>
+      <GymProvider gym={gym}>
+        <AppShell gym={gym}>{children}</AppShell>
+      </GymProvider>
     </>
   );
 }
