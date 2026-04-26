@@ -10,7 +10,7 @@ export async function POST(request: Request) {
     }
 
     // Try different possible environment variable names
-    const apiKey = process.env.NEXT_PUBLIC_IMGBB_API_KEY || process.env.IMGBB_API_KEY; 
+    const apiKey = process.env.IMGBB_API_KEY || process.env.NEXT_PUBLIC_IMGBB_API_KEY; 
     
     if (!apiKey) {
       console.error("ImgBB Key missing. ENV keys available:", Object.keys(process.env).filter(k => k.includes("IMGBB")));
