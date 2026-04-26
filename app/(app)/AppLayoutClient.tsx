@@ -19,10 +19,8 @@ export default function AppLayoutClient({ gym, children }: Props) {
   const router = useRouter();
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1500);
-    return () => clearTimeout(timer);
+    // Artificial delay removed for instant navigation
+    setLoading(false);
   }, []);
 
   // Simple Pull-to-refresh logic
