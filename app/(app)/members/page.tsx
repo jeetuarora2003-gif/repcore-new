@@ -3,19 +3,17 @@
 import { useGym } from "@/components/providers/GymProvider";
 import MembersClient from "./MembersClient";
 import useSWR from "swr";
-import type { Plan } from "@/lib/supabase/types";
 import { createClient } from "@/lib/supabase/client";
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+import { swrFetcher } from "@/lib/swr-fetcher";
 
 export default function MembersPage() {
   const { gym } = useGym();
   const supabase = createClient();
 
   // Fetch members using SWR for instant "Zero-Lag" loading
-  const { data: members, error: membersError } = useSWR(
+  const { data: members } = useSWR(
     `/api/members`,
-    fetcher,
+    swrFetcher,
     { revalidateOnFocus: false }
   );
 

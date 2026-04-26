@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 import type { Gym } from "@/lib/supabase/types";
 import { memberInitials } from "@/lib/helpers";
+import { preload } from "swr";
+import { swrFetcher } from "@/lib/swr-fetcher";
 
 const NAV_ITEMS = [
   { label: "Home", href: "/dashboard", icon: Home },
@@ -71,6 +73,10 @@ export default function AppShell({ gym, children }: Props) {
               <Link
                 key={item.href}
                 href={item.href}
+                onMouseEnter={() => {
+                  if (item.href === "/members") preload("/api/members", swrFetcher);
+                  if (item.href === "/reminders") preload("/api/reminders", swrFetcher);
+                }}
                 className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 group ${
                   active 
                     ? "bg-sidebar-active text-white font-semibold" 
@@ -130,7 +136,7 @@ export default function AppShell({ gym, children }: Props) {
 
         {/* Page Content */}
         <main className="flex-1 px-6 py-6 pt-20 pb-24 md:pb-8">
-          <div className="max-w-7xl mx-auto animate-fade-in">
+          <div className="max-w-7xl mx-auto">
             {children}
           </div>
         </main>

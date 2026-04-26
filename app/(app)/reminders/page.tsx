@@ -3,8 +3,7 @@
 import { useGym } from "@/components/providers/GymProvider";
 import RemindersClient from "./RemindersClient";
 import useSWR from "swr";
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+import { swrFetcher } from "@/lib/swr-fetcher";
 
 export default function RemindersPage() {
   const { gym } = useGym();
@@ -12,7 +11,7 @@ export default function RemindersPage() {
   // Fetch reminders using SWR for instant loading
   const { data, error } = useSWR(
     `/api/reminders`,
-    fetcher,
+    swrFetcher,
     { revalidateOnFocus: false }
   );
 
