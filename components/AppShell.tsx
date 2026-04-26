@@ -138,7 +138,7 @@ export default function AppShell({ gym, children }: Props) {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 px-6 py-6 pt-20 pb-24 md:pb-8">
+        <main className="flex-1 px-6 py-6 pt-20 pb-32 md:pb-8">
           <div className="max-w-7xl mx-auto">
             {children}
           </div>
@@ -146,7 +146,7 @@ export default function AppShell({ gym, children }: Props) {
       </div>
 
       {/* Mobile Bottom Tab Bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-border flex items-center justify-around px-2 z-40 h-16 shadow-[0_-4px_16px_rgba(0,0,0,0.05)]">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-border flex items-center justify-around px-2 z-40 h-[72px] pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_rgba(0,0,0,0.06)]">
         {[
           { label: "Home", href: "/dashboard", icon: Home },
           { label: "Members", href: "/members", icon: Users },
@@ -161,9 +161,9 @@ export default function AppShell({ gym, children }: Props) {
                 key="checkin-special"
                 href={item.href}
                 onTouchStart={() => preload("/api/members", swrFetcher)}
-                className="flex flex-col items-center justify-center -mt-8 h-12 w-12 bg-accent rounded-xl text-white shadow-[0_4px_16px_rgba(26,122,94,0.4)] active:scale-95 transition-all"
+                className="flex flex-col items-center justify-center -mt-10 h-14 w-14 bg-accent rounded-2xl text-white shadow-[0_8px_24px_rgba(26,122,94,0.3)] active:scale-90 transition-all border-4 border-white"
               >
-                <item.icon size={22} strokeWidth={2.5} />
+                <item.icon size={26} strokeWidth={2.5} />
               </Link>
             );
           }
@@ -175,14 +175,18 @@ export default function AppShell({ gym, children }: Props) {
                 if (item.href === "/dashboard") preload("/api/dashboard", swrFetcher);
                 if (item.href === "/members") preload("/api/members", swrFetcher);
                 if (item.href === "/reminders") preload("/api/reminders", swrFetcher);
-                if (item.href === "/settings") preload("/api/plans", swrFetcher); // Settings often links to plans
+                if (item.href === "/settings") preload("/api/plans", swrFetcher);
               }}
-              className={`flex flex-col items-center gap-1 min-w-[60px] transition-all active:scale-95 ${
+              className={`flex flex-col items-center justify-center gap-1.5 min-w-[64px] h-full transition-all active:scale-90 ${
                 active ? "text-accent" : "text-text-muted"
               }`}
             >
-              <item.icon size={20} strokeWidth={active ? 2.5 : 2} />
-              <span className="text-[10px] font-bold uppercase tracking-wide">{item.label}</span>
+              <div className={`p-1.5 rounded-xl transition-all ${active ? "bg-accent/10" : ""}`}>
+                <item.icon size={24} strokeWidth={active ? 2.5 : 2} />
+              </div>
+              <span className={`text-[10px] font-bold uppercase tracking-tight ${active ? "opacity-100" : "opacity-70"}`}>
+                {item.label}
+              </span>
             </Link>
           );
         })}
