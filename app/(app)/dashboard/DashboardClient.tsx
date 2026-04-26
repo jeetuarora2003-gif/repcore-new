@@ -253,7 +253,13 @@ function ExpiringList({ expiringSoonPromise }: { expiringSoonPromise: Promise<Pi
               />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold text-text-primary truncate">{member.full_name}</p>
-                <p className="text-xs text-text-muted">Expiring in {member.days_until_expiry} days</p>
+                <p className="text-xs text-text-muted">
+                  {(member.days_until_expiry ?? 0) > 0 
+                    ? `Expiring in ${member.days_until_expiry} days` 
+                    : (member.days_until_expiry ?? 0) === 0 
+                      ? "Expires Today" 
+                      : `Expired ${Math.abs(member.days_until_expiry ?? 0)} days ago`}
+                </p>
               </div>
               <Link
                 href="/reminders"
