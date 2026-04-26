@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Bell, Calendar, FileText, History, IndianRupee, Phone, ScanLine, ShieldAlert, Zap } from "lucide-react";
+import { Bell, Calendar, FileText, History, IndianRupee, Loader2, Phone, ScanLine, ShieldAlert, Zap } from "lucide-react";
 import { addSubscription, recordPayment } from "@/app/actions/subscriptions";
 import { checkIn } from "@/app/actions/attendance";
 import { markReminderSent } from "@/app/actions/reminders";
@@ -14,6 +14,7 @@ import type { Attendance, Gym, Invoice, MemberStatus, Payment, Plan } from "@/li
 import type { MemberStatusType } from "@/lib/helpers";
 import { toast } from "sonner";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useSWRConfig } from "swr";
 
 interface Props {
   gym: Gym;
@@ -36,13 +37,16 @@ const METHOD_LABELS: Record<PaymentMethod, string> = {
   bank_transfer: "Bank",
 };
 
+
 export default function MemberDetailClient({ gym, member, invoices, payments, attendance, plans }: Props) {
   const router = useRouter();
+  const { mutate } = useSWRConfig();
   const [tab, setTab] = useState<TabType>("overview");
   const [showPayment, setShowPayment] = useState(false);
   const [showPlan, setShowPlan] = useState(false);
   const [showConfirmCheckin, setShowConfirmCheckin] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [isCheckingIn, setIsCheckingIn] = useState(false);
 
   const [payForm, setPayForm] = useState({
     amount: String(Math.max(0, member.balance_due ?? 0)),
@@ -59,6 +63,8 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
   const isExpiredOrLapsed = member.status === "expired" || member.status === "lapsed";
 
   function handleCheckIn() {
+    if (isCheckingIn || isPending) return;
+    
     if (isExpiredOrLapsed) {
       setShowConfirmCheckin(true);
       return;
@@ -67,17 +73,22 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
     doCheckIn();
   }
 
-  function doCheckIn() {
+  async function doCheckIn() {
+    if (isCheckingIn) return;
+    setIsCheckingIn(true);
     setShowConfirmCheckin(false);
-    startTransition(async () => {
-      try {
-        await checkIn(member.id, member.gym_id);
-        toast.success("Checked in successfully!");
-        router.refresh();
-      } catch (error) {
-        toast.error((error as Error).message);
-      }
-    });
+    
+    try {
+      await checkIn(member.id, member.gym_id);
+      toast.success("Checked in successfully!");
+      // Instant SWR refresh
+      mutate(`/api/members/${member.id}`);
+      router.refresh();
+    } catch (error) {
+      toast.error((error as Error).message);
+    } finally {
+      setIsCheckingIn(false);
+    }
   }
 
   function handlePayment(event: React.FormEvent) {
@@ -194,15 +205,21 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
             <div className="flex flex-wrap justify-center md:justify-start gap-2 pt-2">
               <button
                 onClick={handleCheckIn}
-                disabled={checkedInToday || isPending}
+                disabled={checkedInToday || isPending || isCheckingIn}
                 className={`h-10 px-5 rounded-full flex items-center gap-2 text-xs font-bold transition-all ${
                   checkedInToday
                     ? "bg-hover text-text-muted border border-border cursor-not-allowed"
-                    : "bg-accent text-white shadow-lg shadow-accent/20 hover:bg-accent-hover active:scale-95"
+                    : (isPending || isCheckingIn)
+                      ? "bg-accent/50 text-white cursor-wait"
+                      : "bg-accent text-white shadow-lg shadow-accent/20 hover:bg-accent-hover active:scale-95"
                 }`}
               >
-                <ScanLine size={16} />
-                {checkedInToday ? "Checked In" : "Quick Check-in"}
+                {isPending || isCheckingIn ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <ScanLine size={16} />
+                )}
+                {checkedInToday ? "Checked In" : (isPending || isCheckingIn) ? "Processing..." : "Quick Check-in"}
               </button>
               <button
                 onClick={() => setShowPlan(true)}
