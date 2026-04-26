@@ -1,48 +1,37 @@
-import { createClient } from "@/lib/supabase/server";
-import { redirect, notFound } from "next/navigation";
+"use client";
+
+import { useGym } from "@/components/providers/GymProvider";
 import MemberDetailClient from "./MemberDetailClient";
+import useSWR from "swr";
+import { swrFetcher } from "@/lib/swr-fetcher";
+import { useParams } from "next/navigation";
 
-interface Props {
-  params: Promise<{ id: string }>;
-}
+export default function MemberDetailPage() {
+  const { id } = useParams();
+  const { gym } = useGym();
 
-export default async function MemberDetailPage({ params }: Props) {
-  const { id } = await params;
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  const { data } = useSWR(
+    id ? `/api/members/${id}` : null,
+    swrFetcher,
+    { revalidateOnFocus: false }
+  );
 
-  const { data: gym } = await supabase
-    .from("gyms")
-    .select("*")
-    .eq("owner_id", user.id)
-    .maybeSingle();
-  if (!gym) redirect("/register");
-
-  const [
-    { data: member },
-    { data: invoices },
-    { data: payments },
-    { data: attendance },
-    { data: plans },
-  ] = await Promise.all([
-    supabase.from("v_member_status").select("*").eq("id", id).eq("gym_id", gym.id).maybeSingle(),
-    supabase.from("invoices").select("*").eq("member_id", id).order("created_at", { ascending: false }),
-    supabase.from("payments").select("*").eq("member_id", id).order("paid_at", { ascending: false }),
-    supabase.from("attendance").select("*").eq("member_id", id).order("checked_in_at", { ascending: false }).limit(60),
-    supabase.from("plans").select("*").eq("gym_id", gym.id).eq("is_active", true),
-  ]);
-
-  if (!member) notFound();
+  if (!data) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-accent border-t-transparent" />
+      </div>
+    );
+  }
 
   return (
     <MemberDetailClient
-      gym={gym}
-      member={member}
-      invoices={invoices ?? []}
-      payments={payments ?? []}
-      attendance={attendance ?? []}
-      plans={plans ?? []}
+      gym={gym as any}
+      member={data.member}
+      invoices={data.invoices}
+      payments={data.payments}
+      attendance={data.attendance}
+      plans={data.plans}
     />
   );
 }
