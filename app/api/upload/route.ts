@@ -9,11 +9,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "No image provided" }, { status: 400 });
     }
 
-    // We use the server-side env variable (more secure)
-    const apiKey = process.env.NEXT_PUBLIC_IMGBB_API_KEY; 
+    // Try different possible environment variable names
+    const apiKey = process.env.NEXT_PUBLIC_IMGBB_API_KEY || process.env.IMGBB_API_KEY; 
     
     if (!apiKey) {
-      return NextResponse.json({ error: "ImgBB API key is not configured on the server." }, { status: 500 });
+      console.error("ImgBB Key missing. ENV keys available:", Object.keys(process.env).filter(k => k.includes("IMGBB")));
+      return NextResponse.json({ 
+        error: "ImgBB API key is not configured on the server. Please check Vercel Settings." 
+      }, { status: 500 });
     }
 
     const imgbbFormData = new FormData();
