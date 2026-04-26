@@ -1,5 +1,5 @@
 import MembersSkeleton from "@/components/skeletons/MembersSkeleton";
 
-export default function MembersLoading() {
+export default function RemindersLoading() {
   return <MembersSkeleton />;
 }

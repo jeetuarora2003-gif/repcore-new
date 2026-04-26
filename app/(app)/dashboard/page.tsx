@@ -1,25 +1,17 @@
 import { redirect } from "next/navigation";
 import { startOfDayUtcIso } from "@/lib/helpers";
 import { createClient } from "@/lib/supabase/server";
-import type { DashboardStats } from "@/lib/supabase/types";
+import { getCachedUser, getCachedGym } from "@/lib/supabase/cached-queries";
 import DashboardClient from "./DashboardClient";
 
 export default async function DashboardPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+  const user = await getCachedUser();
   if (!user) redirect("/login");
 
-  const { data: gym } = await supabase
-    .from("gyms")
-    .select("id, name")
-    .eq("owner_id", user.id)
-    .maybeSingle();
-
+  const gym = await getCachedGym(user.id);
   if (!gym) redirect("/register");
 
+  const supabase = await createClient();
   const todayStart = startOfDayUtcIso(new Date());
 
   // We DO NOT await these here. We pass the promises to the client to enable streaming.

@@ -25,18 +25,12 @@ type AutoReminderResult = {
 
 type ReminderCandidate = Pick<
   MemberStatus,
-  | "id"
-  | "gym_id"
-  | "full_name"
-  | "phone"
-  | "end_date"
-  | "plan_name"
-  | "subscription_id"
-  | "days_until_expiry"
-  | "reminder_5_sent_at"
-  | "reminder_3_sent_at"
-  | "reminder_1_sent_at"
->;
+  "id" | "gym_id" | "full_name" | "phone" | "end_date" | "plan_name" | "subscription_id" | "days_until_expiry"
+> & {
+  reminder_5_sent_at?: string | null;
+  reminder_3_sent_at?: string | null;
+  reminder_1_sent_at?: string | null;
+};
 
 const STAGE_TO_FIELD: Record<ReminderStage, ReminderField> = {
   5: "reminder_5_sent_at",
@@ -72,7 +66,7 @@ async function processAutoRemindersForGym(
   const { data: members, error } = await supabase
     .from("v_member_status")
     .select(
-      "id, gym_id, full_name, phone, end_date, plan_name, subscription_id, days_until_expiry, reminder_5_sent_at, reminder_3_sent_at, reminder_1_sent_at"
+      "id, gym_id, full_name, phone, end_date, plan_name, subscription_id, days_until_expiry"
     )
     .eq("gym_id", gym.id)
     .in("days_until_expiry", [5, 3, 0])

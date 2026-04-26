@@ -1,18 +1,12 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { getCachedUser, getCachedGym } from "@/lib/supabase/cached-queries";
 import AppLayoutClient from "./AppLayoutClient";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getCachedUser();
   if (!user) redirect("/login");
 
-  const { data: gym } = await supabase
-    .from("gyms")
-    .select("*")
-    .eq("owner_id", user.id)
-    .maybeSingle();
-
+  const gym = await getCachedGym(user.id);
   if (!gym) redirect("/register");
 
   return <AppLayoutClient gym={gym}>{children}</AppLayoutClient>;

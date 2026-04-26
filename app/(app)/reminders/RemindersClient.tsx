@@ -17,8 +17,12 @@ type TabType = "5" | "3" | "1" | "history";
 
 type ReminderMember = Pick<
   MemberStatus,
-  "id" | "gym_id" | "full_name" | "phone" | "end_date" | "plan_name" | "subscription_id" | "days_until_expiry" | "reminder_5_sent_at" | "reminder_3_sent_at" | "reminder_1_sent_at" | "photo_url"
->;
+  "id" | "gym_id" | "full_name" | "phone" | "end_date" | "plan_name" | "subscription_id" | "days_until_expiry" | "photo_url"
+> & {
+  reminder_5_sent_at?: string | null;
+  reminder_3_sent_at?: string | null;
+  reminder_1_sent_at?: string | null;
+};
 
 interface Props {
   gym: Gym;
