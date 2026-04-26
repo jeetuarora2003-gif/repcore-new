@@ -74,8 +74,11 @@ export default function AppShell({ gym, children }: Props) {
                 key={item.href}
                 href={item.href}
                 onMouseEnter={() => {
+                  if (item.href === "/dashboard") preload("/api/dashboard", swrFetcher);
                   if (item.href === "/members") preload("/api/members", swrFetcher);
                   if (item.href === "/reminders") preload("/api/reminders", swrFetcher);
+                  if (item.href === "/plans") preload("/api/plans", swrFetcher);
+                  if (item.href === "/reports") preload("/api/reports", swrFetcher);
                 }}
                 className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 group ${
                   active 
@@ -169,8 +172,10 @@ export default function AppShell({ gym, children }: Props) {
               key={item.href}
               href={item.href}
               onTouchStart={() => {
+                if (item.href === "/dashboard") preload("/api/dashboard", swrFetcher);
                 if (item.href === "/members") preload("/api/members", swrFetcher);
                 if (item.href === "/reminders") preload("/api/reminders", swrFetcher);
+                if (item.href === "/settings") preload("/api/plans", swrFetcher); // Settings often links to plans
               }}
               className={`flex flex-col items-center gap-1 min-w-[60px] transition-all active:scale-95 ${
                 active ? "text-accent" : "text-text-muted"

@@ -1,24 +1,18 @@
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
+"use client";
+
+import { useGym } from "@/components/providers/GymProvider";
 import PlansClient from "./PlansClient";
+import useSWR from "swr";
+import { swrFetcher } from "@/lib/swr-fetcher";
 
-export default async function PlansPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+export default function PlansPage() {
+  const { gym } = useGym();
 
-  const { data: gym } = await supabase
-    .from("gyms")
-    .select("id")
-    .eq("owner_id", user.id)
-    .maybeSingle();
-  if (!gym) redirect("/register");
-
-  const { data: plans } = await supabase
-    .from("plans")
-    .select("*")
-    .eq("gym_id", gym.id)
-    .order("price");
+  const { data: plans } = useSWR(
+    `/api/plans`,
+    swrFetcher,
+    { revalidateOnFocus: false }
+  );
 
   return <PlansClient gymId={gym.id} plans={plans ?? []} />;
 }
