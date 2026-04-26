@@ -21,7 +21,12 @@ export async function GET() {
     supabase.rpc("get_dashboard_stats", { p_gym_id: gym.id }),
     supabase
       .from("attendance")
-      .select("id, member_id, checked_in_at")
+      .select(`
+        id, 
+        member_id, 
+        checked_in_at,
+        members:member_id (id, full_name, photo_url)
+      `)
       .eq("gym_id", gym.id)
       .gte("checked_in_at", todayStart)
       .order("checked_in_at", { ascending: false })
@@ -37,21 +42,6 @@ export async function GET() {
       .limit(10)
   ]);
 
-  // Resolve members for check-ins
-  let resolvedCheckins = [];
-  if (recentCheckins && recentCheckins.length > 0) {
-    const { data: members } = await supabase
-      .from("members")
-      .select("id, full_name, photo_url")
-      .in("id", recentCheckins.map(c => c.member_id));
-    
-    const memberMap = new Map((members ?? []).map(m => [m.id, m]));
-    resolvedCheckins = recentCheckins.map(c => ({
-      ...c,
-      members: memberMap.get(c.member_id) ?? null
-    }));
-  }
-
   const stats = (statsData as any) ?? { total: 0, active: 0, expiring: 0, dues: 0, new_this_month: 0, today_revenue: 0 };
 
   return NextResponse.json({
@@ -63,7 +53,11 @@ export async function GET() {
       newThisMonth: stats.new_this_month ?? 0,
       todayRevenue: stats.today_revenue ?? 0,
     },
-    recentCheckins: resolvedCheckins,
+    recentCheckins: recentCheckins ?? [],
     expiringSoon: expiringSoon ?? []
+  }, {
+    headers: {
+      'Cache-Control': 's-maxage=1, stale-while-revalidate=59',
+    }
   });
 }
