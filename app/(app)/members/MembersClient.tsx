@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Plus, Search, Phone, Users, ChevronRight, Filter, Loader2, Download } from "lucide-react";
 import { formatINR, statusLabel, statusBadgeClass } from "@/lib/helpers";
@@ -45,6 +45,7 @@ const PAGE_SIZE = 50;
 
 export default function MembersClient({ gymId, members: initialMembers, plans }: Props) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = createClient();
   const [members, setMembers] = useState<MemberListItem[]>(initialMembers);
   const [search, setSearch] = useState("");
@@ -56,6 +57,15 @@ export default function MembersClient({ gymId, members: initialMembers, plans }:
   const [hasMore, setHasMore] = useState(initialMembers.length === PAGE_SIZE);
   const [isLoading, setIsLoading] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+
+  // Open wizard if ?add=true is present
+  useEffect(() => {
+    if (searchParams.get("add") === "true") {
+      setShowAdd(true);
+      // Clean up the URL
+      router.replace("/members");
+    }
+  }, [searchParams, router]);
 
   // Debounce search
   useEffect(() => {

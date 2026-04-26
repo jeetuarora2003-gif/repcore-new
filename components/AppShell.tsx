@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { 
   Home, Users, Bell, 
   Settings, LayoutGrid, Dumbbell,
-  MoreHorizontal, ScanLine
+  MoreHorizontal, ScanLine, Plus, Sparkles
 } from "lucide-react";
 import type { Gym } from "@/lib/supabase/types";
 import { memberInitials } from "@/lib/helpers";
@@ -146,24 +146,23 @@ export default function AppShell({ gym, children }: Props) {
       </div>
 
       {/* Mobile Bottom Tab Bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-border flex items-center justify-around px-2 z-40 h-[72px] pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_rgba(0,0,0,0.06)]">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-2xl border-t border-border flex items-center justify-around px-2 z-[100] h-[80px] pb-[env(safe-area-inset-bottom)] shadow-[0_-12px_40px_rgba(0,0,0,0.08)]">
         {[
           { label: "Home", href: "/dashboard", icon: Home },
           { label: "Members", href: "/members", icon: Users },
-          { label: "Check-in", href: "/members", icon: ScanLine, special: true },
+          { label: "Add", href: "/members?add=true", icon: Plus, special: true },
           { label: "Reminders", href: "/reminders", icon: Bell },
-          { label: "More", href: "/settings", icon: MoreHorizontal },
+          { label: "Plans", href: "/plans", icon: Sparkles },
         ].map((item) => {
           const active = pathname === item.href;
           if (item.special) {
             return (
               <Link
-                key="checkin-special"
+                key="add-special"
                 href={item.href}
-                onTouchStart={() => preload("/api/members", swrFetcher)}
-                className="flex flex-col items-center justify-center -mt-10 h-14 w-14 bg-accent rounded-2xl text-white shadow-[0_8px_24px_rgba(26,122,94,0.3)] active:scale-90 transition-all border-4 border-white"
+                className="flex flex-col items-center justify-center -mt-12 h-14 w-14 bg-accent rounded-full text-white shadow-[0_12px_24px_rgba(26,122,94,0.4)] active:scale-90 transition-all border-[6px] border-page"
               >
-                <item.icon size={26} strokeWidth={2.5} />
+                <item.icon size={28} strokeWidth={3} />
               </Link>
             );
           }
@@ -175,16 +174,14 @@ export default function AppShell({ gym, children }: Props) {
                 if (item.href === "/dashboard") preload("/api/dashboard", swrFetcher);
                 if (item.href === "/members") preload("/api/members", swrFetcher);
                 if (item.href === "/reminders") preload("/api/reminders", swrFetcher);
-                if (item.href === "/settings") preload("/api/plans", swrFetcher);
+                if (item.href === "/plans") preload("/api/plans", swrFetcher);
               }}
-              className={`flex flex-col items-center justify-center gap-1.5 min-w-[64px] h-full transition-all active:scale-90 ${
+              className={`flex flex-col items-center justify-center gap-1 min-w-[60px] h-full transition-all active:scale-90 ${
                 active ? "text-accent" : "text-text-muted"
               }`}
             >
-              <div className={`p-1.5 rounded-xl transition-all ${active ? "bg-accent/10" : ""}`}>
-                <item.icon size={24} strokeWidth={active ? 2.5 : 2} />
-              </div>
-              <span className={`text-[10px] font-bold uppercase tracking-tight ${active ? "opacity-100" : "opacity-70"}`}>
+              <item.icon size={22} strokeWidth={active ? 2.5 : 2} />
+              <span className={`text-[9px] font-bold uppercase tracking-tight ${active ? "opacity-100" : "opacity-60"}`}>
                 {item.label}
               </span>
             </Link>
