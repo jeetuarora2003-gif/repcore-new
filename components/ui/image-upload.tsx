@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { Camera, Loader2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface ImageUploadProps {
   value?: string;
@@ -20,16 +21,14 @@ export function ImageUpload({ value, onChange, className }: ImageUploadProps) {
 
     // Validate size (e.g., max 5MB for ImgBB free tier)
     if (file.size > 5 * 1024 * 1024) {
-      alert("Image is too large. Max size is 5MB.");
+      toast.error("Image is too large. Max size is 5MB.");
       return;
     }
 
-    try {
-      setIsUploading(true);
-
+    const uploadPromise = async () => {
       const apiKey = process.env.NEXT_PUBLIC_IMGBB_API_KEY;
       if (!apiKey) {
-        throw new Error("ImgBB API key is missing. Please add NEXT_PUBLIC_IMGBB_API_KEY to your .env.local file.");
+        throw new Error("ImgBB API key is missing. Please add NEXT_PUBLIC_IMGBB_API_KEY to Vercel Environment Variables.");
       }
 
       const formData = new FormData();
@@ -43,21 +42,23 @@ export function ImageUpload({ value, onChange, className }: ImageUploadProps) {
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        throw new Error(data.error?.message || "Failed to upload image to ImgBB");
+        throw new Error(data.error?.message || "Failed to upload image");
       }
 
-      // ImgBB returns the direct image URL in data.data.url
       onChange(data.data.url);
-    } catch (error: any) {
-      console.error("Upload error:", error);
-      alert(error.message || "Failed to upload image");
-    } finally {
-      setIsUploading(false);
-      // Reset input so the same file can be selected again if needed
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
+      return data.data.url;
+    };
+
+    setIsUploading(true);
+    toast.promise(uploadPromise(), {
+      loading: "Uploading member portrait...",
+      success: "Portrait uploaded successfully!",
+      error: (err) => err.message,
+      finally: () => {
+        setIsUploading(false);
+        if (fileInputRef.current) fileInputRef.current.value = "";
       }
-    }
+    });
   };
 
   const handleRemove = (e: React.MouseEvent) => {
