@@ -11,7 +11,10 @@ export default function DashboardPage() {
   const { data, error } = useSWR(
     `/api/dashboard`,
     swrFetcher,
-    { revalidateOnFocus: false }
+    { 
+      revalidateOnFocus: true,
+      refreshInterval: 30000 
+    }
   );
 
   return (

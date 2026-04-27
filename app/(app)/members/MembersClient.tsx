@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Plus, Search, Phone, Users, ChevronRight, Filter, Loader2, Download } from "lucide-react";
+import { useSWRConfig } from "swr";
 import { formatINR, statusLabel, statusBadgeClass } from "@/lib/helpers";
 import { toast } from "sonner";
 import type { MemberStatus } from "@/lib/supabase/types";
@@ -47,6 +48,7 @@ export default function MembersClient({ gymId, members: initialMembers, plans }:
   const router = useRouter();
   const searchParams = useSearchParams();
   const supabase = createClient();
+  const { mutate } = useSWRConfig();
   const [members, setMembers] = useState<MemberListItem[]>(initialMembers);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -222,6 +224,7 @@ export default function MembersClient({ gymId, members: initialMembers, plans }:
   const handleEnrollmentSuccess = useCallback(() => {
     setPage(0);
     fetchMembers(true);
+    mutate("/api/dashboard");
     // Also trigger router.refresh to sync other potential server data
     router.refresh();
   }, [fetchMembers, router]);

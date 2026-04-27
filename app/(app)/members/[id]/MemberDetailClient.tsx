@@ -86,6 +86,7 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
       toast.success("Checked in successfully!");
       // Instant SWR refresh
       mutate(`/api/members/${member.id}`);
+      mutate("/api/dashboard");
       router.refresh();
     } catch (error) {
       toast.error((error as Error).message);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
+import { useSWRConfig } from "swr";
 import { Search, ScanLine, Check, UserCheck, ShieldAlert, Sparkles, ChevronRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { checkIn } from "@/app/actions/attendance";
@@ -22,6 +23,7 @@ export default function CheckInPage() {
   const [isPending, startTransition] = useTransition();
   const [gymId, setGymId] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const { mutate } = useSWRConfig();
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -102,6 +104,7 @@ export default function CheckInPage() {
         setCheckedInTodayIds((current) => new Set([...current, selected.id]));
         setSuccessTime(now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }));
         setSuccess(true);
+        mutate("/api/dashboard");
 
         setTimeout(() => {
           setSuccess(false);

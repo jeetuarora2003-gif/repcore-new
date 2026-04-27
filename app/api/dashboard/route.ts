@@ -56,8 +56,6 @@ export async function GET() {
     recentCheckins: recentCheckins ?? [],
     expiringSoon: expiringSoon ?? []
   }, {
-    headers: {
-      'Cache-Control': 's-maxage=1, stale-while-revalidate=59',
-    }
+    status: 200
   });
 }
