@@ -46,7 +46,7 @@ const FORM_ID = "add-member-wizard-form";
 
 function StepIndicator({ step }: StepIndicatorProps) {
   return (
-    <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-white relative">
+    <div className="flex items-center justify-between px-6 py-3 md:py-4 border-b border-border bg-white relative">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[2px] bg-hover z-0" />
       {[
         { num: 1, label: "Profile", icon: User },
@@ -228,7 +228,7 @@ export default function AddMemberWizard({ isOpen, onClose, onSuccess, gymId, pla
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="w-full h-full md:h-auto md:max-w-[500px] p-0 overflow-hidden md:rounded-[2rem] border-none shadow-2xl bg-white animate-fade-up">
+      <DialogContent className="w-full h-full md:h-auto md:max-w-[500px] p-0 overflow-hidden md:rounded-[2rem] border-none shadow-2xl bg-white animate-fade-up !top-0 !left-0 !translate-x-0 !translate-y-0 !bottom-0">
         <DialogHeader className="hidden">
           <DialogTitle>Membership Orchestration</DialogTitle>
         </DialogHeader>
@@ -513,44 +513,42 @@ export default function AddMemberWizard({ isOpen, onClose, onSuccess, gymId, pla
                   </div>
                 </div>
               )}
+              {/* Action Buttons - Moved inside form for better mobile keyboard handling */}
+              <div className="mt-8 pt-6 border-t border-border flex gap-3 pb-8 md:pb-0">
+                {step > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => setStep(step - 1)}
+                    className="h-12 px-4 bg-white border-2 border-border text-text-muted rounded-xl font-bold hover:bg-hover transition-all"
+                  >
+                    <ChevronRight size={18} className="rotate-180" />
+                  </button>
+                )}
+
+                {step < 3 ? (
+                  <button
+                    type="button"
+                    onClick={step === 2 ? handleNextToPayment : handleNextToPlan}
+                    disabled={isPending || submitting}
+                    className="flex-1 h-12 bg-accent hover:bg-accent-hover text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 uppercase tracking-[0.1em] text-[11px] shadow-lg shadow-accent/20 disabled:opacity-50"
+                  >
+                    {isPending || submitting ? "Processing..." : step === 1 ? "Next: Select Tier" : "Next: Billing"}
+                    <ChevronRight size={16} strokeWidth={3} />
+                  </button>
+                ) : (
+                  <button
+                    type="submit"
+                    form={FORM_ID}
+                    disabled={isPending || submitting}
+                    className="flex-1 h-12 bg-accent hover:bg-accent-hover text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 uppercase tracking-[0.1em] text-[11px] shadow-lg shadow-accent/20 disabled:opacity-50"
+                  >
+                    {isPending || submitting ? "Processing..." : "Finish Enrollment"}
+                    <ChevronRight size={16} strokeWidth={3} />
+                  </button>
+                )}
+              </div>
             </div>
           </form>
-
-          {step < 4 && (
-            <div className="p-4 md:p-6 border-t border-border bg-white flex gap-3 pb-[calc(1rem+env(safe-area-inset-bottom))] md:pb-6">
-              {step > 1 && (
-                <button
-                  type="button"
-                  onClick={() => setStep(step - 1)}
-                  className="h-12 px-4 bg-white border-2 border-border text-text-muted rounded-xl font-bold hover:bg-hover transition-all"
-                >
-                  <ChevronRight size={18} className="rotate-180" />
-                </button>
-              )}
-
-              {step < 3 ? (
-                <button
-                  type="button"
-                  onClick={step === 2 ? handleNextToPayment : handleNextToPlan}
-                  disabled={isPending || submitting}
-                  className="flex-1 h-12 bg-accent hover:bg-accent-hover text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 uppercase tracking-[0.1em] text-[11px] shadow-lg shadow-accent/20 disabled:opacity-50"
-                >
-                  {isPending || submitting ? "Processing..." : step === 1 ? "Next: Select Tier" : "Next: Billing"}
-                  <ChevronRight size={16} strokeWidth={3} />
-                </button>
-              ) : (
-                <button
-                  type="submit"
-                  form={FORM_ID}
-                  disabled={isPending || submitting}
-                  className="flex-1 h-12 bg-accent hover:bg-accent-hover text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 uppercase tracking-[0.1em] text-[11px] shadow-lg shadow-accent/20 disabled:opacity-50"
-                >
-                  {isPending || submitting ? "Processing..." : "Finish Enrollment"}
-                  <ChevronRight size={16} strokeWidth={3} />
-                </button>
-              )}
-            </div>
-          )}
         </div>
       </DialogContent>
     </Dialog>
