@@ -270,7 +270,7 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
                 )}
                 {checkedInToday ? "Checked In" : (isPending || isCheckingIn) ? "Processing..." : "Quick Check-in"}
               </button>
-              {member.subscription_id ? (
+              {member.subscription_id && (member.status === "expiring_soon" || member.status === "expired" || member.status === "lapsed") ? (
                 <button
                   onClick={openRenewPlan}
                   className="h-10 px-5 rounded-full bg-accent text-white text-xs font-bold hover:bg-accent-hover transition-all active:scale-95 shadow-lg shadow-accent/20"
