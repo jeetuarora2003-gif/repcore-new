@@ -228,16 +228,16 @@ export default function AddMemberWizard({ isOpen, onClose, onSuccess, gymId, pla
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-[500px] p-0 overflow-hidden rounded-[2rem] border-none shadow-2xl bg-white animate-fade-up">
+      <DialogContent className="w-full h-full md:h-auto md:max-w-[500px] p-0 overflow-hidden md:rounded-[2rem] border-none shadow-2xl bg-white animate-fade-up">
         <DialogHeader className="hidden">
           <DialogTitle>Membership Orchestration</DialogTitle>
         </DialogHeader>
 
-        <div className="flex flex-col bg-white overflow-hidden">
+        <div className="flex flex-col h-full bg-white overflow-hidden">
           {step < 4 && <StepIndicator step={step} />}
 
-          <form id={FORM_ID} onSubmit={handleSubmit} className="flex-1 overflow-y-auto bg-page max-h-[70vh]">
-            <div className="p-6 md:p-8 space-y-6">
+          <form id={FORM_ID} onSubmit={handleSubmit} className="flex-1 overflow-y-auto bg-page">
+            <div className="p-5 md:p-8 space-y-5 md:space-y-6 pb-20 md:pb-8">
               {step === 1 && (
                 <div className="space-y-6 animate-fade-up">
                   <div className="bg-white p-5 rounded-[1.5rem] border-2 border-border shadow-sm flex items-center gap-5">
@@ -360,7 +360,7 @@ export default function AddMemberWizard({ isOpen, onClose, onSuccess, gymId, pla
                     })}
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-white p-5 rounded-[1.5rem] border-2 border-border shadow-sm">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-white p-4 md:p-5 rounded-[1.2rem] md:rounded-[1.5rem] border-2 border-border shadow-sm">
                     <div className="space-y-1.5">
                       <label className="text-[9px] font-bold text-text-muted uppercase tracking-widest ml-1">Onboarding Date</label>
                       <input
@@ -517,7 +517,7 @@ export default function AddMemberWizard({ isOpen, onClose, onSuccess, gymId, pla
           </form>
 
           {step < 4 && (
-            <div className="p-6 border-t border-border bg-white flex gap-3">
+            <div className="p-4 md:p-6 border-t border-border bg-white flex gap-3 pb-[calc(1rem+env(safe-area-inset-bottom))] md:pb-6">
               {step > 1 && (
                 <button
                   type="button"

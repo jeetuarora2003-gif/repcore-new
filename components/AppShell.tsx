@@ -146,7 +146,7 @@ export default function AppShell({ gym, children }: Props) {
       </div>
 
       {/* Mobile Bottom Tab Bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-2xl border-t border-border flex items-center justify-around px-2 z-[100] h-[80px] pb-[env(safe-area-inset-bottom)] shadow-[0_-12px_40px_rgba(0,0,0,0.08)]">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-2xl border-t border-border flex items-center justify-around px-2 z-40 h-[80px] pb-[env(safe-area-inset-bottom)] shadow-[0_-12px_40px_rgba(0,0,0,0.08)]">
         {[
           { label: "Home", href: "/dashboard", icon: Home },
           { label: "Members", href: "/members", icon: Users },
