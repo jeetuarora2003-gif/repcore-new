@@ -69,6 +69,7 @@ export async function addSubscription(
   revalidatePath("/dues");
   revalidatePath("/reports");
   revalidatePath("/reminders");
+  revalidatePath("/dashboard");
 
   return result as SubscriptionSaleResult;
 }

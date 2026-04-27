@@ -58,6 +58,9 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
   const [planForm, setPlanForm] = useState({
     plan_id: plans[0]?.id ?? "",
     start_date: getTodayDateInput(),
+    isPaid: true,
+    paymentMethod: "cash" as PaymentMethod,
+    notes: "",
   });
 
   const isExpiredOrLapsed = member.status === "expired" || member.status === "lapsed";
@@ -106,6 +109,8 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
         });
         toast.success("Payment recorded!");
         setShowPayment(false);
+        mutate(`/api/members/${member.id}`);
+        mutate("/api/dashboard");
         router.refresh();
       } catch (error) {
         toast.error((error as Error).message);
@@ -118,14 +123,57 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
 
     startTransition(async () => {
       try {
-        await addSubscription(member.id, planForm.plan_id, planForm.start_date, gym.id);
-        toast.success("Plan added!");
+        const result = await addSubscription(member.id, planForm.plan_id, planForm.start_date, gym.id);
+        
+        if (planForm.isPaid) {
+          const plan = plans.find(p => p.id === planForm.plan_id);
+          try {
+            await recordPayment({
+              gym_id: gym.id,
+              member_id: member.id,
+              invoice_id: result.invoice_id,
+              amount: plan?.price ?? 0,
+              payment_method: planForm.paymentMethod,
+              notes: planForm.notes || "Plan payment",
+            });
+            toast.success("Plan added and payment recorded!");
+          } catch (payError) {
+            console.error("Payment error:", payError);
+            toast.error("Plan added, but payment recording failed. Please record payment manually from the Billing tab.");
+          }
+        } else {
+          toast.success("Plan added!");
+        }
+
         setShowPlan(false);
+        mutate(`/api/members/${member.id}`);
+        mutate("/api/dashboard");
         router.refresh();
       } catch (error) {
         toast.error((error as Error).message);
       }
     });
+  }
+
+  function openRenewPlan() {
+    if (!member.end_date) {
+      setShowPlan(true);
+      return;
+    }
+
+    const currentEndDate = new Date(member.end_date);
+    const today = new Date();
+    
+    // If already expired, start from today. If active, start from day after expiry.
+    const nextStart = currentEndDate < today ? today : new Date(currentEndDate.getTime() + 24 * 60 * 60 * 1000);
+    
+    setPlanForm(prev => ({
+      ...prev,
+      start_date: toDateKey(nextStart),
+      plan_id: plans.find(p => p.name === member.plan_name)?.id ?? plans[0]?.id ?? "",
+      isPaid: true,
+    }));
+    setShowPlan(true);
   }
 
   function handleRemind() {
@@ -221,11 +269,22 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
                 )}
                 {checkedInToday ? "Checked In" : (isPending || isCheckingIn) ? "Processing..." : "Quick Check-in"}
               </button>
+              {member.subscription_id ? (
+                <button
+                  onClick={openRenewPlan}
+                  className="h-10 px-5 rounded-full bg-accent text-white text-xs font-bold hover:bg-accent-hover transition-all active:scale-95 shadow-lg shadow-accent/20"
+                >
+                  Renew Plan
+                </button>
+              ) : null}
               <button
-                onClick={() => setShowPlan(true)}
+                onClick={() => {
+                  setPlanForm(prev => ({ ...prev, isPaid: true }));
+                  setShowPlan(true);
+                }}
                 className="h-10 px-5 rounded-full bg-white border border-border text-text-primary text-xs font-bold hover:bg-hover hover:border-border-strong transition-all active:scale-95 shadow-sm"
               >
-                Change Plan
+                {member.subscription_id ? "Change Plan" : "Assign Plan"}
               </button>
               <button
                 onClick={() => setShowPayment(true)}
@@ -510,8 +569,58 @@ export default function MemberDetailClient({ gym, member, invoices, payments, at
               className="w-full h-12 rounded-xl bg-page border border-border px-4 text-sm text-text-primary font-bold focus:border-accent focus:ring-4 focus:ring-accent/5 outline-none"
             />
           </div>
+
+          <div className="space-y-4 pt-2">
+            <label className="flex items-center gap-3 cursor-pointer group">
+              <div className="relative flex items-center justify-center">
+                <input
+                  type="checkbox"
+                  checked={planForm.isPaid}
+                  onChange={(e) => setPlanForm(prev => ({ ...prev, isPaid: e.target.checked }))}
+                  className="peer appearance-none w-5 h-5 rounded-md border-2 border-border checked:bg-accent checked:border-accent transition-all cursor-pointer"
+                />
+                <Zap size={10} className="absolute text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" strokeWidth={3} />
+              </div>
+              <span className="text-xs font-bold text-text-primary group-hover:text-accent transition-colors">Payment Done?</span>
+            </label>
+
+            {planForm.isPaid && (
+              <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                <div>
+                  <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest block mb-3">Payment Method</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {PAYMENT_METHODS.map((method) => (
+                      <button
+                        key={method}
+                        type="button"
+                        onClick={() => setPlanForm((current) => ({ ...current, paymentMethod: method }))}
+                        className={`h-11 rounded-xl text-xs font-bold transition-all border ${
+                          planForm.paymentMethod === method
+                            ? "bg-accent-light border-accent/40 text-accent-text shadow-sm"
+                            : "bg-white border-border text-text-muted hover:bg-hover hover:border-border-strong"
+                        }`}
+                      >
+                        {METHOD_LABELS[method]}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest block mb-2">Internal Notes (Optional)</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Received by Coach Rohit"
+                    value={planForm.notes}
+                    onChange={(e) => setPlanForm(prev => ({ ...prev, notes: e.target.value }))}
+                    className="w-full h-11 rounded-xl bg-page border border-border px-4 text-xs text-text-primary font-medium focus:border-accent focus:ring-4 focus:ring-accent/5 outline-none transition-all"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
           <button type="submit" disabled={isPending} className="w-full h-12 rounded-xl bg-accent text-white text-sm font-bold active:scale-[0.98] transition-all mt-4 shadow-lg shadow-accent/20 uppercase tracking-widest">
-            Confirm Plan Change
+            {planForm.isPaid ? "Confirm & Record Payment" : "Confirm Plan Change"}
           </button>
         </form>
       </BottomSheet>
