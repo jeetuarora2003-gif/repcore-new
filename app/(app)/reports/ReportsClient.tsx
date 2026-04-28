@@ -60,7 +60,7 @@ export default function ReportsClient({ monthRevenue, newMembersCount, totalDues
     }));
 
   return (
-    <div className="space-y-10 animate-fade-up">
+    <div className="space-y-10 animate-fade-up max-w-5xl mx-auto w-full">
       {/* Header */}
       <div className="px-1">
         <h1 className="text-2xl font-bold text-text-primary tracking-tight">Business Intelligence</h1>

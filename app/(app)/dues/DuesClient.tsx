@@ -46,7 +46,7 @@ export default function DuesClient({ gymId, members: initialMembers, totalDues }
   }, [gymId, page, supabase]);
 
   return (
-    <div className="space-y-8 animate-fade-up">
+    <div className="space-y-8 animate-fade-up max-w-4xl mx-auto w-full">
       {/* Header */}
       <div>
         <Link
