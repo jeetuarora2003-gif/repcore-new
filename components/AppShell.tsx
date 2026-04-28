@@ -139,7 +139,7 @@ export default function AppShell({ gym, children }: Props) {
 
         {/* Page Content */}
         <main className="flex-1 px-6 py-6 pt-20 pb-32 md:pb-8">
-          <div className="max-w-7xl mx-auto">
+          <div className="max-w-5xl mx-auto w-full">
             {children}
           </div>
         </main>

@@ -69,7 +69,7 @@ export default function PlansClient({ gymId, plans }: Props) {
   }
 
   return (
-    <div className="space-y-10 animate-fade-up">
+    <div className="space-y-10 animate-fade-up max-w-4xl mx-auto w-full">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -85,7 +85,7 @@ export default function PlansClient({ gymId, plans }: Props) {
         </Button>
       </div>
 
-      <div className="max-w-4xl mx-auto w-full">
+      <div className="w-full">
         {localPlans.length === 0 ? (
           <div className="py-20">
             <EmptyState
