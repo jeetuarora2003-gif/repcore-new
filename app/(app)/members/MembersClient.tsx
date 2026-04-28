@@ -230,7 +230,7 @@ export default function MembersClient({ gymId, members: initialMembers, plans }:
   }, [fetchMembers, router]);
 
   return (
-    <div className="space-y-6 animate-fade-up max-w-4xl mx-auto w-full">
+    <div className="space-y-6 animate-fade-up">
       {/* Header & Search */}
       <div className="sticky top-[56px] z-20 -mx-6 px-6 py-4 bg-page/80 backdrop-blur-md border-b border-border space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

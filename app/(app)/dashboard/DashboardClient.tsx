@@ -52,7 +52,7 @@ export default function DashboardClient({ gym, statsPromise, recentCheckinsPromi
   }, []);
 
   return (
-    <div className="space-y-10 max-w-6xl mx-auto w-full">
+    <div className="space-y-10">
       <div className="animate-fade-up">
         <p className="text-[10px] tracking-[0.2em] font-bold text-text-muted uppercase mb-1.5">{greeting}</p>
         <h1 className="text-3xl font-bold tracking-tight text-text-primary">{gym.name}</h1>

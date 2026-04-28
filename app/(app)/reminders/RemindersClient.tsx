@@ -91,7 +91,7 @@ export default function RemindersClient({ gym, fiveDays, threeDays, oneDay, hist
   const members = getMembers();
 
   return (
-    <div className="space-y-6 animate-fade-up max-w-4xl mx-auto w-full">
+    <div className="space-y-6 animate-fade-up">
       <div className="px-1">
         <h1 className="text-2xl font-bold text-text-primary tracking-tight">Renewal Reminders</h1>
         <p className="text-sm text-text-secondary mt-1">Nudge members whose subscriptions are expiring soon</p>
