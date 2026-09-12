@@ -1,41 +1,45 @@
+import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
+import { getCachedUser, getCachedGym } from "@/lib/supabase/cached-queries";
+import { createAdminClient } from "@/lib/supabase/admin";
+
+const BUCKET = "member-photos";
 
 export async function POST(request: Request) {
   try {
+    const user = await getCachedUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const gym = await getCachedGym(user.id);
+    if (!gym) {
+      return NextResponse.json({ error: "Gym not found" }, { status: 404 });
+    }
+
     const formData = await request.formData();
     const image = formData.get("image");
 
-    if (!image) {
+    if (!image || !(image instanceof Blob)) {
       return NextResponse.json({ error: "No image provided" }, { status: 400 });
     }
 
-    // Try different possible environment variable names
-    const apiKey = process.env.IMGBB_API_KEY || process.env.NEXT_PUBLIC_IMGBB_API_KEY; 
-    
-    if (!apiKey) {
-      console.error("ImgBB Key missing. ENV keys available:", Object.keys(process.env).filter(k => k.includes("IMGBB")));
-      return NextResponse.json({ 
-        error: "ImgBB API key is not configured on the server. Please check Vercel Settings." 
-      }, { status: 500 });
+    const path = `${gym.id}/${randomUUID()}.jpg`;
+    const supabase = createAdminClient();
+
+    const { error: uploadError } = await supabase.storage
+      .from(BUCKET)
+      .upload(path, image, { contentType: "image/jpeg", upsert: false });
+
+    if (uploadError) {
+      return NextResponse.json({ error: uploadError.message }, { status: 500 });
     }
 
-    const imgbbFormData = new FormData();
-    imgbbFormData.append("image", image);
+    const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);
 
-    const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
-      method: "POST",
-      body: imgbbFormData,
-    });
-
-    const data = await response.json();
-
-    if (!response.ok || !data.success) {
-      return NextResponse.json({ error: data.error?.message || "ImgBB upload failed" }, { status: response.status });
-    }
-
-    return NextResponse.json(data.data);
+    return NextResponse.json({ url: data.publicUrl });
   } catch (error: any) {
-    console.error("Proxy upload error:", error);
+    console.error("Upload error:", error);
     return NextResponse.json({ error: error.message || "Server upload failed" }, { status: 500 });
   }
 }

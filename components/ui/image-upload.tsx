@@ -11,6 +11,52 @@ interface ImageUploadProps {
   className?: string;
 }
 
+const MAX_DIMENSION = 400;
+const JPEG_QUALITY = 0.8;
+
+// Member photos only ever render at up to 96px in this app. A phone camera
+// photo can be 3-5MB at full resolution, so we downscale + recompress to a
+// JPEG capped at MAX_DIMENSION before upload - this cuts typical file size
+// by 100x+, which matters a lot against a storage service's free-tier quota.
+function compressImage(file: File): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+
+      const scale = Math.min(1, MAX_DIMENSION / Math.max(img.width, img.height));
+      const width = Math.round(img.width * scale);
+      const height = Math.round(img.height * scale);
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        reject(new Error("Could not process image"));
+        return;
+      }
+
+      ctx.drawImage(img, 0, 0, width, height);
+      canvas.toBlob(
+        (blob) => (blob ? resolve(blob) : reject(new Error("Could not process image"))),
+        "image/jpeg",
+        JPEG_QUALITY
+      );
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error("Could not read image"));
+    };
+
+    img.src = objectUrl;
+  });
+}
+
 export function ImageUpload({ value, onChange, className }: ImageUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -19,15 +65,17 @@ export function ImageUpload({ value, onChange, className }: ImageUploadProps) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate size (e.g., max 5MB for ImgBB free tier)
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image is too large. Max size is 5MB.");
+    // Sanity cap on the original file before we even try to decode it.
+    if (file.size > 15 * 1024 * 1024) {
+      toast.error("Image is too large. Max size is 15MB.");
       return;
     }
 
     const uploadPromise = async () => {
+      const compressed = await compressImage(file);
+
       const formData = new FormData();
-      formData.append("image", file);
+      formData.append("image", compressed, "photo.jpg");
 
       const response = await fetch("/api/upload", {
         method: "POST",
