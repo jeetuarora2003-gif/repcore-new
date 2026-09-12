@@ -38,7 +38,8 @@ WITH
   ),
   member_subs AS (
     SELECT DISTINCT ON (member_id)
-      id, member_id, start_date, end_date, plan_id
+      id, member_id, start_date, end_date, plan_id,
+      reminder_5_sent_at, reminder_3_sent_at, reminder_1_sent_at
     FROM subscriptions
     ORDER BY member_id, end_date DESC
   ),
