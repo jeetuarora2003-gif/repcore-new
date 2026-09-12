@@ -56,8 +56,6 @@ Work through these in order.
    - `SUPABASE_SERVICE_ROLE_KEY`
    - `CRON_SECRET`
    - `ENCRYPTION_KEY`
-   - `IMGBB_API_KEY` / `NEXT_PUBLIC_IMGBB_API_KEY` (for photo uploads only -
-     missing this breaks photo upload but not the rest of the app)
 
    Visiting `https://<your-app>.vercel.app/api/health` directly in a browser
    will tell you if any of the required ones are missing, without exposing
