@@ -30,6 +30,16 @@ export async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const { pathname } = request.nextUrl;
+
+  // API routes each check auth themselves (see getCachedUser() in
+  // lib/supabase/cached-queries.ts, or CRON_SECRET for the cron routes).
+  // Redirecting them to /login here breaks anything invoked without a
+  // browser session - Vercel's cron invoker, an uptime monitor hitting
+  // /api/health, etc all get a 307 instead of ever reaching the route.
+  if (pathname.startsWith("/api")) {
+    return supabaseResponse;
+  }
+
   const publicPaths = ["/login", "/register"];
   const isPublic = publicPaths.includes(pathname);
 
@@ -45,5 +55,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
 };
