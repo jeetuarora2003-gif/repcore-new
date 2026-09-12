@@ -1,33 +1,29 @@
-/*
-  SECURITY FIX
-
-  1. v_member_status was recreated several times after the original
-     `security_invoker = true` fix (20260424000000_audit_fixes.sql) without
-     repeating that option - CREATE OR REPLACE VIEW / DROP+CREATE VIEW do NOT
-     carry options forward, so every rewrite silently re-enabled the RLS
-     bypass. Views without security_invoker run with the view OWNER's
-     privileges against the underlying tables, not the querying role's, so
-     RLS on members/subscriptions/invoices/payments was not being enforced
-     through this view at all. Combined with `GRANT SELECT ... TO anon`,
-     this meant any unauthenticated request with the public anon key could
-     read every gym's members, phone numbers, emails and balances.
-
-  2. create_membership_sale / add_subscription_with_invoice /
-     record_payment_with_receipt / get_dashboard_stats are SECURITY DEFINER
-     functions that trusted the p_gym_id argument with no check that the
-     calling user actually owns that gym. Postgres grants EXECUTE on new
-     functions to PUBLIC by default, so any authenticated (and, since it was
-     never revoked, effectively any) caller could pass an arbitrary
-     p_gym_id and read another gym's dashboard stats or insert fake
-     members/subscriptions/payments into another gym's records.
-
-  This migration re-applies security_invoker on the view, restricts it to
-  authenticated users only, and adds an ownership check to every RPC that
-  takes p_gym_id. All real callers (see app/actions/*.ts, app/(app)/dues,
-  app/api/dashboard) already use the user-session client, so auth.uid()
-  correctly resolves in every legitimate call path - this only blocks
-  callers passing a p_gym_id they don't own.
-*/
+-- SECURITY FIX
+--
+-- 1. v_member_status was recreated several times after the original
+--    security_invoker fix (20260424000000_audit_fixes.sql) without
+--    repeating that option - CREATE OR REPLACE VIEW / DROP+CREATE VIEW do
+--    NOT carry options forward, so every rewrite silently re-enabled the
+--    RLS bypass. Views without security_invoker run with the view OWNER's
+--    privileges against the underlying tables, not the querying role's,
+--    so RLS on members/subscriptions/invoices/payments was not enforced
+--    through this view at all. Combined with granting it to anon, this
+--    meant any unauthenticated request with the public anon key could
+--    read every gym's members, phone numbers, emails and balances.
+--
+-- 2. create_membership_sale / add_subscription_with_invoice /
+--    record_payment_with_receipt / get_dashboard_stats are SECURITY
+--    DEFINER functions that trusted the p_gym_id argument with no check
+--    that the calling user actually owns that gym. Postgres grants
+--    EXECUTE on new functions to PUBLIC by default, so any caller could
+--    pass an arbitrary p_gym_id and read another gym's dashboard stats or
+--    insert fake members/subscriptions/payments into another gym.
+--
+-- This migration re-applies security_invoker on the view, restricts it to
+-- authenticated users only, and adds an ownership check to every RPC that
+-- takes p_gym_id. All real callers already use the user-session client,
+-- so auth.uid() correctly resolves in every legitimate call path - this
+-- only blocks callers passing a p_gym_id they don't own.
 
 -- ============================================================
 -- 1. Re-secure v_member_status
